@@ -12,7 +12,7 @@ class Industries extends MY_Controller
     public function index()
     {
         $this->page_title = 'Industries we serve';
-        $this->page_description = 'Vortex Precision serves oil & gas, chemical processing, power generation, water & wastewater, pharmaceutical and food & beverage industries.';
+        $this->page_description = 'JetPacks Market supplies aircraft parts for Gulfstream, Dassault Falcon, Cessna Citation, Bombardier Challenger, Hawker, Learjet, Boeing, Airbus, Embraer and Pilatus.';
         $this->render('industries/index', [
             'industries' => $this->Industry_model->find_all(['isActive' => 1], ['sortOrder' => 'ASC'], 50),
         ]);

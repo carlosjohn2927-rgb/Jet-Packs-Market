@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - app-wide helper functions.
+ * JetPacks Market - app-wide helper functions.
  */
 
 if (!function_exists('vp_setting')) {
@@ -39,6 +39,37 @@ if (!function_exists('vp_money')) {
         if ($amount === null || $amount === '') return '—';
         $sym = ['USD' => '$', 'EUR' => '€', 'GBP' => '£', 'INR' => '₹'][$currency] ?? '$';
         return $sym . number_format((float) $amount, 2);
+    }
+}
+
+if (!function_exists('vp_condition_badge')) {
+    /**
+     * Return [label, css_classes] for a part condition (NEW/OHC/USED/…).
+     * Used by part cards and the part detail page.
+     */
+    function vp_condition_badge($condition)
+    {
+        $c = strtoupper((string) ($condition ?: 'NEW'));
+        $map = [
+            'NEW'         => ['NEW', 'bg-emerald-100 text-emerald-800'],
+            'OHC'         => ['OHC', 'bg-amber-100 text-amber-800'],
+            'OVERHAULED'  => ['OHC', 'bg-amber-100 text-amber-800'],
+            'USED'        => ['USED', 'bg-sky-100 text-sky-800'],
+            'SERVICEABLE' => ['SVCE', 'bg-violet-100 text-violet-800'],
+        ];
+        return $map[$c] ?? [$c, 'bg-gray-100 text-gray-700'];
+    }
+}
+
+if (!function_exists('vp_part_price')) {
+    /**
+     * Render a part price with an "RFQ" fallback when the price is empty
+     * (common for engines and high-value rotables).
+     */
+    function vp_part_price($price)
+    {
+        if ($price === null || $price === '') return '<span class="text-ink-800 font-semibold text-sm">Price on request</span>';
+        return '<span class="font-bold text-lg text-ink-900">' . vp_money($price) . '</span>';
     }
 }
 
@@ -222,8 +253,10 @@ if (!function_exists('vp_product_image')) {
      *   2. `image`     - a legacy single-image column, if present
      *   3. dedicated artwork for each seeded catalog product
      *   4. category artwork  /assets/img/products/<category-slug>.jpg
-     *      (valves, pumps, heat-exchangers, pressure-vessels, filtration,
-     *       instrumentation - the files shipped in app/assets/img/products/)
+     *      (wheels-brakes, landing-gear, avionics, engines-apus,
+     *       flight-controls, hydraulics, pneumatics, electrical-lighting,
+     *       interior-cabin, actuators-valves, fuel-systems, airframe - the
+     *       files shipped in app/assets/img/products/)
      *   5. a keyword guess from the product name, so a product with no
      *      category still gets a relevant photo instead of the placeholder
      *   6. /assets/img/products/default.jpg
@@ -245,18 +278,43 @@ if (!function_exists('vp_product_image')) {
         // Seeded catalog products have dedicated, curated artwork. Uploaded
         // primary images above still take precedence for CMS-managed content.
         $productArtwork = [
-            'vortexpro-ball-valve-vp150'     => 'vortexpro-ball-valve-vp150.jpg',
-            'vortexpro-gate-valve-vgs'       => 'vortexpro-gate-valve-vgs.jpg',
-            'vortexpro-centrifugal-pump-vp220' => 'vortexpro-centrifugal-pump-vp220.jpg',
-            'vortexpro-pd-pump-vppd'         => 'vortexpro-pd-pump-vppd.jpg',
-            'vortexpro-phe-vpphe'            => 'vortexpro-phe-vpphe.jpg',
-            'vortexpro-sh-vpsh'              => 'vortexpro-sh-vpsh.jpg',
-            'vortexpro-pv-vppv'              => 'vortexpro-pv-vppv.jpg',
-            'vortexpro-bf-vpbf'              => 'vortexpro-bf-vpbf.jpg',
-            'vortexpro-cf-vpcf'              => 'vortexpro-cf-vpcf.jpg',
-            'vortexpro-pg-vppg'              => 'vortexpro-pg-vppg.jpg',
-            'vortexpro-lt-vplt'              => 'vortexpro-lt-vplt.jpg',
-            'vortexpro-cv-vpcv'              => 'vortexpro-cv-vpcv.jpg',
+            'main-landing-gear-wheel-2612201-2'   => 'wheels-brakes.jpg',
+            'main-wheel-brake-2-1553-5'           => 'wheels-brakes.jpg',
+            'carbon-brake-2612401-1'              => 'wheels-brakes.jpg',
+            'nose-wheel-208-150-0'                => 'wheels-brakes.jpg',
+            'main-gear-tire-132-101-0'            => 'wheels-brakes.jpg',
+            'anti-skid-control-20-57-03'          => 'wheels-brakes.jpg',
+            'nose-landing-gear-9001252-3'         => 'landing-gear.jpg',
+            'main-landing-gear-actuator-9001340-5'=> 'landing-gear.jpg',
+            'nose-wheel-steering-46-162-01'       => 'landing-gear.jpg',
+            'landing-gear-control-82-345-2'       => 'landing-gear.jpg',
+            'vhf-4000-comm-radio'                 => 'avionics.jpg',
+            'primus-660-weather-radar'            => 'avionics.jpg',
+            'laseref-iv-inertial-reference'       => 'avionics.jpg',
+            'kmd-850-multifunction-display'       => 'avionics.jpg',
+            'flight-data-recorder-980-4700-043'   => 'avionics.jpg',
+            'gtcp36-150-apu'                      => 'engines-apus.jpg',
+            'cfe738-1-1b-turbofan'                => 'engines-apus.jpg',
+            'tfe731-5br-1c-engine'                => 'engines-apus.jpg',
+            'edp-hydraulic-pump'                  => 'hydraulics.jpg',
+            'hydraulic-system-valve-25d-660'      => 'hydraulics.jpg',
+            'rudder-servo-523-0771-517'           => 'flight-controls.jpg',
+            'elevator-trim-actuator'              => 'flight-controls.jpg',
+            'rudder-pcu-692-0241-001'             => 'flight-controls.jpg',
+            'bleed-air-regulating-valve'          => 'pneumatics.jpg',
+            'cabin-pressure-controller'           => 'pneumatics.jpg',
+            'fuel-boost-pump'                     => 'fuel-systems.jpg',
+            'fuel-quantity-indicator'             => 'fuel-systems.jpg',
+            'starter-generator'                   => 'electrical-lighting.jpg',
+            'nicd-main-battery'                   => 'electrical-lighting.jpg',
+            'landing-light-assembly'              => 'electrical-lighting.jpg',
+            'emergency-oxygen-system'             => 'interior-cabin.jpg',
+            'emergency-escape-slide'              => 'interior-cabin.jpg',
+            'cabin-window-assembly'               => 'interior-cabin.jpg',
+            'flap-actuator'                       => 'actuators-valves.jpg',
+            'solenoid-shutoff-valve'              => 'actuators-valves.jpg',
+            'engine-cowling-rh'                   => 'airframe.jpg',
+            'apu-fire-extinguisher'               => 'airframe.jpg',
         ];
         $productSlug = $product['slug'] ?? '';
         if (isset($productArtwork[$productSlug])) {
@@ -264,7 +322,11 @@ if (!function_exists('vp_product_image')) {
         }
 
         // Category artwork shipped with the theme.
-        $known = ['valves', 'pumps', 'heat-exchangers', 'pressure-vessels', 'filtration', 'instrumentation'];
+        $known = [
+            'wheels-brakes', 'landing-gear', 'avionics', 'engines-apus',
+            'flight-controls', 'hydraulics', 'pneumatics', 'electrical-lighting',
+            'interior-cabin', 'actuators-valves', 'fuel-systems', 'airframe',
+        ];
 
         $slug = $categorySlug ?: ($product['categorySlug'] ?? null);
         if ($slug && in_array($slug, $known, true)) {
@@ -275,12 +337,18 @@ if (!function_exists('vp_product_image')) {
         $hay = strtolower(trim(($product['name'] ?? '') . ' ' . ($product['shortDescription'] ?? '')));
         if ($hay !== '') {
             $map = [
-                'valves'           => ['valve', 'ball ', 'gate ', 'globe ', 'butterfly', 'check ', 'actuator', 'choke'],
-                'pumps'            => ['pump', 'impeller', 'centrifugal'],
-                'heat-exchangers'  => ['heat exchanger', 'exchanger', 'shell and tube', 'shell & tube', 'cooler', 'condenser', 'chiller'],
-                'pressure-vessels' => ['pressure vessel', 'vessel', 'separator', 'tank', 'accumulator', 'reactor', 'drum'],
-                'filtration'       => ['filter', 'filtration', 'strainer', 'coalescer', 'separator element', 'cartridge'],
-                'instrumentation'  => ['gauge', 'transmitter', 'sensor', 'instrument', 'meter', 'flow meter', 'indicator', 'switch'],
+                'wheels-brakes'      => ['wheel', 'brake', 'tire', 'tyre', 'anti-skid', 'antiskid', 'axle', 'hub'],
+                'fuel-systems'       => ['fuel pump', 'fuel quantity', 'fuel system', 'fuel valve', 'boost pump', 'fuel cell', 'fuel indicator'],
+                'hydraulics'         => ['hydraulic pump', 'hydraulic valve', 'hydraulic system', 'edp', 'reservoir', 'accumulator', 'hydraulic motor'],
+                'flight-controls'    => ['servo', 'rudder', 'elevator', 'aileron', 'spoiler', 'trim', 'pcu', 'power control', 'flap', 'yaw damper'],
+                'landing-gear'       => ['landing gear', 'nose gear', 'main gear', 'strut', 'oleo', 'steering actuator', 'gear assembly', 'gear control'],
+                'pneumatics'         => ['bleed air', 'pneumatic', 'pressure controller', 'outflow valve', 'air cycle', 'precooler', 'duct'],
+                'electrical-lighting'=> ['generator', 'starter', 'battery', 'light', 'lamp', 'relay', 'contactor', 'inverter', 'transformer', 'electrical'],
+                'interior-cabin'     => ['oxygen', 'escape slide', 'cabin window', 'seat', 'galley', 'lavatory', 'interior', 'cabin'],
+                'avionics'           => ['radio', 'radar', 'display', 'mfd', 'transponder', 'gps', 'nav', 'gyro', 'attitude', 'indicator', 'recorder', 'instrument', 'avionics', 'efis', 'inertial', 'comm'],
+                'actuators-valves'   => ['actuator', 'valve', 'solenoid', 'shutoff'],
+                'airframe'           => ['cowling', 'fairing', 'airframe', 'structure', 'skin', 'wing tip', 'fire extinguisher', 'fire bottle'],
+                'engines-apus'       => ['turbofan', 'engine', 'apu', 'auxiliary power', 'core', 'combustor', 'turbine'],
             ];
             foreach ($map as $folderSlug => $needles) {
                 foreach ($needles as $n) {
@@ -320,14 +388,15 @@ if (!function_exists('vp_product_image_tag')) {
 }
 
 if (!function_exists('vp_industry_image')) {
-    /** Resolve the supplied industry artwork with a safe, relevant local fallback. */
+    /** Resolve the supplied aircraft-platform artwork with a safe, relevant local fallback. */
     function vp_industry_image($industry)
     {
         $industry = (array) $industry;
         if (!empty($industry['image'])) return $industry['image'];
-        $slug = vp_slugify($industry['slug'] ?? $industry['name'] ?? 'oil-gas');
-        $known = ['oil-gas', 'chemical-processing', 'power-generation', 'water-wastewater', 'pharmaceutical', 'food-beverage'];
-        if (!in_array($slug, $known, true)) $slug = 'oil-gas';
+        $slug = vp_slugify($industry['slug'] ?? $industry['name'] ?? 'gulfstream');
+        $known = ['gulfstream', 'dassault-falcon', 'cessna-citation', 'challenger', 'hawker',
+                  'learjet', 'boeing', 'airbus', 'embraer', 'pilatus'];
+        if (!in_array($slug, $known, true)) $slug = 'default';
         return IMG_URL . 'industries/' . $slug . '.jpg';
     }
 }
@@ -339,9 +408,9 @@ if (!function_exists('vp_blog_image')) {
         $post = (array) $post;
         if (!empty($post['featuredImage'])) return $post['featuredImage'];
         $slug = $post['slug'] ?? '';
-        if ($slug === 'choosing-the-right-ball-valve') return IMG_URL . 'blog/ball-valve-selection.jpg';
-        if (strpos($slug, 'pressure-vessel') !== false || strpos($slug, 'asme') !== false) {
-            return IMG_URL . 'blog/asme-pressure-vessel.jpg';
+        if (strpos($slug, 'new-vs-ohc') !== false) return IMG_URL . 'products/wheels-brakes.jpg';
+        if (strpos($slug, '8130') !== false || strpos($slug, 'certificate') !== false) {
+            return IMG_URL . 'products/avionics.jpg';
         }
         return IMG_URL . 'products/default.jpg';
     }
@@ -357,20 +426,26 @@ if (!function_exists('vp_testimonial_image')) {
         $t = (array) $testimonial;
         if (!empty($t['avatar'])) {
             $avatar = (string) $t['avatar'];
-            if (preg_match('~^https?://~i', $avatar) || strpos($avatar, '/') === 0) {
+            $local = (preg_match('~^https?://~i', $avatar)) ? null : (FCPATH . ltrim($avatar, '/'));
+            if (preg_match('~^https?://~i', $avatar) || is_file($local)) {
                 return $avatar;
             }
-            return IMG_URL . ltrim($avatar, '/');
+            // Fall through: the referenced avatar file does not exist yet —
+            // use a curated headshot instead of showing a broken image.
         }
 
         $slug = vp_slugify($t['name'] ?? '');
         $map = [
-            'mark-henderson' => 'reviews/mark-henderson.jpg',
-            'linda-park'     => 'reviews/linda-park.jpg',
-            'akhil-raman'    => 'reviews/akhil-raman.jpg',
-            'jonas-weber'    => 'reviews/jonas-weber.jpg',
+            'mark-hendricks'   => 'reviews/mark-hendricks.jpg',
+            'sofia-marchetti'  => 'reviews/sofia-marchetti.jpg',
+            'david-okafor'     => 'reviews/david-okafor.jpg',
+            'elena-kovac'      => 'reviews/elena-kovac.jpg',
+            'mark-henderson'   => 'reviews/mark-henderson.jpg',
+            'linda-park'       => 'reviews/linda-park.jpg',
+            'akhil-raman'      => 'reviews/akhil-raman.jpg',
+            'jonas-weber'      => 'reviews/jonas-weber.jpg',
         ];
-        if (isset($map[$slug])) {
+        if (isset($map[$slug]) && is_file(FCPATH . 'assets/img/' . $map[$slug])) {
             return IMG_URL . $map[$slug];
         }
         return IMG_URL . 'reviews/mark-henderson.jpg';
@@ -384,10 +459,10 @@ if (!function_exists('vp_news_image')) {
         $story = (array) $story;
         if (!empty($story['image'])) return $story['image'];
         $slug = $story['slug'] ?? '';
-        if (strpos($slug, 'skid') !== false || strpos($slug, 'heat') !== false) return IMG_URL . 'news/skid-delivery.jpg';
-        if (strpos($slug, 'pump') !== false) return IMG_URL . 'news/sanitary-pump.jpg';
-        if (strpos($slug, 'iso') !== false || strpos($slug, 'quality') !== false) return IMG_URL . 'news/iso-quality.jpg';
-        return IMG_URL . 'hero-industrial.jpg';
+        if (strpos($slug, 'aog') !== false) return IMG_URL . 'news/aog-dispatch.jpg';
+        if (strpos($slug, 'inventory') !== false || strpos($slug, 'parts') !== false) return IMG_URL . 'hero-hangar.jpg';
+        if (strpos($slug, 'as9120') !== false || strpos($slug, 'quality') !== false) return IMG_URL . 'about-hangar.jpg';
+        return IMG_URL . 'news/default.jpg';
     }
 }
 
@@ -438,7 +513,7 @@ if (!function_exists('vp_seo_config')) {
     {
         $CI   =& get_instance();
         // Dashboard-managed identity wins over the config defaults.
-        $site    = $CI->settings->get('site_name') ?: ($CI->config->item('site_name') ?: 'Halyk Petroleum');
+        $site    = $CI->settings->get('site_name') ?: ($CI->config->item('site_name') ?: 'JetPacks Market');
         $tagline = $CI->settings->get('site_description')
                     ?: ($CI->settings->get('site_tagline') ?: ($CI->config->item('site_tagline') ?: 'Industrial Manufacturing Excellence'));
 
@@ -553,7 +628,7 @@ if (!function_exists('vp_seo_head')) {
     {
         $CI   =& get_instance();
         $seo  = vp_seo_config();
-        $site = function_exists('vp_site') ? vp_site('name') : ($CI->config->item('site_name') ?: 'Halyk Petroleum');
+        $site = function_exists('vp_site') ? vp_site('name') : ($CI->config->item('site_name') ?: 'JetPacks Market');
 
         $title = trim((string) $page_title) !== '' ? $page_title : $seo['default_title'];
         // Do not repeat the site name when the page title already carries it.
@@ -617,7 +692,7 @@ if (!function_exists('vp_chat_config')) {
     function vp_chat_config()
     {
         $CI   =& get_instance();
-        $site = $CI->config->item('site_name') ?: 'Halyk Petroleum';
+        $site = $CI->config->item('site_name') ?: 'JetPacks Market';
 
         $quick = vp_setting('chat_quick_replies', []);
         if (is_string($quick)) {

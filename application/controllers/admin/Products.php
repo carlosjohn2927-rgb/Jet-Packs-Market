@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - admin products CRUD.
+ * JetPacks Market - admin products CRUD.
  */
 class Products extends Admin_Controller
 {
@@ -244,12 +244,17 @@ class Products extends Admin_Controller
             'shortDescription' => $this->input->post('shortDescription'),
             'price'            => $this->input->post('price') ?: null,
             'categoryId'       => $this->input->post('categoryId') ?: null,
+            'manufacturer'     => $this->input->post('manufacturer'),
+            'aircraftType'     => $this->input->post('aircraftType'),
             'material'         => $this->input->post('material'),
             'pressure'         => $this->input->post('pressure'),
             'temperature'      => $this->input->post('temperature'),
             'voltage'          => $this->input->post('voltage'),
             'dimensions'       => $this->input->post('dimensions'),
             'weight'           => $this->input->post('weight'),
+            // Marketplace-specific columns
+            'quantity'         => max(0, (int) ($this->input->post('quantity') ?: 1)),
+            'condition'        => $this->input->post('condition') ?: 'NEW',
             'availability'     => $this->input->post('availability') ?: 'IN_STOCK',
             'featured'         => (int) $this->input->post('featured'),
             'isActive'         => (int) $this->input->post('isActive', 1),

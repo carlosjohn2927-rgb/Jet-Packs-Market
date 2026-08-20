@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Halyk Petroleum — public homepage.
+ * JetPacks Market — public homepage.
  *
  * The page is assembled from the `page_sections` rows managed in
  * Dashboard → Website → Homepage. Nothing here is hard-coded: adding,
@@ -45,23 +45,23 @@ class Home extends MY_Controller
         return [
             [
                 'id' => 'fallback-hero', 'type' => 'hero', 'name' => 'Hero',
-                'title'    => vp_cms_setting('hero_title', 'Precision-engineered for the most demanding industries'),
+                'title'    => vp_cms_setting('hero_title', 'Find the Right Jet Part. Fast.'),
                 'subtitle' => vp_cms_setting('hero_subtitle', vp_site('description', '')),
-                'body' => null, 'image' => IMG_URL . 'hero-industrial.jpg',
+                'body' => null, 'image' => IMG_URL . 'hero-jet.jpg',
                 'buttonText' => vp_cms_setting('hero_cta_primary', 'Request a Quote'), 'buttonUrl' => 'rfq',
-                'buttonText2' => vp_cms_setting('hero_cta_secondary', 'Explore Products'), 'buttonUrl2' => 'products',
-                'settings' => [], 'isActive' => 1,
+                'buttonText2' => vp_cms_setting('hero_cta_secondary', 'Browse Parts'), 'buttonUrl2' => 'products',
+                'settings' => ['showSearch' => true], 'isActive' => 1,
             ],
             [
-                'id' => 'fallback-products', 'type' => 'products', 'name' => 'Featured products',
-                'title' => 'Featured products', 'subtitle' => 'Our most-requested equipment.',
-                'body' => null, 'image' => null, 'buttonText' => 'View all', 'buttonUrl' => 'products',
+                'id' => 'fallback-products', 'type' => 'products', 'name' => 'Featured parts',
+                'title' => 'Featured parts', 'subtitle' => 'Ready-to-ship new, overhauled and used parts with verified traceability.',
+                'body' => null, 'image' => null, 'buttonText' => 'View all parts', 'buttonUrl' => 'products',
                 'buttonText2' => null, 'buttonUrl2' => null, 'settings' => ['limit' => 4], 'isActive' => 1,
             ],
             [
                 'id' => 'fallback-cta', 'type' => 'cta', 'name' => 'CTA',
-                'title' => 'Have a project in mind?',
-                'subtitle' => 'Send us your specifications and our engineering team will respond with a formal quote.',
+                'title' => 'Need a part fast?',
+                'subtitle' => 'Send us the part number and your AOG status — we respond within 2 hours during business hours, 24/7 for aircraft on the ground.',
                 'body' => null, 'image' => null, 'buttonText' => 'Request a Quote', 'buttonUrl' => 'rfq',
                 'buttonText2' => null, 'buttonUrl2' => null, 'settings' => [], 'isActive' => 1,
             ],

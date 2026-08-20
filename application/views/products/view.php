@@ -7,13 +7,15 @@
 /** @var array $category */
 /** @var array $industries */
 /** @var array $certifications */
+[$condLabel, $condClass] = vp_condition_badge($product['condition'] ?? 'NEW');
+$qty = (int) ($product['quantity'] ?? 1);
 ?>
 <section class="bg-white border-b">
     <div class="container mx-auto px-4 py-6">
         <nav class="text-xs text-ink-800">
             <a class="hover:text-brand-600" href="<?= base_url() ?>">Home</a>
             <span class="mx-1">/</span>
-            <a class="hover:text-brand-600" href="<?= base_url('products') ?>">Products</a>
+            <a class="hover:text-brand-600" href="<?= base_url('products') ?>">Parts</a>
             <?php if ($category): ?>
                 <span class="mx-1">/</span>
                 <a class="hover:text-brand-600" href="<?= base_url('products?category=' . urlencode($category['slug'])) ?>"><?= vp_safe_html($category['name']) ?></a>
@@ -27,10 +29,6 @@
 <section class="container mx-auto px-4 py-10 grid lg:grid-cols-2 gap-10">
     <div>
         <?php
-        // Show the primary uploaded image; otherwise fall back to the
-        // category photo, then a keyword guess, then the generic default.
-        // vp_product_image() centralises that chain; onerror keeps a
-        // broken/relative URL from ever showing the empty icon placeholder.
         $mainImg = !empty($images) && !empty($images[0]['url'])
             ? $images[0]['url']
             : vp_product_image($product, $category['slug'] ?? null);
@@ -49,33 +47,53 @@
             </div>
         <?php endif; ?>
     </div>
-    <div>
-        <div class="text-xs font-mono text-ink-800"><?= vp_safe_html($product['sku']) ?></div>
-        <h1 class="text-3xl font-extrabold text-ink-900 mt-1"><?= vp_safe_html($product['name']) ?></h1>
 
-        <div class="flex flex-wrap gap-2 mt-3">
-            <span class="vp-pill <?= ($product['availability'] === 'IN_STOCK' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800') ?>"><?= vp_safe_html(str_replace('_', ' ', $product['availability'])) ?></span>
-            <?php foreach ($certifications as $c): ?>
-                <span class="vp-pill bg-blue-50 text-blue-700"><?= vp_safe_html($c) ?></span>
-            <?php endforeach; ?>
+    <div>
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-mono font-bold text-brand-700 bg-brand-50 border border-brand-100 px-2.5 py-1 rounded"><?= vp_safe_html($product['sku']) ?></span>
+            <span class="jpm-cond <?= $condClass ?>"><?= vp_safe_html($condLabel) ?></span>
+            <?php if (!empty($product['manufacturer'])): ?>
+                <span class="jpm-chip"><i class="ri-building-line"></i> <?= vp_safe_html($product['manufacturer']) ?></span>
+            <?php endif; ?>
         </div>
+        <h1 class="text-3xl font-extrabold text-ink-900 mt-3"><?= vp_safe_html($product['name']) ?></h1>
+
+        <?php if (!empty($product['aircraftType'])): ?>
+            <div class="jpm-chip mt-3"><i class="ri-flight-takeoff-line"></i> Fits: <?= vp_safe_html($product['aircraftType']) ?></div>
+        <?php endif; ?>
 
         <div class="vp-prose mt-5">
             <?= $product['description'] ?>
         </div>
 
-        <div class="mt-6 flex flex-wrap gap-3">
-            <a href="<?= base_url('rfq?product=' . urlencode($product['slug'])) ?>" class="vp-btn vp-btn-primary"><i class="ri-quote-text"></i> Request a quote</a>
-            <a href="<?= base_url('contact') ?>" class="vp-btn vp-btn-secondary">Ask a question</a>
+        <div class="jpm-buybox mt-6">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <div class="text-xs font-bold uppercase tracking-wide text-ink-800">Price</div>
+                    <?= vp_part_price($product['price']) ?>
+                    <?php if (!empty($product['price'])): ?><div class="text-xs text-ink-800 mt-1">Per unit · ex-works, certified</div><?php endif; ?>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs font-bold uppercase tracking-wide text-ink-800">Available</div>
+                    <div class="font-extrabold text-ink-900 text-xl"><?= $qty ?> unit<?= $qty === 1 ? '' : 's' ?></div>
+                    <div class="text-xs text-ink-800"><?= vp_safe_html(str_replace('_', ' ', $product['availability'])) ?></div>
+                </div>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-3">
+                <a href="<?= base_url('rfq?product=' . urlencode($product['slug'])) ?>" class="vp-btn vp-btn-cta flex-1 min-w-[200px] justify-center text-base"><i class="ri-quote-text"></i> Request a Quote</a>
+                <a href="<?= base_url('contact?subject=' . urlencode('Question about ' . $product['name'] . ' (' . $product['sku'] . ')')) ?>" class="vp-btn vp-btn-ask flex-1 min-w-[160px] justify-center text-base"><i class="ri-question-line"></i> Ask a Question</a>
+            </div>
+            <p class="text-xs text-ink-800 mt-3"><i class="ri-checkbox-circle-line text-emerald-600"></i> Ships with FAA 8130-3 / EASA Form 1 and full traceability · 12-month warranty · AOG dispatch 24/7</p>
         </div>
 
         <dl class="grid grid-cols-2 gap-x-6 gap-y-3 mt-8 text-sm">
-            <?php if ($product['material']):    ?><div><dt class="text-ink-800">Material</dt><dd class="font-semibold"><?= vp_safe_html($product['material']) ?></dd></div><?php endif; ?>
-            <?php if ($product['pressure']):    ?><div><dt class="text-ink-800">Pressure rating</dt><dd class="font-semibold"><?= vp_safe_html($product['pressure']) ?></dd></div><?php endif; ?>
-            <?php if ($product['temperature']): ?><div><dt class="text-ink-800">Temperature</dt><dd class="font-semibold"><?= vp_safe_html($product['temperature']) ?></dd></div><?php endif; ?>
-            <?php if ($product['voltage']):     ?><div><dt class="text-ink-800">Voltage</dt><dd class="font-semibold"><?= vp_safe_html($product['voltage']) ?></dd></div><?php endif; ?>
-            <?php if ($product['dimensions']):  ?><div><dt class="text-ink-800">Dimensions</dt><dd class="font-semibold"><?= vp_safe_html($product['dimensions']) ?></dd></div><?php endif; ?>
-            <?php if ($product['weight']):      ?><div><dt class="text-ink-800">Weight</dt><dd class="font-semibold"><?= vp_safe_html($product['weight']) ?></dd></div><?php endif; ?>
+            <?php if (!empty($product['manufacturer'])): ?><div><dt class="text-ink-800">Manufacturer</dt><dd class="font-semibold"><?= vp_safe_html($product['manufacturer']) ?></dd></div><?php endif; ?>
+            <?php if (!empty($product['aircraftType'])): ?><div><dt class="text-ink-800">Aircraft compatibility</dt><dd class="font-semibold"><?= vp_safe_html($product['aircraftType']) ?></dd></div><?php endif; ?>
+            <?php if ($product['condition']): ?><div><dt class="text-ink-800">Condition</dt><dd class="font-semibold"><?= vp_safe_html($product['condition']) ?></dd></div><?php endif; ?>
+            <?php if ($qty > 0): ?><div><dt class="text-ink-800">Quantity available</dt><dd class="font-semibold"><?= $qty ?></dd></div><?php endif; ?>
+            <?php if ($product['material']): ?><div><dt class="text-ink-800">Material</dt><dd class="font-semibold"><?= vp_safe_html($product['material']) ?></dd></div><?php endif; ?>
+            <?php if ($product['weight']): ?><div><dt class="text-ink-800">Weight</dt><dd class="font-semibold"><?= vp_safe_html($product['weight']) ?></dd></div><?php endif; ?>
+            <?php if ($product['dimensions']): ?><div><dt class="text-ink-800">Dimensions</dt><dd class="font-semibold"><?= vp_safe_html($product['dimensions']) ?></dd></div><?php endif; ?>
         </dl>
     </div>
 </section>
@@ -120,18 +138,25 @@
 <?php if (!empty($related)): ?>
 <section class="bg-gray-50">
     <div class="container mx-auto px-4 py-10">
-        <h2 class="text-2xl font-bold mb-4">Related products</h2>
+        <h2 class="text-2xl font-bold mb-4">Related parts</h2>
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <?php foreach ($related as $p): ?>
-                <a href="<?= base_url('products/' . $p['slug']) ?>" class="bg-white border rounded-2xl overflow-hidden hover:shadow-lg transition flex flex-col">
-                    <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
+                <div class="jpm-part-card">
+                    <a href="<?= base_url('products/' . $p['slug']) ?>" class="jpm-thumb block">
                         <?= vp_product_image_tag($p) ?>
-                    </div>
+                    </a>
                     <div class="p-4 flex-1">
-                        <h3 class="font-bold text-sm text-ink-900"><?= vp_safe_html($p['name']) ?></h3>
+                        <a href="<?= base_url('products/' . $p['slug']) ?>">
+                            <h3 class="font-bold text-sm text-ink-900 leading-snug hover:text-brand-600"><?= vp_safe_html($p['name']) ?></h3>
+                        </a>
                         <div class="text-xs text-ink-800 font-mono font-semibold mt-1"><?= vp_safe_html($p['sku']) ?></div>
+                        <div class="mt-2 flex items-center justify-between">
+                            <?php [$rl, $rc] = vp_condition_badge($p['condition'] ?? 'NEW'); ?>
+                            <span class="jpm-cond <?= $rc ?>"><?= vp_safe_html($rl) ?></span>
+                            <span class="jpm-price text-base"><?= vp_part_price($p['price']) ?></span>
+                        </div>
                     </div>
-                </a>
+                </div>
             <?php endforeach; ?>
         </div>
     </div>

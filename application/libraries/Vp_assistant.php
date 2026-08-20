@@ -79,7 +79,7 @@ class Vp_assistant
 
         // Delivery / lead time / availability
         if ($this->has_any($msg, ['delivery', 'deliver', 'shipping', 'ship', 'lead time', 'lead-time', 'stock', 'available', 'availability', 'how long', 'when can', 'dispatch'])) {
-            return "Delivery times vary by product and configuration. Standard items are typically dispatched within 2–4 weeks, while engineered-to-order equipment can take 8–12 weeks. Share your target delivery date in a quote request and we'll confirm a schedule. You can start here: " . $this->link('rfq', 'Request a Quote') . '.';
+            return "Stock parts ship the same or next business day. AOG (Aircraft on Ground) requests are dispatched within hours, 24/7. Parts sourced to order typically arrive within 2–4 weeks. Share your target delivery date in a quote request and we'll confirm a schedule. You can start here: " . $this->link('rfq', 'Request a Quote') . '.';
         }
 
         // Industries / applications
@@ -94,7 +94,7 @@ class Vp_assistant
 
         // Careers / jobs
         if ($this->has_any($msg, ['career', 'careers', 'job', 'jobs', 'hiring', 'vacancy', 'vacancies', 'work for', 'apply', 'employment', 'internship'])) {
-            return "We're always looking for talented engineers, sales and operations professionals. Browse open roles and apply online: " . $this->link('careers', 'Careers') . '.';
+            return "We're always looking for talented AOG coordinators, sourcing specialists, quality inspectors and sales professionals. Browse open roles and apply online: " . $this->link('careers', 'Careers') . '.';
         }
 
         // Generic product/catalogue intent (before the company catch-all, so
@@ -161,23 +161,23 @@ class Vp_assistant
     {
         $names = $this->industry_names();
         if (!empty($names)) {
-            return "We serve " . implode(', ', $names) . ", supplying valves, pumps, heat exchangers, pressure vessels and filtration systems for demanding applications. Explore them here: " . $this->link('industries', 'Industries') . '.';
+            return "We supply certified aircraft parts for " . implode(', ', $names) . " and many more. Explore supported aircraft here: " . $this->link('industries', 'Aircraft') . '.';
         }
-        return "We design and manufacture equipment for oil & gas, chemical processing, power generation, water & wastewater, pharmaceutical and food & beverage. Explore: " . $this->link('industries', 'Industries') . '.';
+        return "We supply new, overhauled and used parts for Gulfstream, Dassault Falcon, Cessna Citation, Bombardier Challenger, Hawker, Learjet, Boeing and Airbus. Explore: " . $this->link('industries', 'Aircraft') . '.';
     }
 
     protected function about_answer()
     {
-        return "We're " . (function_exists('vp_site') ? vp_site('name') : ($this->CI->config->item('site_name') ?: 'an industrial manufacturer')) . " — a manufacturer of precision-engineered industrial valves, pumps, heat exchangers, pressure vessels and filtration systems. We've been a trusted partner to operators worldwide for over three decades. Learn more: " . $this->link('about', 'About us') . '.';
+        return "We're " . (function_exists('vp_site') ? vp_site('name') : ($this->CI->config->item('site_name') ?: 'an aircraft parts marketplace')) . " — a global marketplace for new, overhauled and used aircraft parts. Every part ships with FAA 8130-3 / EASA Form 1 certification and full traceability, with 24/7 AOG dispatch. Learn more: " . $this->link('about', 'About us') . '.';
     }
 
     protected function catalog_answer()
     {
         $cats = $this->category_names();
         if (!empty($cats)) {
-            return "Our catalogue includes " . implode(', ', $cats) . '. Browse the full range: ' . $this->link('products', 'Products') . ". Tell me which one you're interested in and I can give you more detail.";
+            return "Our parts catalog includes " . implode(', ', $cats) . '. Browse the full range: ' . $this->link('products', 'Parts') . ". Tell me the part number you're looking for and I can give you more detail.";
         }
-        return "Our product range covers valves, pumps, heat exchangers, pressure vessels and filtration systems. Browse the full catalogue: " . $this->link('products', 'Products') . '.';
+        return "Our catalog covers wheels & brakes, landing gear, avionics, engines & APUs, flight controls, hydraulics, pneumatics, electrical and more. Browse the full catalog: " . $this->link('products', 'Parts') . '.';
     }
 
     /* ---------------------- knowledge retrieval ------------------------ */
@@ -288,7 +288,7 @@ class Vp_assistant
                                  ->order_by('featured', 'DESC')->order_by('views', 'DESC')
                                  ->limit(4)->get('products')->result_array();
 
-        $lines = ['Yes — ' . strtolower($best['name']) . ' are part of our range.'];
+        $lines = ['Yes — ' . strtolower($best['name']) . ' are part of our catalog.'];
         foreach ($products as $p) {
             $lines[] = '• ' . $p['name'] . ($p['shortDescription'] ? ' — ' . $p['shortDescription'] : '')
                 . ' ' . $this->link('products/' . $p['slug'], 'View');
@@ -323,9 +323,9 @@ class Vp_assistant
 
         $system = $config['system_prompt'] !== ''
             ? $config['system_prompt']
-            : 'You are a helpful assistant for ' . ($this->CI->config->item('site_name') ?: 'an industrial manufacturer')
+            : 'You are a helpful assistant for ' . ($this->CI->config->item('site_name') ?: 'an aircraft parts marketplace')
               . '. Answer concisely and professionally. Keep answers short (under 120 words) and use plain text. '
-              . 'You may direct users to request a quote for pricing.';
+              . 'You may direct users to request a quote or ask a question about a part. Part numbers, conditions (NEW/OHC/USED) and certification (FAA 8130-3 / EASA Form 1) are common topics.';
 
         $payload = [
             'model'       => $config['model'] ?: 'gpt-4o-mini',

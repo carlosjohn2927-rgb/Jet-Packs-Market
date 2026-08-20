@@ -21,15 +21,15 @@ class Services extends MY_Controller
         }
 
         $this->page_title = 'Services';
-        $this->page_description = 'Custom engineering, manufacturing, installation, commissioning and aftermarket service from Vortex Precision.';
+        $this->page_description = 'Aircraft parts supply, AOG dispatch, parts sourcing, exchange programs and certification support from JetPacks Market.';
 
         $services = [
-            ['icon' => 'ri-tools-line', 'title' => 'Custom Engineering', 'desc' => 'In-house mechanical, process and controls engineers for custom skidded systems, pressure vessels and heat exchangers.'],
-            ['icon' => 'ri-stack-line', 'title' => 'Manufacturing', 'desc' => 'ASME-coded fabrication with full QA, hydrostatic testing, NDE and traceability.'],
-            ['icon' => 'ri-shield-check-line', 'title' => 'Quality &amp; Certification', 'desc' => 'ISO 9001:2015, ASME U/U2/S/NB, PED, CRN, ATEX, EHEDG, 3-A.'],
-            ['icon' => 'ri-earth-line', 'title' => 'Installation &amp; Commissioning', 'desc' => 'Global field service for installation supervision, commissioning and operator training.'],
-            ['icon' => 'ri-customer-service-2-line', 'title' => 'Aftermarket &amp; Spares', 'desc' => '24/7 spares support, maintenance contracts and plant lifecycle services.'],
-            ['icon' => 'ri-file-chart-line', 'title' => 'Engineering Studies', 'desc' => 'Feasibility, fitness-for-service, FEA and remaining-life assessments.'],
+            ['icon' => 'ri-flight-takeoff-line', 'title' => 'Parts Supply', 'desc' => 'New, OHC, USED and SERVICEABLE parts for business and commercial jets — wheels, brakes, avionics, hydraulics, engines and more.'],
+            ['icon' => 'ri-alarm-line', 'title' => '24/7 AOG Dispatch', 'desc' => 'Aircraft on the ground? Our round-the-clock AOG desk sources and dispatches urgent parts within hours.'],
+            ['icon' => 'ri-global-line', 'title' => 'Parts Sourcing', 'desc' => 'Hard-to-find part? Our sourcing desk searches 2,000+ vetted aviation suppliers and OEMs — most requests answered within 48 hours.'],
+            ['icon' => 'ri-refund-2-line', 'title' => 'Exchange &amp; Repair Programs', 'desc' => 'Ship-first exchange programs for rotables: wheels, brakes, actuators, avionics and starters — cores accepted in return.'],
+            ['icon' => 'ri-shield-check-line', 'title' => 'Certification &amp; Traceability', 'desc' => 'Every part ships with FAA 8130-3 / EASA Form 1, full traceability and our own inspection certificate.'],
+            ['icon' => 'ri-hand-coin-line', 'title' => 'Buy &amp; Consignment', 'desc' => 'We buy surplus and end-of-life inventories outright, or manage consignment sales of your rotables and engines.'],
         ];
 
         $this->render('services/index', ['services' => $services]);

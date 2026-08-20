@@ -1,9 +1,10 @@
-<?php /** @var array $contact */ ?>
+<?php /** @var array $contact */ /** @var string $subject_prefill */ ?>
 <?php $this->load->view('partials/photo_writeup_hero', [
-    'hero_image'         => IMG_URL . 'contact-engineer.jpg',
-    'hero_alt'           => 'Industrial engineer discussing a customer project',
+    'hero_image'         => IMG_URL . 'contact-parts-desk.jpg',
+    'hero_alt'           => 'Parts coordinator at a parts desk in a hangar',
+    'hero_eyebrow'       => 'Aircraft parts marketplace',
     'hero_title_html'    => vp_inline_text('contact_hero_title', 'Contact us', 'h1', 'text-4xl lg:text-5xl font-extrabold'),
-    'hero_subtitle_html' => vp_inline_text('contact_hero_subtitle', 'Sales, service, careers and general enquiries - we respond within 1 business day.', 'p', 'mt-3 max-w-2xl text-lg'),
+    'hero_subtitle_html' => vp_inline_text('contact_hero_subtitle', 'Parts sales, AOG support, sourcing and general enquiries — we respond within 1 business day, within hours for AOG.', 'p', 'mt-3 max-w-2xl text-lg'),
 ]); ?>
 <section class="container mx-auto px-4 py-12 grid lg:grid-cols-3 gap-8">
     <div class="lg:col-span-2 vp-card vp-card-pad">
@@ -21,13 +22,14 @@
                 <div class="vp-form-row"><label>Department</label>
                     <select class="vp-select" name="department">
                         <option value="">General</option>
-                        <option>Sales</option>
-                        <option>Engineering</option>
-                        <option>Service / Spares</option>
+                        <option>Parts Sales</option>
+                        <option>AOG Support</option>
+                        <option>Parts Sourcing</option>
+                        <option>Certification / Quality</option>
                         <option>Careers</option>
                     </select>
                 </div>
-                <div class="vp-form-row"><label>Subject *</label><input class="vp-input" name="subject" required value="<?= vp_safe_html($this->input->post('subject')) ?>"></div>
+                <div class="vp-form-row"><label>Subject *</label><input class="vp-input" name="subject" required value="<?= vp_safe_html($this->input->post('subject') ?: ($subject_prefill ?? '')) ?>"></div>
             </div>
             <div class="vp-form-row"><label>Message *</label><textarea class="vp-textarea" name="message" rows="6" required><?= vp_safe_html($this->input->post('message')) ?></textarea></div>
             <button class="vp-btn vp-btn-primary" type="submit"><i class="ri-send-plane-line"></i> Send message</button>
@@ -35,21 +37,21 @@
     </div>
     <aside class="space-y-4">
         <div class="vp-card overflow-hidden">
-            <img src="<?= IMG_URL ?>contact-engineer.jpg" alt="Industrial engineer discussing a customer project" class="w-full aspect-[4/3] object-cover" loading="lazy" decoding="async">
-            <div class="p-5"><p class="text-sm text-ink-800">Talk directly with an engineer who understands your process and specifications.</p></div>
+            <img src="<?= IMG_URL ?>contact-parts-desk.jpg" alt="Parts coordinator helping a customer source a part" class="w-full aspect-[4/3] object-cover" loading="lazy" decoding="async">
+            <div class="p-5"><p class="text-sm text-ink-800">Talk directly with a parts coordinator who can check stock, certification and AOG dispatch in minutes.</p></div>
         </div>
         <div class="vp-card vp-card-pad">
-            <h3 class="font-bold mb-2">Headquarters</h3>
+            <h3 class="font-bold mb-2">Warehouse &amp; offices</h3>
             <p class="text-sm text-ink-800"><?= vp_safe_html($contact['address'] ?? '') ?></p>
         </div>
         <div class="vp-card vp-card-pad">
-            <h3 class="font-bold mb-2">Sales</h3>
+            <h3 class="font-bold mb-2">Parts sales</h3>
             <p class="text-sm"><a class="text-brand-600" href="mailto:<?= vp_safe_html($contact['email'] ?? '') ?>"><?= vp_safe_html($contact['email'] ?? '') ?></a></p>
             <p class="text-sm"><?= vp_safe_html($contact['phone'] ?? '') ?></p>
         </div>
-        <div class="vp-card vp-card-pad">
-            <h3 class="font-bold mb-2">RFQ</h3>
-            <p class="text-sm text-ink-800">Use the <a class="text-brand-600 hover:underline" href="<?= base_url('rfq') ?>">Request a Quote</a> form for project enquiries.</p>
+        <div class="vp-card vp-card-pad bg-amber-50 border-amber-200">
+            <h3 class="font-bold mb-2 text-amber-800"><i class="ri-alarm-line"></i> AOG? Call us now</h3>
+            <p class="text-sm text-amber-900">Aircraft on the ground? Our 24/7 AOG desk answers within minutes and dispatches stock parts within hours.</p>
         </div>
     </aside>
 </section>

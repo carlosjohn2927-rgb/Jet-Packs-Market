@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Halyk Petroleum — website settings.
+ * JetPacks Market — website settings.
  *
  * One central place for every site-wide value (identity, contact details,
  * social links, email, system/maintenance) so nothing is scattered through

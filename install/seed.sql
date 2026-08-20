@@ -43,218 +43,492 @@ ON DUPLICATE KEY UPDATE `actions`=VALUES(`actions`);
 
 -- ----- Categories -----
 INSERT INTO `categories` (`id`,`name`,`slug`,`description`,`icon`,`sortOrder`,`isActive`,`metaTitle`) VALUES
-(UUID(),'Valves','valves','Industrial valves for flow control in demanding applications.','valve',1,1,'Industrial Valves - Vortex Precision'),
-(UUID(),'Pumps','pumps','Centrifugal, positive displacement and specialty pumps.','pump',2,1,'Industrial Pumps - Vortex Precision'),
-(UUID(),'Heat Exchangers','heat-exchangers','Shell-and-tube, plate and brazed heat exchangers.','heater',3,1,'Heat Exchangers - Vortex Precision'),
-(UUID(),'Pressure Vessels','pressure-vessels','ASME-coded pressure vessels for process industries.','vessel',4,1,'Pressure Vessels - Vortex Precision'),
-(UUID(),'Filtration','filtration','Industrial filtration systems and cartridges.','filter',5,1,'Filtration Systems - Vortex Precision'),
-(UUID(),'Instrumentation','instrumentation','Process measurement, gauges and sensors.','gauge',6,1,'Instrumentation - Vortex Precision');
+(UUID(),'Wheels & Brakes','wheels-brakes','Wheels, tires, brake assemblies and anti-skid systems for business and commercial jets.','wheel',1,1,'Aircraft Wheels & Brakes - JetPacks Market'),
+(UUID(),'Landing Gear','landing-gear','Complete landing gear assemblies, actuators, struts and steering components.','gear',2,1,'Aircraft Landing Gear - JetPacks Market'),
+(UUID(),'Avionics','avionics','Radios, radars, displays, flight instruments, recorders and navigation systems.','radar',3,1,'Avionics & Instruments - JetPacks Market'),
+(UUID(),'Engines & APUs','engines-apus','Turbofan engines, auxiliary power units and engine components.','engine',4,1,'Engines & APUs - JetPacks Market'),
+(UUID(),'Flight Controls','flight-controls','Servos, actuators, power control units and trim systems.','servo',5,1,'Flight Controls - JetPacks Market'),
+(UUID(),'Hydraulics','hydraulics','Hydraulic pumps, valves, reservoirs and accumulators.','hydraulic',6,1,'Hydraulic Systems - JetPacks Market'),
+(UUID(),'Pneumatics & Bleed Air','pneumatics','Bleed air valves, pressure controllers and pneumatic components.','air',7,1,'Pneumatics & Bleed Air - JetPacks Market'),
+(UUID(),'Electrical & Lighting','electrical-lighting','Generators, batteries, lights, relays and power distribution.','bolt',8,1,'Electrical & Lighting - JetPacks Market'),
+(UUID(),'Interior & Cabin','interior-cabin','Escape slides, oxygen systems, galleys and cabin equipment.','seat',9,1,'Interior & Cabin - JetPacks Market'),
+(UUID(),'Actuators & Valves','actuators-valves','Linear and rotary actuators, control valves and solenoids.','valve',10,1,'Actuators & Valves - JetPacks Market'),
+(UUID(),'Fuel Systems','fuel-systems','Fuel pumps, indicators, valves and fuel system components.','fuel',11,1,'Fuel Systems - JetPacks Market'),
+(UUID(),'Airframe & Structures','airframe','Structural components, cowlings, fairings and airframe parts.','plane',12,1,'Airframe & Structures - JetPacks Market');
 
--- ----- Industries -----
+
 INSERT INTO `industries` (`id`,`name`,`slug`,`description`,`icon`,`sortOrder`,`isActive`,`metaTitle`,`capabilities`) VALUES
-(UUID(),'Oil & Gas','oil-gas','Upstream, midstream and downstream solutions engineered for the most demanding hydrocarbon environments.','oil',1,1,'Oil & Gas Solutions - Vortex Precision', JSON_ARRAY('ASME B31.3 piping','API 610 pumps','API 600 valves','NACE MR0175 compliance')),
-(UUID(),'Chemical Processing','chemical-processing','Corrosion-resistant equipment for aggressive chemistries and continuous-duty plants.','flask',2,1,'Chemical Processing - Vortex Precision', JSON_ARRAY('Hastelloy / Duplex fabrication','PTFE linings','ATEX compliance','CIP capability')),
-(UUID(),'Power Generation','power-generation','High-pressure and high-temperature equipment for thermal, nuclear and renewable power.','bolt',3,1,'Power Generation - Vortex Precision', JSON_ARRAY('ASME Section I boilers','ASME Section VIII vessels','N-stamp nuclear','High-temp alloys')),
-(UUID(),'Water & Wastewater','water-wastewater','Treatment plant equipment for municipal and industrial water and wastewater.','droplet',4,1,'Water & Wastewater - Vortex Precision', JSON_ARRAY('NSF/ANSI 61 potable water','AWWA standards','Lift stations','Membrane skids')),
-(UUID(),'Pharmaceutical','pharmaceutical','Sanitary process equipment for pharma, biotech and life-sciences.','pill',5,1,'Pharmaceutical - Vortex Precision', JSON_ARRAY('3-A sanitary standards','Electropolish','FDA-compliant seals','Clean-in-place')),
-(UUID(),'Food & Beverage','food-beverage','Hygienic equipment for dairy, brewing, beverage and food processing.','utensils',6,1,'Food & Beverage - Vortex Precision', JSON_ARRAY('3-A sanitary','CIP/SIP','EHEDG hygienic design','Stainless 304/316L'));
+(UUID(),'Gulfstream','gulfstream','New, overhauled and used parts for Gulfstream GII through G700 business jets.','plane',1,1,'Gulfstream Parts - JetPacks Market', JSON_ARRAY('GII','GIII','GIV','GV','G450','G550','G650','G700')),
+(UUID(),'Dassault Falcon','dassault-falcon','Rotables, consumables and airframe parts for Falcon 10, 20, 50, 900 and 2000.','plane',2,1,'Dassault Falcon Parts - JetPacks Market', JSON_ARRAY('Falcon 10','Falcon 20','Falcon 50','Falcon 900','Falcon 2000','Falcon 7X')),
+(UUID(),'Cessna Citation','cessna-citation','Parts for Citation I, II, III, V, X, Excel, Sovereign and Latitude.','plane',3,1,'Cessna Citation Parts - JetPacks Market', JSON_ARRAY('Citation I','Citation II','Citation III','Citation V','Citation X','Sovereign')),
+(UUID(),'Bombardier Challenger','challenger','Support for Challenger 300, 600, 601, 604, 605 and 650 families.','plane',4,1,'Challenger Parts - JetPacks Market', JSON_ARRAY('Challenger 300','Challenger 600','Challenger 601','Challenger 604','Challenger 650')),
+(UUID(),'Hawker','hawker','Hawker 700, 800, 800XP, 850XP and 900XP parts and components.','plane',5,1,'Hawker Parts - JetPacks Market', JSON_ARRAY('Hawker 700','Hawker 800','Hawker 800XP','Hawker 850XP','Hawker 900XP')),
+(UUID(),'Learjet','learjet','Parts for Learjet 31, 35, 40, 45, 55, 60 and 75.','plane',6,1,'Learjet Parts - JetPacks Market', JSON_ARRAY('Learjet 35','Learjet 40','Learjet 45','Learjet 55','Learjet 60','Learjet 75')),
+(UUID(),'Boeing','boeing','Commercial aircraft parts for the 737, 747, 757, 767, 777 and 787 fleets.','plane',7,1,'Boeing Parts - JetPacks Market', JSON_ARRAY('Boeing 737','Boeing 747','Boeing 757','Boeing 767','Boeing 777','Boeing 787')),
+(UUID(),'Airbus','airbus','Commercial aircraft parts for the A318, A319, A320, A321, A330 and A350 families.','plane',8,1,'Airbus Parts - JetPacks Market', JSON_ARRAY('A318','A319','A320','A321','A330','A350')),
+(UUID(),'Embraer','embraer','Parts for Embraer ERJ, E-Jet and Praetor business jet families.','plane',9,1,'Embraer Parts - JetPacks Market', JSON_ARRAY('ERJ 135','ERJ 145','E175','E190','Phenom 300','Praetor 600')),
+(UUID(),'Pilatus','pilatus','Support for the Pilatus PC-12 turboprop and PC-24 jet.','plane',10,1,'Pilatus Parts - JetPacks Market', JSON_ARRAY('PC-12','PC-24'));
 
--- ----- Products (12) -----
--- Use a small helper to build id reuse; not all engines support CTE+INSERT, so we use literals.
+
 INSERT INTO `products`
   (`id`,`name`,`slug`,`sku`,`description`,`shortDescription`,`categoryId`,
    `industryIds`,`material`,`pressure`,`temperature`,`voltage`,`dimensions`,`weight`,
-   `certifications`,`availability`,`featured`,`isActive`,`views`,`metaTitle`)
+   `certifications`,`availability`,`quantity`,`condition`,`manufacturer`,`aircraftType`,
+   `price`,`featured`,`isActive`,`views`,`metaTitle`)
 SELECT
-  UUID(),
-  'VortexPro Ball Valve VP-150',
-  'vortexpro-ball-valve-vp150',
-  'VP-VLV-150',
-  'Three-piece full-port stainless steel ball valve rated for 150 PSI saturated steam. Fire-safe API 607 certified. Blowout-proof stem. ISO 5211 direct-mount actuator pad. Replaceable seats and seals without special tools.',
-  'Full-port stainless ball valve, fire-safe, ISO 5211 mount pad.',
-  (SELECT `id` FROM `categories` WHERE `slug`='valves' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='oil-gas'),(SELECT `id` FROM `industries` WHERE `slug`='chemical-processing')),
-  '316L Stainless Steel','150 PSI','-20 to 400 °F','N/A','1/2" to 4"','3.2 lb',
-  JSON_ARRAY('API 607','API 598','ISO 5211','CRN'),
-  'IN_STOCK',1,1,128,'VortexPro Ball Valve VP-150'
+  UUID(),'Main Landing Gear Wheel Assembly','main-landing-gear-wheel-2612201-2','2612201-2',
+  'Goodrich main landing gear wheel assembly for Gulfstream GIV/GV. Fully inspected, 4 wheels available. Includes bearings and lug nuts. Traceable to source, ships with export documentation.',
+  'MLG wheel assembly, inspected and ready to ship.',
+  (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='gulfstream')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3','EASA Form 1'),
+  'IN_STOCK',4,'USED','Goodrich','Gulfstream GIV / GV',
+  14850.00,1,1,214,'Main Landing Gear Wheel Assembly - 2612201-2'
 UNION ALL SELECT
-  UUID(),'VortexPro Gate Valve VP-GS','vortexpro-gate-valve-vgs','VP-VLV-GS',
-  'Rising-stainless gate valve with flexible wedge and graphite packing. Suitable for high-temperature steam and hydrocarbon service. Body and bonnet in forged ASTM A182 F316L.',
-  'High-temperature gate valve for steam and hydrocarbon service.',
-  (SELECT `id` FROM `categories` WHERE `slug`='valves' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='oil-gas'),(SELECT `id` FROM `industries` WHERE `slug`='power-generation')),
-  'A182 F316L','Class 800','-50 to 1100 °F','N/A','2" to 24"','78 lb',
-  JSON_ARRAY('API 600','API 602','ASME B16.34'),
-  'IN_STOCK',1,1,87,'VortexPro Gate Valve VP-GS'
+  UUID(),'Main Wheel & Brake Assembly (Steel)','main-wheel-brake-2-1553-5','2-1553-5',
+  'BFGoodrich main wheel and steel brake assembly for Cessna Citation II. New condition, zero time since overhaul. Includes wheel halves, brake discs and torque plate.',
+  'Wheel and steel brake assembly, new, for Citation II.',
+  (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='cessna-citation')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',2,'NEW','BFGoodrich','Cessna Citation II',
+  8950.00,1,1,187,'Main Wheel & Brake Assembly - 2-1553-5'
 UNION ALL SELECT
-  UUID(),'VortexPro Centrifugal Pump VP-CP-220','vortexpro-centrifugal-pump-vp220','VP-PMP-220',
-  'End-suction centrifugal pump with back-pull-out design. ANSI / API process duty. 316L wetted parts, suitable for light hydrocarbons, solvents and clean water service.',
-  'End-suction ANSI centrifugal pump, back-pull-out design.',
-  (SELECT `id` FROM `categories` WHERE `slug`='pumps' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='chemical-processing'),(SELECT `id` FROM `industries` WHERE `slug`='water-wastewater')),
-  '316L Stainless','Class 150','-40 to 300 °F','460V 3ph','6x4x10','320 lb',
-  JSON_ARRAY('ANSI B73.1','API 610 (optional)'),
-  'IN_STOCK',1,1,212,'VortexPro Centrifugal Pump VP-CP-220'
+  UUID(),'Carbon Brake Assembly','carbon-brake-2612401-1','2612401-1',
+  'Goodrich carbon brake assembly for Gulfstream G450. Low-time heat stack, serviceable condition, complete with torque plate and hardware kit. Carbon brakes save ~700 lb per aircraft.',
+  'Carbon brake assembly, low-time heat stack.',
+  (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='gulfstream')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3','EASA Form 1'),
+  'IN_STOCK',1,'NEW','Goodrich','Gulfstream G450',
+  32400.00,1,1,156,'Carbon Brake Assembly - 2612401-1'
 UNION ALL SELECT
-  UUID(),'VortexPro Positive-Displacement Pump VP-PD','vortexpro-pd-pump-vppd','VP-PMP-PD',
-  'Heavy-duty rotary lobe pump for viscous and shear-sensitive fluids. Hygienic EHEDG design available for food and pharma service.',
-  'Rotary lobe pump for viscous and sanitary fluids.',
-  (SELECT `id` FROM `categories` WHERE `slug`='pumps' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='pharmaceutical'),(SELECT `id` FROM `industries` WHERE `slug`='food-beverage')),
-  '316L Stainless','Class 150','-20 to 250 °F','460V 3ph','2" to 6"','190 lb',
-  JSON_ARRAY('EHEDG','3-A','ATEX'),
-  'IN_STOCK',0,1,54,'VortexPro PD Pump VP-PD'
+  UUID(),'Nose Wheel Assembly','nose-wheel-208-150-0','208-150-0',
+  'Goodyear nose wheel assembly with tire, for Dassault Falcon 50. New tire mounted on inspected wheel. Six units available, all zero-time.',
+  'Nose wheel with new tire, six available.',
+  (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='dassault-falcon')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',6,'NEW','Goodyear','Dassault Falcon 50',
+  2150.00,0,1,98,'Nose Wheel Assembly - 208-150-0'
 UNION ALL SELECT
-  UUID(),'VortexPro Plate Heat Exchanger VP-PHE','vortexpro-phe-vpphe','VP-HX-PHE',
-  'Gasketed plate heat exchanger for district heating, HVAC and process duties. 316L plates with EPDM or NBR gaskets. Frames in carbon steel painted, stainless available.',
-  'Gasketed plate heat exchanger for HVAC and process duty.',
-  (SELECT `id` FROM `categories` WHERE `slug`='heat-exchangers' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='power-generation'),(SELECT `id` FROM `industries` WHERE `slug`='water-wastewater')),
-  '316L / EPDM','232 PSI','-35 to 180 °C','N/A','0.5 to 4 m²','varies',
-  JSON_ARRAY('PED','ASME UM','CRN'),
-  'IN_STOCK',1,1,143,'VortexPro Plate Heat Exchanger VP-PHE'
+  UUID(),'Main Gear Tire (Flight Leader)','main-gear-tire-132-101-0','132-101-0',
+  'Goodyear Flight Leader main gear tire for Citation and Hawker aircraft. 18-ply rating, new, manufactured within the last 18 months. Eight tires in stock.',
+  'Main gear tire, 18-ply, new, eight in stock.',
+  (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='cessna-citation'),(SELECT `id` FROM `industries` WHERE `slug`='hawker')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',8,'NEW','Goodyear','Citation / Hawker',
+  1890.00,0,1,143,'Main Gear Tire - 132-101-0'
 UNION ALL SELECT
-  UUID(),'VortexPro Shell & Tube HX VP-SH','vortexpro-sh-vpsh','VP-HX-SH',
-  'TEMA-class shell-and-tube heat exchanger for high-pressure process duty. Available in BEM, AES and BEU configurations.',
-  'TEMA shell-and-tube heat exchanger, customisable.',
-  (SELECT `id` FROM `categories` WHERE `slug`='heat-exchangers' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='power-generation'),(SELECT `id` FROM `industries` WHERE `slug`='oil-gas')),
-  'SA-516-70 / 304L','600 PSI','-50 to 400 °C','N/A','12" to 48" dia','1,200+ lb',
-  JSON_ARRAY('ASME Section VIII','TEMA','PED'),
-  'MADE_TO_ORDER',0,1,62,'VortexPro Shell & Tube HX VP-SH'
+  UUID(),'Anti-Skid Control Unit','anti-skid-control-20-57-03','20-57-03',
+  'Hydro-Aire Mark III anti-skid control unit for Bombardier Challenger 600/601. Overhauled with test certificate, 5,000-cycle warranty. Drop-in replacement, no wiring changes.',
+  'Overhauled anti-skid control unit with warranty.',
+  (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='challenger')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3','OHC test cert'),
+  'IN_STOCK',1,'OHC','Hydro-Aire','Challenger 600/601',
+  6750.00,0,1,87,'Anti-Skid Control Unit - 20-57-03'
 UNION ALL SELECT
-  UUID(),'VortexPro Pressure Vessel VP-PV','vortexpro-pv-vppv','VP-PV-PV',
-  'ASME Section VIII pressure vessel, custom engineered for any process duty. U-stamp, U2-stamp and National Board registered.',
-  'Custom ASME pressure vessel, U-stamp registered.',
-  (SELECT `id` FROM `categories` WHERE `slug`='pressure-vessels' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='chemical-processing'),(SELECT `id` FROM `industries` WHERE `slug`='power-generation')),
-  'SA-516-70 / 304L','Class 300','-50 to 500 °F','N/A','Custom','Custom',
-  JSON_ARRAY('ASME U','U2','NB'),
-  'MADE_TO_ORDER',0,1,77,'VortexPro Pressure Vessel VP-PV'
+  UUID(),'Nose Landing Gear Assembly','nose-landing-gear-9001252-3','9001252-3',
+  'Messier-Dowty nose landing gear assembly for Dassault Falcon 2000. Serviceable, complete with steering collar and drag brace. Ultrasonic inspection current. Immediate AOG dispatch available.',
+  'Complete nose landing gear, serviceable.',
+  (SELECT `id` FROM `categories` WHERE `slug`='landing-gear' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='dassault-falcon')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3','NDT current'),
+  'IN_STOCK',1,'USED','Messier-Dowty','Dassault Falcon 2000',
+  24500.00,1,1,176,'Nose Landing Gear Assembly - 9001252-3'
 UNION ALL SELECT
-  UUID(),'VortexPro Bag Filter VP-BF','vortexpro-bf-vpbf','VP-FIL-BF',
-  'Stainless multi-bag filter housing for high-flow process streams. Quick-opening cover, swing-bolt closure, 2 to 24 bags per vessel.',
-  'Multi-bag stainless filter housing, quick-opening cover.',
-  (SELECT `id` FROM `categories` WHERE `slug`='filtration' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='water-wastewater'),(SELECT `id` FROM `industries` WHERE `slug`='chemical-processing')),
-  '304L Stainless','150 PSI','-20 to 250 °F','N/A','2 to 24 bags','160 lb',
-  JSON_ARRAY('ASME BPE','CRN'),
-  'IN_STOCK',0,1,42,'VortexPro Bag Filter VP-BF'
+  UUID(),'Main Landing Gear Actuator','main-landing-gear-actuator-9001340-5','9001340-5',
+  'Messier-Dowty main landing gear actuator for Falcon 900. Overhauled, bench-tested with report. Corrosion protection per latest SB. Two units available.',
+  'MLG actuator, overhauled with bench test report.',
+  (SELECT `id` FROM `categories` WHERE `slug`='landing-gear' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='dassault-falcon')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('EASA Form 1'),
+  'IN_STOCK',2,'OHC','Messier-Dowty','Dassault Falcon 900',
+  12400.00,0,1,121,'Main Landing Gear Actuator - 9001340-5'
 UNION ALL SELECT
-  UUID(),'VortexPro Cartridge Filter VP-CF','vortexpro-cf-vpcf','VP-FIL-CF',
-  'Sanitary cartridge filter housing for pharmaceutical and food applications. 222 O-ring code 7 or code 3 sanitary connections.',
-  'Sanitary cartridge filter for pharma and food.',
-  (SELECT `id` FROM `categories` WHERE `slug`='filtration' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='pharmaceutical'),(SELECT `id` FROM `industries` WHERE `slug`='food-beverage')),
-  '316L Stainless','100 PSI','-20 to 200 °F','N/A','5" to 30"','28 lb',
-  JSON_ARRAY('3-A','EHEDG','CRN'),
-  'IN_STOCK',0,1,33,'VortexPro Cartridge Filter VP-CF'
+  UUID(),'Nose Wheel Steering Actuator','nose-wheel-steering-46-162-01','46-162-01',
+  'Parker Aerospace nose wheel steering actuator for Learjet 45. New manufacture, current revision, with placards and hardware. Two units in stock.',
+  'New nose wheel steering actuator, current rev.',
+  (SELECT `id` FROM `categories` WHERE `slug`='landing-gear' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='learjet')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',2,'NEW','Parker Aerospace','Learjet 45',
+  7850.00,0,1,92,'Nose Wheel Steering Actuator - 46-162-01'
 UNION ALL SELECT
-  UUID(),'VortexPro Pressure Gauge VP-PG','vortexpro-pg-vppg','VP-INS-PG',
-  'Bourdon tube pressure gauge, dry or liquid-filled, stainless case, 4" dial. ±1% full-scale accuracy, IP65 enclosure.',
-  'Stainless case Bourdon pressure gauge, 4" dial, IP65.',
-  (SELECT `id` FROM `categories` WHERE `slug`='instrumentation' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='oil-gas'),(SELECT `id` FROM `industries` WHERE `slug`='power-generation')),
-  '316L Stainless','10,000 PSI','-40 to 400 °F','N/A','4" dial','1.5 lb',
-  JSON_ARRAY('ASME B40.100','EN 837-1'),
-  'IN_STOCK',0,1,57,'VortexPro Pressure Gauge VP-PG'
+  UUID(),'Landing Gear Control Unit','landing-gear-control-82-345-2','82-345-2',
+  'Collins landing gear control unit for Hawker 800 series. Overhauled with functional test. Includes gear-up warning inputs. Exchanged units accepted.',
+  'Landing gear control unit, overhauled.',
+  (SELECT `id` FROM `categories` WHERE `slug`='landing-gear' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='hawker')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',1,'OHC','Collins Aerospace','Hawker 800 / 800XP',
+  9600.00,0,1,74,'Landing Gear Control Unit - 82-345-2'
 UNION ALL SELECT
-  UUID(),'VortexPro Level Transmitter VP-LT','vortexpro-lt-vplt','VP-INS-LT',
-  'Guided-wave radar level transmitter for liquids and bulk solids. 24V DC loop-powered, HART, 4-20 mA output. Stainless process connection.',
-  'Guided-wave radar level transmitter, HART + 4-20 mA.',
-  (SELECT `id` FROM `categories` WHERE `slug`='instrumentation' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='water-wastewater'),(SELECT `id` FROM `industries` WHERE `slug`='chemical-processing')),
-  '316L Stainless','Class 300','-40 to 400 °F','24V DC','1/2" to 4"','4.2 lb',
-  JSON_ARRAY('ATEX','IECEx','CRN'),
-  'IN_STOCK',1,1,91,'VortexPro Level Transmitter VP-LT'
+  UUID(),'VHF-4000 Comm Radio','vhf-4000-comm-radio','622-8920-005',
+  'Collins Aerospace VHF-4000 communications transceiver for Hawker 800XP and Challenger. New, with rack and installation kit. 8.33 kHz spacing capable.',
+  'New VHF-4000 comm radio with rack.',
+  (SELECT `id` FROM `categories` WHERE `slug`='avionics' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='hawker'),(SELECT `id` FROM `industries` WHERE `slug`='challenger')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3','TSO C37d'),
+  'IN_STOCK',3,'NEW','Collins Aerospace','Hawker 800XP / Challenger',
+  5400.00,1,1,233,'VHF-4000 Comm Radio - 622-8920-005'
 UNION ALL SELECT
-  UUID(),'VortexPro Check Valve VP-CV','vortexpro-cv-vpcv','VP-VLV-CV',
-  'Stainless swing check valve, 316L body, suitable for horizontal and vertical installations. Resilient seat, low cracking pressure.',
-  '316L swing check valve, low cracking pressure.',
-  (SELECT `id` FROM `categories` WHERE `slug`='valves' LIMIT 1),
-  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='oil-gas'),(SELECT `id` FROM `industries` WHERE `slug`='water-wastewater')),
-  '316L Stainless','Class 300','-50 to 600 °F','N/A','1/2" to 12"','22 lb',
-  JSON_ARRAY('API 594','API 598'),
-  'IN_STOCK',0,1,68,'VortexPro Check Valve VP-CV';
+  UUID(),'Primus 660 Weather Radar','primus-660-weather-radar','830-0141-100',
+  'Honeywell Primus 660 color weather radar with stabilized antenna for Citation X. New in box, latest software revision, includes radome adapter kit.',
+  'New Primus 660 weather radar system.',
+  (SELECT `id` FROM `categories` WHERE `slug`='avionics' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='cessna-citation')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',1,'NEW','Honeywell','Cessna Citation X',
+  28500.00,0,1,164,'Primus 660 Weather Radar - 830-0141-100'
+UNION ALL SELECT
+  UUID(),'LASEREF IV Inertial Reference','laseref-iv-inertial-reference','46594-0304-0301',
+  'Honeywell LASEREF IV inertial reference system for Gulfstream GIV/GV. Overhauled with 2,500-hour warranty, current IRU software. Includes mounting tray.',
+  'Overhauled LASEREF IV IRS with warranty.',
+  (SELECT `id` FROM `categories` WHERE `slug`='avionics' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='gulfstream')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('EASA Form 1','FAA 8130-3'),
+  'IN_STOCK',1,'OHC','Honeywell','Gulfstream GIV / GV',
+  45000.00,0,1,118,'LASEREF IV Inertial Reference - 46594-0304-0301'
+UNION ALL SELECT
+  UUID(),'KMD-850 Multi-Function Display','kmd-850-multifunction-display','010-00866-02',
+  'BendixKing KMD-850 multi-function display with GPS/WAAS and terrain. New, with data card and install kit. Two units available.',
+  'New KMD-850 MFD with terrain and WAAS.',
+  (SELECT `id` FROM `categories` WHERE `slug`='avionics' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='cessna-citation')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',2,'NEW','BendixKing','Citation / Various',
+  14900.00,0,1,139,'KMD-850 Multi-Function Display - 010-00866-02'
+UNION ALL SELECT
+  UUID(),'Flight Data Recorder','flight-data-recorder-980-4700-043','980-4700-043',
+  'Honeywell solid-state flight data recorder for Boeing 737. New, 25-hour recording, with mounting rack and underwater locator beacon. Export-ready.',
+  'Solid-state FDR for 737, new with rack.',
+  (SELECT `id` FROM `categories` WHERE `slug`='avionics' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='boeing')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3','TSO C124'),
+  'MADE_TO_ORDER',1,'NEW','Honeywell','Boeing 737',
+  12500.00,0,1,81,'Flight Data Recorder - 980-4700-043'
+UNION ALL SELECT
+  UUID(),'GTCP36-150 Auxiliary Power Unit','gtcp36-150-apu','3606171-1',
+  'Honeywell GTCP36-150 APU for Gulfstream GIV. Low-cycle used unit with complete logbooks, recently hot-section inspected. Includes ECU and harness.',
+  'Low-cycle used APU with logbooks.',
+  (SELECT `id` FROM `categories` WHERE `slug`='engines-apus' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='gulfstream')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3','Logbook review'),
+  'IN_STOCK',1,'USED','Honeywell','Gulfstream GIV',
+  88000.00,1,1,205,'GTCP36-150 APU - 3606171-1'
+UNION ALL SELECT
+  UUID(),'CFE738-1-1B Turbofan Engine','cfe738-1-1b-turbofan','CFE738-1-1B',
+  'GE/Honeywell CFE738-1-1B turbofan engine for Falcon 2000. Used, serviceable with current borescope and mid-life HSI. Complete with QEC, inlet and reverser kit.',
+  'Serviceable CFE738 turbofan with QEC.',
+  (SELECT `id` FROM `categories` WHERE `slug`='engines-apus' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='dassault-falcon')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3','Engine logbooks'),
+  'MADE_TO_ORDER',1,'USED','GE / Honeywell','Dassault Falcon 2000',
+  450000.00,1,1,167,'CFE738-1-1B Turbofan Engine'
+UNION ALL SELECT
+  UUID(),'TFE731-5BR-1C Engine','tfe731-5br-1c-engine','3131775-1',
+  'Honeywell TFE731-5BR-1C turbofan for Falcon 900B. Overhauled with 1,000-hour warranty, includes ECU, sensors and installation kit. Ready to hang and fly.',
+  'Overhauled TFE731-5BR with warranty.',
+  (SELECT `id` FROM `categories` WHERE `slug`='engines-apus' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='dassault-falcon')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('EASA Form 1'),
+  'MADE_TO_ORDER',1,'OHC','Honeywell','Dassault Falcon 900B',
+  385000.00,0,1,94,'TFE731-5BR-1C Engine'
+UNION ALL SELECT
+  UUID(),'Engine Driven Hydraulic Pump','edp-hydraulic-pump','793-2583-001',
+  'Eaton engine driven hydraulic pump for Gulfstream GIV. New, 3,000 PSI, SAE-A mount. Two units in stock with pressure test certificates.',
+  'New EDP hydraulic pump, 3,000 PSI.',
+  (SELECT `id` FROM `categories` WHERE `slug`='hydraulics' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='gulfstream')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',2,'NEW','Eaton Aerospace','Gulfstream GIV / GV',
+  9750.00,1,1,188,'Engine Driven Hydraulic Pump - 793-2583-001'
+UNION ALL SELECT
+  UUID(),'Hydraulic System Valve','hydraulic-system-valve-25d-660','25D-660',
+  'Parker Hannifin hydraulic system valve for business jet utility systems. New, 4-way, 3,000 PSI, solenoid operated, with connector. Four in stock.',
+  'New 4-way hydraulic valve, 3,000 PSI.',
+  (SELECT `id` FROM `categories` WHERE `slug`='hydraulics' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='hawker'),(SELECT `id` FROM `industries` WHERE `slug`='learjet')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',4,'NEW','Parker Hannifin','Hawker / Learjet',
+  4300.00,0,1,77,'Hydraulic System Valve - 25D-660'
+UNION ALL SELECT
+  UUID(),'Rudder Servo Actuator','rudder-servo-523-0771-517','523-0771-517',
+  'Collins rudder servo actuator for Challenger 604. Overhauled with bench test report, current SB compliance. Includes linkage hardware.',
+  'Overhauled rudder servo, bench tested.',
+  (SELECT `id` FROM `categories` WHERE `slug`='flight-controls' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='challenger')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',1,'OHC','Collins Aerospace','Challenger 604',
+  18750.00,1,1,132,'Rudder Servo Actuator - 523-0771-517'
+UNION ALL SELECT
+  UUID(),'Elevator Trim Actuator','elevator-trim-actuator','312-0025-010',
+  'Parker elevator trim actuator for Citation III. New, current revision, with gearbox and position sensor. Two units in stock.',
+  'New elevator trim actuator with sensor.',
+  (SELECT `id` FROM `categories` WHERE `slug`='flight-controls' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='cessna-citation')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',2,'NEW','Parker Aerospace','Cessna Citation III',
+  5900.00,0,1,85,'Elevator Trim Actuator - 312-0025-010'
+UNION ALL SELECT
+  UUID(),'Rudder Power Control Unit','rudder-pcu-692-0241-001','692-0241-001',
+  'Parker rudder power control unit for Boeing 737. Overhauled, complete with test data and 5,000-flight-hour warranty. Exchange core accepted.',
+  'Overhauled rudder PCU for 737.',
+  (SELECT `id` FROM `categories` WHERE `slug`='flight-controls' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='boeing')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',1,'OHC','Parker Hannifin','Boeing 737',
+  22000.00,0,1,66,'Rudder Power Control Unit - 692-0241-001'
+UNION ALL SELECT
+  UUID(),'Bleed Air Regulating Valve','bleed-air-regulating-valve','3070211-1',
+  'Honeywell bleed air regulating valve for Challenger 601/604. New, with anti-ice bleed control, current SB. Two units in stock.',
+  'New bleed air regulating valve.',
+  (SELECT `id` FROM `categories` WHERE `slug`='pneumatics' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='challenger')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',2,'NEW','Honeywell','Challenger 601 / 604',
+  8900.00,0,1,102,'Bleed Air Regulating Valve - 3070211-1'
+UNION ALL SELECT
+  UUID(),'Cabin Pressure Controller','cabin-pressure-controller','8927-14',
+  'Honeywell digital cabin pressure controller for Gulfstream GII/GIII. Overhauled, bench tested, includes outflow valve interface card.',
+  'Overhauled digital cabin pressure controller.',
+  (SELECT `id` FROM `categories` WHERE `slug`='pneumatics' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='gulfstream')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',1,'OHC','Honeywell','Gulfstream GII / GIII',
+  6900.00,0,1,58,'Cabin Pressure Controller - 8927-14'
+UNION ALL SELECT
+  UUID(),'Fuel Boost Pump','fuel-boost-pump','501-072-020',
+  'Eaton AC fuel boost pump for Hawker 800. New, 115 VAC, with check valve and mount gasket. Three units in stock.',
+  'New AC fuel boost pump with check valve.',
+  (SELECT `id` FROM `categories` WHERE `slug`='fuel-systems' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='hawker')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',3,'NEW','Eaton Aerospace','Hawker 800',
+  6450.00,1,1,119,'Fuel Boost Pump - 501-072-020'
+UNION ALL SELECT
+  UUID(),'Fuel Quantity Indicator','fuel-quantity-indicator','900-1120-02',
+  'Collins fuel quantity indicator for Boeing 737. Used, serviceable, bench checked. Two units available with test data.',
+  'Serviceable fuel quantity indicator.',
+  (SELECT `id` FROM `categories` WHERE `slug`='fuel-systems' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='boeing')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',2,'USED','Collins Aerospace','Boeing 737',
+  3750.00,0,1,49,'Fuel Quantity Indicator - 900-1120-02'
+UNION ALL SELECT
+  UUID(),'Starter / Generator','starter-generator','763-0411-1',
+  'Hamilton Sundstrand starter/generator for Hawker 700. Overhauled with 800-hour warranty, includes regulator and cooling fan. Exchange unit available.',
+  'Overhauled starter/generator with warranty.',
+  (SELECT `id` FROM `categories` WHERE `slug`='electrical-lighting' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='hawker')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',1,'OHC','Hamilton Sundstrand','Hawker 700',
+  28000.00,1,1,145,'Starter / Generator - 763-0411-1'
+UNION ALL SELECT
+  UUID(),'Ni-Cd Main Battery','nicd-main-battery','4454-35',
+  'Marathon Ni-Cd main battery for business and regional jets. New, 24 V, 35 Ah, with thermal fuse. Five batteries in stock, shipped charged.',
+  'New 24 V Ni-Cd main battery, five in stock.',
+  (SELECT `id` FROM `categories` WHERE `slug`='electrical-lighting' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='hawker'),(SELECT `id` FROM `industries` WHERE `slug`='learjet')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',5,'NEW','Marathon Power','Hawker / Learjet',
+  6300.00,0,1,133,'Ni-Cd Main Battery - 4454-35'
+UNION ALL SELECT
+  UUID(),'Landing Light Assembly','landing-light-assembly','407-0120-04',
+  'Grimes landing light assembly for Falcon 50. New, sealed beam, with mounting bracket and gasket. Four in stock.',
+  'New landing light with bracket.',
+  (SELECT `id` FROM `categories` WHERE `slug`='electrical-lighting' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='dassault-falcon')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',4,'NEW','Grimes / Collins','Dassault Falcon 50',
+  1850.00,0,1,71,'Landing Light Assembly - 407-0120-04'
+UNION ALL SELECT
+  UUID(),'Emergency Oxygen System','emergency-oxygen-system','850930-01',
+  'Kidde crew emergency oxygen system for Learjet 60. New, complete with regulator, masks and cylinder. Two systems in stock, pressure tested.',
+  'New crew emergency oxygen system.',
+  (SELECT `id` FROM `categories` WHERE `slug`='interior-cabin' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='learjet')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3','TSO C64'),
+  'IN_STOCK',2,'NEW','Kidde Aerospace','Learjet 60',
+  4100.00,0,1,63,'Emergency Oxygen System - 850930-01'
+UNION ALL SELECT
+  UUID(),'Emergency Escape Slide','emergency-escape-slide','630-1580-01',
+  'Air Cruisers emergency escape slide for Gulfstream GIV. Used, serviceable, current packing date, includes deployment bag and hardware.',
+  'Serviceable escape slide, current pack.',
+  (SELECT `id` FROM `categories` WHERE `slug`='interior-cabin' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='gulfstream')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',1,'USED','Air Cruisers','Gulfstream GIV',
+  9800.00,0,1,55,'Emergency Escape Slide - 630-1580-01'
+UNION ALL SELECT
+  UUID(),'Cabin Window Assembly','cabin-window-assembly','190-1260-11',
+  'Cabin window assembly (inner pane) for Hawker 800XP. New, with gasket kit and anti-fog coating. Two units in stock.',
+  'New cabin window inner pane.',
+  (SELECT `id` FROM `categories` WHERE `slug`='interior-cabin' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='hawker')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',2,'NEW','Hawker Beechcraft','Hawker 800XP',
+  7250.00,0,1,44,'Cabin Window Assembly - 190-1260-11'
+UNION ALL SELECT
+  UUID(),'Flap Actuator','flap-actuator','12-425-01',
+  'Parker flap actuator for Learjet 35/36. Overhauled with test report, current gearbox revision. Includes drive arm and mounting bolts.',
+  'Overhauled flap actuator with test report.',
+  (SELECT `id` FROM `categories` WHERE `slug`='actuators-valves' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='learjet')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',1,'OHC','Parker Aerospace','Learjet 35 / 36',
+  11500.00,1,1,109,'Flap Actuator - 12-425-01'
+UNION ALL SELECT
+  UUID(),'Solenoid Shutoff Valve','solenoid-shutoff-valve','173-104-07',
+  'Solenoid operated fuel shutoff valve for Gulfstream and Hawker fuel systems. New, 28 VDC, with connector and mounting plate. Six in stock.',
+  'New solenoid fuel shutoff valve, six in stock.',
+  (SELECT `id` FROM `categories` WHERE `slug`='actuators-valves' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='gulfstream'),(SELECT `id` FROM `industries` WHERE `slug`='hawker')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',6,'NEW','Eaton Aerospace','Gulfstream / Hawker',
+  2950.00,0,1,83,'Solenoid Shutoff Valve - 173-104-07'
+UNION ALL SELECT
+  UUID(),'Engine Cowling (RH)','engine-cowling-rh','310-0452-05',
+  'Right-hand engine cowling for Citation III. Serviceable composite, minor cosmetic damage only, includes cowl lip and hinges. AOG dispatch available.',
+  'Serviceable RH engine cowling, AOG-ready.',
+  (SELECT `id` FROM `categories` WHERE `slug`='airframe' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='cessna-citation')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',1,'USED','Cessna','Cessna Citation III',
+  8900.00,0,1,52,'Engine Cowling (RH) - 310-0452-05'
+UNION ALL SELECT
+  UUID(),'APU Fire Extinguisher Bottle','apu-fire-extinguisher','830121-01',
+  'Kidde APU fire extinguisher bottle for Challenger 601/604. Overhauled with new discharge cartridge, hydro test current. Two units available.',
+  'Overhauled APU fire bottle, hydro current.',
+  (SELECT `id` FROM `categories` WHERE `slug`='airframe' LIMIT 1),
+  JSON_ARRAY((SELECT `id` FROM `industries` WHERE `slug`='challenger')),
+  NULL,NULL,NULL,NULL,NULL,NULL,
+  JSON_ARRAY('FAA 8130-3'),
+  'IN_STOCK',2,'OHC','Kidde Aerospace','Challenger 601 / 604',
+  5600.00,0,1,38,'APU Fire Extinguisher Bottle - 830121-01';
 
--- ----- FAQs -----
+
 INSERT INTO `faqs` (`id`,`question`,`answer`,`category`,`sortOrder`,`isActive`) VALUES
-(UUID(),'What is your typical lead time?','Standard catalog items ship within 5-7 business days. Custom-engineered equipment is typically 6-12 weeks depending on complexity and certification requirements.','Lead Times',1,1),
-(UUID(),'Do you offer custom engineering?','Yes - we have a full in-house engineering team for custom pressure vessels, heat exchangers and skidded systems. We work to ASME, PED, CRN and other codes as required.','Engineering',2,1),
-(UUID(),'Which quality standards do you follow?','We are ISO 9001:2015 certified. Equipment can be supplied to ASME (U, U2, S, NB), PED (CE), CRN, ATEX, 3-A and EHEDG depending on the application.','Quality',3,1),
-(UUID(),'Do you provide installation and commissioning?','Yes, we offer global field service including installation supervision, commissioning, operator training and ongoing maintenance contracts.','Service',4,1),
-(UUID(),'What is the warranty on your products?','All catalog products carry a standard 12-month warranty from shipment. Engineered equipment warranty is typically 18-24 months and clearly stated on the quotation.','Warranty',5,1),
-(UUID(),'Do you ship internationally?','We ship worldwide. We handle export documentation, certificates of origin and can ship FOB, CIF or DDP depending on your preference.','Logistics',6,1),
-(UUID(),'How do I get a quote?','Use the RFQ form on our site, or email sales@vortexprecision.com with your requirements, drawings and quantity. Most quotes are returned within 48 hours.','Quoting',7,1),
-(UUID(),'Can I get a sample before ordering?','For selected catalog items, sample or evaluation units can be supplied at a nominal cost that is credited back on the first production order.','Samples',8,1);
+(UUID(),'What is your typical lead time?','Stock parts ship the same or next business day. AOG (Aircraft on Ground) requests are prioritized and dispatched within hours, 24/7.','Lead Times',1,1),
+(UUID(),'What do NEW, OHC, USED and SERVICEABLE mean?','NEW is unused manufacturer-new stock. OHC means Overhauled — disassembled, repaired to manufacturer limits with a bench test report. USED parts are removed serviceable with traceable history. SERVICEABLE parts are inspected and ready to install.','Part Conditions',2,1),
+(UUID(),'Do parts come with certification?','Yes. Every part ships with FAA Form 8130-3 and/or EASA Form 1, full traceability to the last operator, and our own inspection certificate. Copies of logbook pages are provided on request.','Certification',3,1),
+(UUID(),'Do you buy or trade surplus parts?','We buy outright and trade surplus rotables, engines, APUs and airframe parts. Email your inventory list to sales@jetpacksmarket.com — we typically respond within 24 hours with an offer.','Selling Parts',4,1),
+(UUID(),'What is the warranty on parts?','All parts carry a 12-month warranty from shipment against defects in material and workmanship. Overhauled units carry an extended warranty as stated on the quotation.','Warranty',5,1),
+(UUID(),'Do you ship internationally?','We ship worldwide with full export documentation, certificates of origin and ATA Carnet support. Choose FOB, CIF or DDP — we manage customs paperwork for you.','Logistics',6,1),
+(UUID(),'How fast do I get a quote?','Standard RFQs are answered within 24 business hours. Urgent and AOG requests are answered within 2 hours during business hours, 24/7 for AOG.','Quoting',7,1),
+(UUID(),'Can you source parts I cannot find?','Yes. If the part is not in our catalog, our sourcing desk searches our global supplier network of over 2,000 vetted aviation suppliers and OEMs. Most special requests are sourced within 48 hours.','Sourcing',8,1);
 
--- ----- Testimonials -----
+
 INSERT INTO `testimonials` (`id`,`name`,`title`,`company`,`content`,`rating`,`avatar`,`industry`,`isActive`,`featured`) VALUES
-(UUID(),'Mark Henderson','Process Engineering Lead','DeltaChem Industries','Vortex delivered our custom heat exchanger skids on time and below budget. Their engineering team was responsive throughout the project.','5','/assets/img/reviews/mark-henderson.jpg','Chemical Processing',1,1),
-(UUID(),'Linda Park','Plant Manager','NorthStar Refining','We have standardised on Vortex ball valves across our refinery. The quality is consistent, lead times are predictable, and their field service team is excellent.','5','/assets/img/reviews/linda-park.jpg','Oil & Gas',1,1),
-(UUID(),'Akhil Raman','Director of Operations','BlueRiver Water Authority','The plate heat exchangers Vortex supplied for our district heating upgrade have performed flawlessly through three full heating seasons.','5','/assets/img/reviews/akhil-raman.jpg','Water & Wastewater',1,1),
-(UUID(),'Jonas Weber','Head of Engineering','Brewmaster GmbH','Their sanitary pumps and filters meet the strictest EHEDG requirements. Vortex understands hygienic process design.','5','/assets/img/reviews/jonas-weber.jpg','Food & Beverage',1,0);
+(UUID(),'Mark Hendricks','Director of Maintenance','Aerovista Charter Group','JetPacks Market sourced a complete set of wheels and brakes for our Gulfstream fleet at 30% below OEM pricing — all with full 8130-3 paperwork. Our AOG team has their number on speed dial.',5,'/assets/img/reviews/mark-hendricks.jpg','Gulfstream',1,1),
+(UUID(),'Sofia Marchetti','Procurement Manager','Meridian Air Lines','We have standardized our Falcon 2000 consumables on JetPacks Market. Consistent quality, predictable lead times, and every part arrives with traceable certification.',5,'/assets/img/reviews/sofia-marchetti.jpg','Dassault Falcon',1,1),
+(UUID(),'David Okafor','Chief Pilot','TransContinental Air','Their APU desk found us a low-cycle GTCP36-150 in three days during an AOG. The unit was better than described and the logbook review was impeccable.',5,'/assets/img/reviews/david-okafor.jpg','Gulfstream',1,1),
+(UUID(),'Elena Kovač','Operations Director','Skyline Business Jets','From RFQ to delivery in four days on a Challenger 604 rudder servo. The exchange program is excellent — they shipped first and took our core in return.',5,'/assets/img/reviews/elena-kovac.jpg','Challenger',1,0);
 
--- ----- Partners -----
+
 INSERT INTO `partners` (`id`,`name`,`logo`,`website`,`category`,`sortOrder`,`isActive`) VALUES
-(UUID(),'Siemens Energy','/assets/img/partners/siemens.svg','https://www.siemens-energy.com','OEM',1,1),
-(UUID(),'Emerson Automation','/assets/img/partners/emerson.svg','https://www.emerson.com','Automation',2,1),
-(UUID(),'Flowserve','/assets/img/partners/flowserve.svg','https://www.flowserve.com','OEM',3,1),
-(UUID(),'KSB Group','/assets/img/partners/ksb.svg','https://www.ksb.com','OEM',4,1),
-(UUID(),'Sulzer','/assets/img/partners/sulzer.svg','https://www.sulzer.com','OEM',5,1),
-(UUID(),'Pentair','/assets/img/partners/pentair.svg','https://www.pentair.com','Filtration',6,1);
+(UUID(),'Honeywell Aerospace','/assets/img/partners/honeywell.svg','https://aerospace.honeywell.com','OEM',1,1),
+(UUID(),'Collins Aerospace','/assets/img/partners/collins.svg','https://www.collinsaerospace.com','OEM',2,1),
+(UUID(),'Parker Aerospace','/assets/img/partners/parker.svg','https://www.parker.com','OEM',3,1),
+(UUID(),'Safran Landing Systems','/assets/img/partners/safran.svg','https://www.safran-group.com','OEM',4,1),
+(UUID(),'Eaton Aerospace','/assets/img/partners/eaton.svg','https://www.eaton.com','OEM',5,1),
+(UUID(),'Kidde Aerospace','/assets/img/partners/kidde.svg','https://www.collinsaerospace.com','OEM',6,1),
+(UUID(),'GE Aviation','/assets/img/partners/ge.svg','https://www.geaerospace.com','OEM',7,1),
+(UUID(),'Thales','/assets/img/partners/thales.svg','https://www.thalesgroup.com','OEM',8,1),
+(UUID(),'BFGoodrich','/assets/img/partners/bfgoodrich.svg','https://www.collinsaerospace.com','OEM',9,1),
+(UUID(),'Meggitt','/assets/img/partners/meggitt.svg','https://www.meggitt.com','OEM',10,1);
 
--- ----- Settings -----
+
 INSERT INTO `settings` (`id`,`key`,`value`,`type`,`group`,`sortOrder`) VALUES
-(UUID(),'site_name','Vortex Precision','STRING','GENERAL',1),
-(UUID(),'site_tagline','Industrial Manufacturing Excellence','STRING','GENERAL',2),
-(UUID(),'hero_title','Precision-engineered for the most demanding industries','STRING','HERO',1),
-(UUID(),'hero_subtitle','Vortex Precision designs and manufactures industrial valves, pumps, heat exchangers, pressure vessels and filtration systems trusted by operators worldwide.','STRING','HERO',2),
+(UUID(),'site_name','JetPacks Market','STRING','GENERAL',1),
+(UUID(),'site_tagline','Aircraft Parts Marketplace','STRING','GENERAL',2),
+(UUID(),'hero_title','Find the Right Jet Part. Fast.','STRING','HERO',1),
+(UUID(),'hero_subtitle','Search thousands of new, overhauled and used aircraft parts for Gulfstream, Falcon, Citation, Challenger, Hawker, Learjet, Boeing and Airbus. Every part certified and traceable.','STRING','HERO',2),
 (UUID(),'hero_cta_primary','Request a Quote','STRING','HERO',3),
-(UUID(),'hero_cta_secondary','Explore Products','STRING','HERO',4),
-(UUID(),'about_intro','Vortex Precision has been a trusted partner to industrial operators for over three decades. From our headquarters in Houston, Texas, we design, manufacture and service equipment for the most demanding applications in oil & gas, chemical processing, power generation, water, pharmaceutical and food & beverage.','TEXT','ABOUT',1),
-(UUID(),'stats_years','35','INT','STATS',1),
-(UUID(),'stats_countries','60','INT','STATS',2),
-(UUID(),'stats_projects','4200','INT','STATS',3),
-(UUID(),'stats_clients','850','INT','STATS',4),
-(UUID(),'contact_email','sales@vortexprecision.com','STRING','CONTACT',1),
-(UUID(),'support_email','support@vortexprecision.com','STRING','CONTACT',2),
-(UUID(),'rfq_email','rfq@vortexprecision.com','STRING','CONTACT',3),
-(UUID(),'phone','+1 (555) 123-4567','STRING','CONTACT',4),
-(UUID(),'address','1234 Industrial Way, Houston, TX 77001, USA','STRING','CONTACT',5),
-(UUID(),'social','{"linkedin":"https://linkedin.com/company/vortexprecision","twitter":"https://twitter.com/vortexprecision","facebook":"https://facebook.com/vortexprecision","youtube":"https://youtube.com/@vortexprecision"}','JSON','CONTACT',6),
+(UUID(),'hero_cta_secondary','Browse Parts','STRING','HERO',4),
+(UUID(),'about_intro','JetPacks Market is a global marketplace for new, overhauled and used aircraft parts. From our facility at Dallas Executive Airport, we supply rotables, consumables, engines, APUs and airframe parts to flight departments, airlines, MROs and brokers in over 120 countries — every part shipped with full FAA/EASA certification and traceability.','TEXT','ABOUT',1),
+(UUID(),'stats_parts','34000','INT','STATS',1),
+(UUID(),'stats_aircraft','150','INT','STATS',2),
+(UUID(),'stats_countries','120','INT','STATS',3),
+(UUID(),'stats_aog','24','INT','STATS',4),
+(UUID(),'contact_email','sales@jetpacksmarket.com','STRING','CONTACT',1),
+(UUID(),'support_email','support@jetpacksmarket.com','STRING','CONTACT',2),
+(UUID(),'rfq_email','rfq@jetpacksmarket.com','STRING','CONTACT',3),
+(UUID(),'phone','+1 (214) 350-0107','STRING','CONTACT',4),
+(UUID(),'address','Hangar 4, Dallas Executive Airport, Dallas, TX 75209, USA','STRING','CONTACT',5),
+(UUID(),'social','{"linkedin":"https://linkedin.com/company/jetpacksmarket","twitter":"https://twitter.com/jetpacksmarket","facebook":"https://facebook.com/jetpacksmarket","youtube":"https://youtube.com/@jetpacksmarket"}','JSON','CONTACT',6),
 (UUID(),'rfq_enabled','1','BOOL','RFQ',1),
 (UUID(),'rfq_rate_limit_per_hour','5','INT','RFQ',2),
-(UUID(),'rfq_admin_email','admin@vortexprecision.com','STRING','RFQ',3),
+(UUID(),'rfq_admin_email','admin@jetpacksmarket.com','STRING','RFQ',3),
 
 -- ----- SEO -----
-(UUID(),'seo_default_title','Vortex Precision — Industrial Manufacturing','STRING','SEO',1),
-(UUID(),'seo_default_description','Vortex Precision designs and manufactures industrial valves, pumps, heat exchangers, pressure vessels and filtration systems for oil & gas, chemical, power, water, pharmaceutical and food & beverage operators worldwide.','TEXT','SEO',2),
-(UUID(),'seo_keywords','industrial valves, centrifugal pumps, heat exchangers, pressure vessels, filtration systems, oil and gas equipment, process equipment manufacturer','STRING','SEO',3),
+(UUID(),'seo_default_title','JetPacks Market — Aircraft Parts Marketplace','STRING','SEO',1),
+(UUID(),'seo_default_description','JetPacks Market sells new, overhauled and used aircraft parts for Gulfstream, Falcon, Citation, Challenger, Hawker, Learjet, Boeing and Airbus. FAA 8130-3 certified parts, 24/7 AOG support, worldwide shipping.','TEXT','SEO',2),
+(UUID(),'seo_keywords','aircraft parts, jet parts, aviation parts, airplane parts, aircraft marketplace, AOG parts, Gulfstream parts, Falcon parts, Citation parts, rotables, wheels and brakes, aircraft engines','STRING','SEO',3),
 (UUID(),'seo_robots','index, follow','STRING','SEO',4),
-(UUID(),'seo_og_image','/assets/img/hero-industrial.jpg','STRING','SEO',5),
+(UUID(),'seo_og_image','/assets/img/hero-jet.jpg','STRING','SEO',5),
 (UUID(),'seo_enable_jsonld','1','BOOL','SEO',6),
 (UUID(),'seo_schema_type','Organization','STRING','SEO',7),
-(UUID(),'seo_schema_name','Vortex Precision','STRING','SEO',8),
-(UUID(),'seo_schema_logo','/assets/img/logo-vortex-precision.png','STRING','SEO',9),
+(UUID(),'seo_schema_name','JetPacks Market','STRING','SEO',8),
+(UUID(),'seo_schema_logo','/assets/img/logo-header.png','STRING','SEO',9),
 
 -- ----- AI Chat -----
 (UUID(),'chat_enabled','1','BOOL','CHAT',1),
-(UUID(),'chat_title','Halyk Petroleum Assistant','STRING','CHAT',2),
-(UUID(),'chat_bot_name','Halyk','STRING','CHAT',3),
+(UUID(),'chat_title','JetPacks Assistant','STRING','CHAT',2),
+(UUID(),'chat_bot_name','JetPacks','STRING','CHAT',3),
 (UUID(),'chat_avatar','/assets/img/chat-bot-avatar.png','STRING','CHAT',8),
-(UUID(),'chat_welcome','Hi there! 👋 I can help you with our products, industries, pricing, delivery times and quotes. What would you like to know?','TEXT','CHAT',4),
+(UUID(),'chat_welcome','Hi there! 👋 I can help you find parts, check prices, request a quote or answer questions about certification and shipping. What part number are you looking for?','TEXT','CHAT',4),
 (UUID(),'chat_ai_provider','local','STRING','CHAT',5),
 (UUID(),'chat_rate_limit_per_hour','60','INT','CHAT',6),
-(UUID(),'chat_quick_replies','["Products","Request a quote","Delivery times","Contact"]','JSON','CHAT',7)
+(UUID(),'chat_quick_replies','["Find a part","Request a quote","Ask a question","AOG support"]','JSON','CHAT',7)
 ON DUPLICATE KEY UPDATE `value`=VALUES(`value`);
 
 -- ----- Careers -----
 INSERT INTO `careers` (`id`,`title`,`slug`,`department`,`location`,`type`,`experience`,`salary`,`description`,`requirements`,`benefits`,`isActive`) VALUES
-(UUID(),'Senior Mechanical Engineer','senior-mechanical-engineer','Engineering','Houston, TX','Full-time','7+ years','Competitive','Lead the design and analysis of pressure vessels and heat exchangers for our oil & gas and chemical processing clients.', 'Bachelor or Master in Mechanical Engineering, ASME Section VIII experience, PE preferred.', 'Health, dental, vision, 401(k) match, profit share', 1),
-(UUID(),'Process Engineer','process-engineer','Engineering','Houston, TX','Full-time','3+ years','Competitive','Support process design and commissioning of skidded systems, including pumps, heat exchangers and filtration.', 'Bachelor in Chemical or Mechanical Engineering, P&ID literacy, field commissioning experience a plus.', 'Health, dental, vision, 401(k) match', 1),
-(UUID(),'Quality Control Inspector','quality-control-inspector','Quality','Houston, TX','Full-time','5+ years','Competitive','Perform dimensional and NDE inspection of fabricated equipment to ASME, EN and customer-specific requirements.', 'CWI required, ASNT Level II PT/MT preferred, experience with ASME U/U2.', 'Health, dental, vision, 401(k) match', 1),
-(UUID(),'Sales Engineer - Process','sales-engineer-process','Sales','Remote (US Southeast)','Full-time','5+ years','Base + Commission','Drive technical sales of valves, pumps and heat exchangers to EPCs, end users and channel partners.', 'Bachelor in Engineering, 5+ years industrial sales, technical fluency in pumps and valves.', 'Uncapped commission, health, 401(k) match, company vehicle', 1);
+(UUID(),'AOG Parts Coordinator','aog-parts-coordinator','Operations','Dallas, TX','Full-time','3+ years','Competitive','Lead our Aircraft-on-Ground desk: source, quote and dispatch urgent parts to customers worldwide within hours.','Experience in aviation parts sales or MRO purchasing, strong phone and email communication, familiarity with part number formats.', 'Health, dental, vision, 401(k) match, AOG shift bonus', 1),
+(UUID(),'Aviation Parts Sourcing Specialist','aviation-parts-sourcing','Purchasing','Dallas, TX','Full-time','5+ years','Competitive','Grow our global supplier network and source hard-to-find rotables, engines, APUs and airframe parts.','5+ years in aviation parts procurement, established supplier relationships preferred, fluent in traceability requirements (FAA/EASA).', 'Health, dental, vision, 401(k) match', 1),
+(UUID(),'Quality & Traceability Inspector','quality-traceability-inspector','Quality','Dallas, TX','Full-time','5+ years','Competitive','Verify incoming and outgoing parts against 8130-3 / Form 1 documentation, maintain traceability records and audit supplier paperwork.','Aviation quality experience, knowledge of FAA 8130-3 / EASA Form 1, meticulous documentation habits.', 'Health, dental, vision, 401(k) match', 1),
+(UUID(),'Sales Representative - Business Aviation','sales-rep-business-aviation','Sales','Remote (US)','Full-time','5+ years','Base + Commission','Own key flight department and MRO accounts across the US, quoting and closing wheel, brake, hydraulic and avionics part sales.','5+ years aviation parts sales, existing customer relationships in business aviation, technical fluency.', 'Uncapped commission, health, 401(k) match, company vehicle', 1);
+
 
 -- ----- News (3 sample) -----
 INSERT INTO `news` (`id`,`title`,`slug`,`summary`,`content`,`publishedAt`,`isActive`) VALUES

@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - admin Quotes controller.
+ * JetPacks Market - admin Quotes controller.
  *
  * - List with filters + search + CSV export
  * - View single quote (items + history + activity)

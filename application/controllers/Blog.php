@@ -12,7 +12,7 @@ class Blog extends MY_Controller
     public function index()
     {
         $this->page_title = 'Blog & insights';
-        $this->page_description = 'Engineering articles, selection guides and industry insights from the Vortex Precision team.';
+        $this->page_description = 'Aircraft parts guides, certification walkthroughs and industry insights from the JetPacks Market team.';
         $page = max(1, (int) $this->input->get('page'));
         $per = 9;
         $result = $this->Blog_model->paginate(['status' => 'PUBLISHED'], $per, $page, ['publishedAt' => 'DESC']);

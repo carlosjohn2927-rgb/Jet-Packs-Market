@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - security helpers.
+ * JetPacks Market - security helpers.
  */
 
 if (!function_exists('vp_hmac_sign')) {

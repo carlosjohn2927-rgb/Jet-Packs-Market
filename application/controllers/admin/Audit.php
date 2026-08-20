@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Halyk Petroleum — administrator activity / audit log.
+ * JetPacks Market — administrator activity / audit log.
  *
  * Every privileged action (sign-in, content change, permission change,
  * denied access attempt …) is written here by the Vp_audit library. The Super

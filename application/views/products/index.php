@@ -11,21 +11,22 @@
 /** @var string $base_url */
 ?>
 <?php $this->load->view('partials/photo_writeup_hero', [
-    'hero_image'         => IMG_URL . 'products/valves.jpg',
-    'hero_alt'           => 'Industrial valves ready for process service',
-    'hero_title_html'    => vp_inline_text('products_hero_title', 'Product catalog', 'h1', 'text-4xl lg:text-5xl font-extrabold'),
-    'hero_subtitle_html' => vp_inline_text('products_hero_subtitle', 'Valves, pumps, heat exchangers, pressure vessels, filtration and instrumentation — engineered to the highest standards.', 'p', 'mt-3 text-lg'),
+    'hero_image'         => IMG_URL . 'hero-hangar.jpg',
+    'hero_alt'           => 'Aircraft parts in a hangar ready to ship',
+    'hero_eyebrow'       => 'Aircraft parts marketplace',
+    'hero_title_html'    => vp_inline_text('products_hero_title', 'Parts catalog', 'h1', 'text-4xl lg:text-5xl font-extrabold'),
+    'hero_subtitle_html' => vp_inline_text('products_hero_subtitle', 'New, overhauled and used parts for business and commercial jets — every part certified, traceable and ready to ship.', 'p', 'mt-3 text-lg'),
 ]); ?>
 
-<section class="bg-white border-b">
+<section class="jpm-filters">
     <div class="container mx-auto px-4 py-5">
         <form method="get" action="<?= base_url('products') ?>" class="grid md:grid-cols-4 gap-3 items-end">
             <div>
-                <label class="text-xs font-semibold text-ink-800 uppercase" for="q">Search</label>
-                <input class="vp-input" type="search" id="q" name="q" value="<?= vp_safe_html($search) ?>" placeholder="Valve, pump, heat exchanger…">
+                <label class="text-xs font-bold text-ink-800 uppercase tracking-wide" for="q">Search</label>
+                <input class="vp-input" type="search" id="q" name="q" value="<?= vp_safe_html($search) ?>" placeholder="Part number, name, manufacturer…">
             </div>
             <div>
-                <label class="text-xs font-semibold text-ink-800 uppercase" for="category">Category</label>
+                <label class="text-xs font-bold text-ink-800 uppercase tracking-wide" for="category">Category</label>
                 <select class="vp-select" id="category" name="category">
                     <option value="">All categories</option>
                     <?php foreach ($categories as $c): ?>
@@ -34,41 +35,68 @@
                 </select>
             </div>
             <div>
-                <label class="text-xs font-semibold text-ink-800 uppercase" for="industry">Industry</label>
+                <label class="text-xs font-bold text-ink-800 uppercase tracking-wide" for="industry">Aircraft</label>
                 <select class="vp-select" id="industry" name="industry">
-                    <option value="">All industries</option>
+                    <option value="">All aircraft</option>
                     <?php foreach ($industries as $i): ?>
                         <option value="<?= $i['slug'] ?>" <?= $current_industry === $i['slug'] ? 'selected' : '' ?>><?= vp_safe_html($i['name']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div>
-                <button class="vp-btn vp-btn-primary w-full justify-center" type="submit"><i class="ri-search-line"></i> Filter</button>
+                <button class="vp-btn vp-btn-primary w-full justify-center" type="submit"><i class="ri-search-line"></i> Find parts</button>
             </div>
         </form>
     </div>
 </section>
 
 <section class="container mx-auto px-4 py-10">
+    <?php if (!empty($total)): ?>
+        <p class="text-sm text-ink-800 mb-5"><strong><?= number_format($total) ?></strong> part<?= $total === 1 ? '' : 's' ?> found <?= $search ? 'for “' . vp_safe_html($search) . '”' : '' ?></p>
+    <?php endif; ?>
+
     <?php if (empty($rows)): ?>
-        <div class="text-center text-ink-800 py-16">No products match your filters. <a class="text-brand-600 hover:underline" href="<?= base_url('products') ?>">Clear filters</a></div>
+        <div class="text-center text-ink-800 py-16">
+            <i class="ri-search-eye-line text-5xl text-gray-300 block mb-3"></i>
+            No parts match your filters.
+            <a class="text-brand-600 hover:underline font-semibold" href="<?= base_url('products') ?>">Clear filters</a>
+            — or <a class="text-brand-600 hover:underline font-semibold" href="<?= base_url('rfq') ?>">send us the part number</a> and we will source it.
+        </div>
     <?php else: ?>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             <?php foreach ($rows as $p): ?>
-                <a href="<?= base_url('products/' . $p['slug']) ?>" class="group bg-white border rounded-2xl overflow-hidden hover:shadow-lg transition flex flex-col">
-                    <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
-                        <?= vp_product_image_tag($p, 'w-full h-full object-cover group-hover:scale-105 transition duration-300') ?>
-                    </div>
-                    <div class="p-5 flex-1 flex flex-col">
-                        <div class="text-xs text-ink-800 font-mono font-semibold"><?= vp_safe_html($p['sku']) ?></div>
-                        <h3 class="font-bold text-ink-900 mt-1"><?= vp_safe_html($p['name']) ?></h3>
-                        <p class="text-sm text-ink-900 mt-2 flex-1 leading-relaxed"><?= vp_safe_html(vp_truncate($p['shortDescription'] ?? $p['description'], 110)) ?></p>
-                        <div class="mt-3 flex items-center justify-between">
-                            <span class="vp-pill <?= ($p['availability'] === 'IN_STOCK' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800') ?>"><?= vp_safe_html(str_replace('_', ' ', $p['availability'])) ?></span>
-                            <span class="text-brand-600 text-sm font-semibold">View details &rarr;</span>
+                <?php
+                [$condLabel, $condClass] = vp_condition_badge($p['condition'] ?? 'NEW');
+                $qty = (int) ($p['quantity'] ?? 1);
+                ?>
+                <div class="jpm-part-card">
+                    <a href="<?= base_url('products/' . $p['slug']) ?>" class="jpm-thumb block" aria-label="<?= vp_safe_html($p['name']) ?>">
+                        <?= vp_product_image_tag($p, 'w-full h-full object-cover', null, 'lazy') ?>
+                    </a>
+                    <div class="jpm-body">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="jpm-pn"><?= vp_safe_html($p['sku']) ?></span>
+                            <span class="jpm-cond <?= $condClass ?>"><?= vp_safe_html($condLabel) ?></span>
+                        </div>
+                        <a href="<?= base_url('products/' . $p['slug']) ?>" class="block mt-1.5">
+                            <h3 class="font-bold text-ink-900 leading-snug hover:text-brand-600"><?= vp_safe_html($p['name']) ?></h3>
+                        </a>
+                        <?php if (!empty($p['manufacturer'])): ?>
+                            <div class="jpm-manufacturer mt-1"><?= vp_safe_html($p['manufacturer']) ?></div>
+                        <?php endif; ?>
+                        <div class="flex items-center justify-between mt-3">
+                            <span class="jpm-qty">Qty: <b><?= $qty ?></b></span>
+                            <span class="jpm-price"><?= vp_part_price($p['price']) ?></span>
+                        </div>
+                        <?php if (!empty($p['aircraftType'])): ?>
+                            <div class="jpm-chip mt-3"><i class="ri-flight-takeoff-line"></i> <?= vp_safe_html($p['aircraftType']) ?></div>
+                        <?php endif; ?>
+                        <div class="mt-4 pt-3 border-t border-gray-100 flex gap-2">
+                            <a href="<?= base_url('rfq?product=' . urlencode($p['slug'])) ?>" class="vp-btn vp-btn-quote flex-1 justify-center text-sm"><i class="ri-quote-text"></i> RFQ</a>
+                            <a href="<?= base_url('contact?subject=' . urlencode('Question about ' . $p['name'] . ' (' . $p['sku'] . ')')) ?>" class="vp-btn vp-btn-ask flex-1 justify-center text-sm"><i class="ri-question-line"></i> Ask</a>
                         </div>
                     </div>
-                </a>
+                </div>
             <?php endforeach; ?>
         </div>
 

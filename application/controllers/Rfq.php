@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - public RFQ (Request for Quote) controller.
+ * JetPacks Market - public RFQ (Request for Quote) controller.
  */
 class Rfq extends MY_Controller
 {
@@ -17,7 +17,7 @@ class Rfq extends MY_Controller
     public function index()
     {
         $this->page_title = 'Request a quote';
-        $this->page_description = 'Submit a Request for Quote (RFQ) to Vortex Precision and our engineering team will respond within 2 business days.';
+        $this->page_description = 'Submit a Request for Quote (RFQ) to JetPacks Market — standard quotes return within 24 business hours, AOG requests within 2 hours.';
 
         $productSlug = $this->input->get('product');
         $prefill = null;

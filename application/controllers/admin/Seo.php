@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - SEO settings (search engine optimisation).
+ * JetPacks Market - SEO settings (search engine optimisation).
  *
  * Edits the settings-table keys under group "SEO", rendered on every public
  * page via vp_seo_head(). Also drives robots.txt and sitemap.xml.

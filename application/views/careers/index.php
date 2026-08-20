@@ -1,10 +1,10 @@
 <?php /** @var array $rows */ ?>
 <?php $this->load->view('partials/photo_writeup_hero', [
     'hero_image'         => IMG_URL . 'careers-team.jpg',
-    'hero_alt'           => 'Engineering and fabrication team collaborating',
-    'hero_eyebrow'       => 'Build what matters',
+    'hero_alt'           => 'The JetPacks Market team working in the hangar',
+    'hero_eyebrow'       => 'Join the team',
     'hero_title_html'    => vp_inline_text('careers_hero_title', 'Careers', 'h1', 'text-4xl lg:text-5xl font-extrabold mt-3'),
-    'hero_subtitle_html' => vp_inline_text('careers_hero_subtitle', 'Join a team that designs and builds the industrial equipment the world depends on.', 'p', 'mt-3 max-w-2xl text-lg'),
+    'hero_subtitle_html' => vp_inline_text('careers_hero_subtitle', 'Join the team that keeps the world''s aircraft flying.', 'p', 'mt-3 max-w-2xl text-lg'),
     'hero_min'           => '420px',
 ]); ?>
 <section class="container mx-auto px-4 py-12 max-w-3xl">

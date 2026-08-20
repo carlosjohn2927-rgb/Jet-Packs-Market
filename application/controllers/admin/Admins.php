@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Halyk Petroleum — Administrator management (SUPER ADMIN ONLY).
+ * JetPacks Market — Administrator management (SUPER ADMIN ONLY).
  *
  * Create, edit, enable/disable, delete and reset administrator accounts, and
  * decide exactly which dashboard sections each of them may use.

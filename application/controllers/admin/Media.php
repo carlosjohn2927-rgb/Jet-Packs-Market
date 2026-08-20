@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Halyk Petroleum — media library.
+ * JetPacks Market — media library.
  *
  * Upload, replace, rename, delete and re-use files across the whole website.
  * Files referenced by critical settings (logo, favicon) are protected: they

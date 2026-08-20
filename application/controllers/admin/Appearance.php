@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Halyk Petroleum — logo, favicon, colours, header and footer management.
+ * JetPacks Market — logo, favicon, colours, header and footer management.
  *
  * Everything edited here is stored in the `settings` table and read by the
  * public theme through the CMS helper, so a change is live immediately and

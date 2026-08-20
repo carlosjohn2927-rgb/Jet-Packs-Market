@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - CodeIgniter 3 base config.
+ * JetPacks Market - CodeIgniter 3 base config.
  *
  * PRODUCTION SECRETS
  * ------------------
@@ -89,7 +89,7 @@ if (!function_exists('vp_config_secrets')) {
         }
 
         // Last resort: ephemeral (breaks remember-me across requests).
-        error_log('Vortex Precision: VP_ENCRYPTION_KEY / VP_AUTH_SECRET not set '
+        error_log('JetPacks Market: VP_ENCRYPTION_KEY / VP_AUTH_SECRET not set '
             . 'and .secrets.php could not be written. Using ephemeral secrets. '
             . 'Set the env vars in production.');
         return [
@@ -198,17 +198,17 @@ $config['rewrite_short_tags'] = FALSE;
 // Composer autoload - none on shared hosting
 $config['composer_autoload'] = FALSE;
 
-// Vortex-specific runtime config (read from environment when present).
+// JetPacks Market runtime config (read from environment when present).
 // IMPORTANT: these are exposed at the TOP LEVEL of $config because the
 // consumers use $this->config->item('key') - CI3 item() does not reach
 // into nested arrays.
-$config['site_name']       = vp_config_env('VP_SITE_NAME', 'Halyk Petroleum');
-$config['site_tagline']    = vp_config_env('VP_SITE_TAGLINE', 'Industrial Manufacturing Excellence');
-$config['contact_email']   = vp_config_env('VP_CONTACT_EMAIL', 'sale@halykpetroleum-kz.com');
-$config['support_email']   = vp_config_env('VP_SUPPORT_EMAIL', 'support@halykpetroleum-kz.com');
-$config['rfq_email']       = vp_config_env('VP_RFQ_EMAIL', 'sale@halykpetroleum-kz.com');
-$config['phone']           = vp_config_env('VP_PHONE', '+1 (555) 123-4567');
-$config['address']         = vp_config_env('VP_ADDRESS', '1234 Industrial Way, Houston, TX 77001, USA');
+$config['site_name']       = vp_config_env('VP_SITE_NAME', 'JetPacks Market');
+$config['site_tagline']    = vp_config_env('VP_SITE_TAGLINE', 'Aircraft Parts Marketplace');
+$config['contact_email']   = vp_config_env('VP_CONTACT_EMAIL', 'sales@jetpacksmarket.com');
+$config['support_email']   = vp_config_env('VP_SUPPORT_EMAIL', 'support@jetpacksmarket.com');
+$config['rfq_email']       = vp_config_env('VP_RFQ_EMAIL', 'rfq@jetpacksmarket.com');
+$config['phone']           = vp_config_env('VP_PHONE', '+1 (214) 350-0107');
+$config['address']         = vp_config_env('VP_ADDRESS', 'Hangar 4, Dallas Executive Airport, Dallas, TX 75209, USA');
 // Social profiles. Empty values are simply not rendered by the footer, so
 // leave a channel blank until the real account exists.
 $config['social']          = [
@@ -217,9 +217,9 @@ $config['social']          = [
     'facebook'   => vp_config_env('VP_SOCIAL_FACEBOOK'),
     'youtube'    => vp_config_env('VP_SOCIAL_YOUTUBE'),
 ];
-$config['from_email']      = vp_config_env('VP_FROM_EMAIL', 'no-reply@halykpetroleum-kz.com');
-$config['from_name']       = vp_config_env('VP_FROM_NAME', 'Halyk Petroleum');
-$config['reply_to']        = vp_config_env('VP_REPLY_TO', 'sale@halykpetroleum-kz.com');
+$config['from_email']      = vp_config_env('VP_FROM_EMAIL', 'no-reply@jetpacksmarket.com');
+$config['from_name']       = vp_config_env('VP_FROM_NAME', 'JetPacks Market');
+$config['reply_to']        = vp_config_env('VP_REPLY_TO', 'sales@jetpacksmarket.com');
 $config['resend_api_key']  = vp_config_env('RESEND_API_KEY');
 $config['resend_api_url']  = vp_config_env('VP_RESEND_API_URL', 'https://api.resend.com/emails');
 

@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Halyk Petroleum — admin form widgets.
+ * JetPacks Market — admin form widgets.
  *
  * Small HTML builders shared by every dashboard editor so the CMS forms stay
  * consistent (and so image fields always go through the media library).

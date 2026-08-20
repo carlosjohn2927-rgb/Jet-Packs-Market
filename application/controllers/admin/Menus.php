@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Halyk Petroleum — navigation / menu management.
+ * JetPacks Market — navigation / menu management.
  *
  * The public header, footer columns and legal links are all rendered from the
  * `menu_items` table, so administrators fully control the site navigation.

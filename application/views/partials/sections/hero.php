@@ -1,9 +1,10 @@
 <?php
 /** Hero banner section. @var array $section */
 $this->load->view('partials/sections/_helpers');
-$img     = vp_asset_url($section['image'] ?? '', IMG_URL . 'hero-industrial.jpg');
+$img     = vp_asset_url($section['image'] ?? '', IMG_URL . 'hero-jet.jpg');
 $eyebrow = vp_section_option($section, 'eyebrow');
 $badges  = (array) vp_section_option($section, 'badges', []);
+$showSearch = (bool) vp_section_option($section, 'showSearch', false);
 ?>
 <section class="relative overflow-hidden bg-ink-900 min-h-[520px] flex items-center"<?= vp_section_style_attr($section) ?>>
     <img src="<?= vp_safe_html($img) ?>" alt="<?= vp_safe_html($section['title'] ?? '') ?>" class="absolute inset-0 w-full h-full object-cover" fetchpriority="high" decoding="async">
@@ -35,10 +36,26 @@ $badges  = (array) vp_section_option($section, 'badges', []);
             <?php if ($badges): ?>
                 <div class="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm">
                     <?php foreach ($badges as $b): ?>
-                        <span><i class="ri-checkbox-circle-line text-brand-600 mr-1"></i> <?= vp_safe_html($b) ?></span>
+                        <span><i class="ri-checkbox-circle-line text-amber-400 mr-1"></i> <?= vp_safe_html($b) ?></span>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
         </div>
+
+        <?php if ($showSearch): ?>
+        <div class="jpm-hero-search">
+            <form method="get" action="<?= base_url('products') ?>" class="jpm-search">
+                <i class="ri-search-line text-xl text-brand-600"></i>
+                <input type="search" name="q" placeholder="Part number, name or manufacturer — e.g. 2612201-2, brake, Honeywell…" aria-label="Search parts">
+                <button type="submit">Search</button>
+            </form>
+            <div class="jpm-legend mt-4">
+                <span><i class="ri-circle-fill text-emerald-500"></i> NEW</span>
+                <span><i class="ri-circle-fill text-amber-500"></i> OHC</span>
+                <span><i class="ri-circle-fill text-sky-500"></i> USED</span>
+                <span><i class="ri-flashlight-fill text-amber-400"></i> 24/7 AOG support</span>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </section>

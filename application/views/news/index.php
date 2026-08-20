@@ -1,7 +1,7 @@
 <?php /** @var array $rows */ ?>
 <?php $this->load->view('partials/photo_writeup_hero', [
-    'hero_image'         => IMG_URL . 'news/iso-quality.jpg',
-    'hero_alt'           => 'Quality inspection of manufactured industrial equipment',
+    'hero_image'         => IMG_URL . 'news/aog-dispatch.jpg',
+    'hero_alt'           => 'JetPacks Market news and announcements',
     'hero_title_html'    => '<h1 class="text-4xl lg:text-5xl font-extrabold">News</h1>',
     'hero_subtitle_html' => '<p class="mt-3 text-lg">Latest news and announcements.</p>',
 ]); ?>
@@ -12,7 +12,7 @@
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             <?php foreach ($rows as $n): ?>
                 <a href="<?= base_url('news/' . $n['slug']) ?>" class="bg-white border rounded-2xl overflow-hidden hover:shadow-lg transition flex flex-col">
-                    <div class="aspect-[16/9] bg-gray-100 overflow-hidden"><img src="<?= vp_safe_html(vp_news_image($n)) ?>" alt="<?= vp_safe_html($n['title']) ?>" class="w-full h-full object-cover hover:scale-105 transition duration-500" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='<?= IMG_URL ?>hero-industrial.jpg'"></div>
+                    <div class="aspect-[16/9] bg-gray-100 overflow-hidden"><img src="<?= vp_safe_html(vp_news_image($n)) ?>" alt="<?= vp_safe_html($n['title']) ?>" class="w-full h-full object-cover hover:scale-105 transition duration-500" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='<?= IMG_URL ?>news/default.jpg'"></div>
                     <div class="p-5 flex-1 flex flex-col">
                         <div class="text-xs text-ink-800"><?= vp_human_date($n['publishedAt']) ?></div>
                         <h3 class="font-bold text-lg text-ink-900 mt-2"><?= vp_safe_html($n['title']) ?></h3>

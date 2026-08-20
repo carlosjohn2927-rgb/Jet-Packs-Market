@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - public Products controller.
+ * JetPacks Market - public Products controller.
  */
 class Products extends MY_Controller
 {
@@ -15,7 +15,7 @@ class Products extends MY_Controller
     public function index()
     {
         $this->page_title = 'Products';
-        $this->page_description = 'Browse the Vortex Precision product catalog: valves, pumps, heat exchangers, pressure vessels, filtration and instrumentation.';
+        $this->page_description = 'Browse the JetPacks Market parts catalog: wheels & brakes, landing gear, avionics, engines & APUs, hydraulics, electrical and more.';
 
         $category = $this->input->get('category');
         $industry = $this->input->get('industry');

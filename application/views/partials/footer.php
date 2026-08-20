@@ -15,7 +15,7 @@ $legal = vp_menu('footer_legal');
 
 // Fallbacks so the footer is never empty on a fresh install.
 if (empty($columns['Solutions'])) {
-    foreach ([['Products', 'products'], ['Industries', 'industries'], ['Services', 'services'], ['Request a Quote', 'rfq']] as $m) {
+    foreach ([['Parts', 'products'], ['Aircraft', 'industries'], ['Services', 'services'], ['Request a Quote', 'rfq']] as $m) {
         $columns['Solutions'][] = ['label' => $m[0], 'href' => base_url($m[1]), 'target' => '_self'];
     }
 }
@@ -26,7 +26,7 @@ if (empty($columns['Company'])) {
 }
 $copyright = $site['copyright'] ?: ('© ' . date('Y') . ' ' . $site['name'] . '. All rights reserved.');
 ?>
-<footer class="bg-black text-white mt-16">
+<footer class="bg-ink-900 text-white mt-16 border-t-4 border-amber-500">
     <div class="container mx-auto px-4 py-12 grid md:grid-cols-4 gap-8">
         <div>
             <a href="<?= base_url() ?>" class="inline-block mb-4" aria-label="<?= vp_safe_html($site['name']) ?> home">
@@ -34,6 +34,9 @@ $copyright = $site['copyright'] ?: ('© ' . date('Y') . ' ' . $site['name'] . '.
                      class="h-11 w-auto max-w-[240px] object-contain" loading="lazy" decoding="async">
             </a>
             <p class="text-sm text-white"><?= vp_safe_html($site['footer_about'] ?: $site['tagline']) ?></p>
+            <div class="mt-4 inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold px-3 py-2 rounded-lg">
+                <i class="ri-alarm-line text-base"></i> 24/7 AOG hotline: <?= vp_safe_html($site['phone']) ?>
+            </div>
         </div>
 
         <?php foreach ($columns as $title => $items): ?>

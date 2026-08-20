@@ -12,7 +12,7 @@ class Faq extends MY_Controller
     public function index()
     {
         $this->page_title = 'Frequently asked questions';
-        $this->page_description = 'Answers to common questions about Vortex Precision lead times, engineering, quality, installation, warranty and shipping.';
+        $this->page_description = 'Answers to common questions about JetPacks Market part conditions, certification, lead times, shipping, quoting and sourcing.';
         $rows = $this->db->where('isActive', 1)->order_by('category', 'ASC')->order_by('sortOrder', 'ASC')->get('faqs')->result_array();
         $grouped = [];
         foreach ($rows as $r) {

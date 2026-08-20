@@ -6,7 +6,7 @@
     </div>
 </section>
 <div class="container mx-auto px-4 max-w-4xl pt-8">
-    <img src="<?= vp_safe_html(vp_news_image($row)) ?>" alt="<?= vp_safe_html($row['title']) ?>" class="w-full aspect-[16/8] object-cover rounded-2xl shadow-sm" fetchpriority="high" decoding="async" onerror="this.onerror=null;this.src='<?= IMG_URL ?>hero-industrial.jpg'">
+    <img src="<?= vp_safe_html(vp_news_image($row)) ?>" alt="<?= vp_safe_html($row['title']) ?>" class="w-full aspect-[16/8] object-cover rounded-2xl shadow-sm" fetchpriority="high" decoding="async" onerror="this.onerror=null;this.src='<?= IMG_URL ?>news/default.jpg'">
 </div>
 <section class="container mx-auto px-4 py-10 max-w-3xl vp-prose">
     <?= $row['content'] ?>
