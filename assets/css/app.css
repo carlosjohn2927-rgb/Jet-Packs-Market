@@ -1,0 +1,321 @@
+/* Vortex Precision - public site CSS */
+:root {
+    --vp-bg: #ffffff;
+    --vp-writeup: #000000;
+    --vp-sidebar-bg: #000000;
+    --vp-sidebar-writeup: #ffffff;
+    --brand-50:  #eef5ff;
+    --brand-100: #d9e8ff;
+    --brand-200: #bcd6ff;
+    --brand-300: #8ebbff;
+    --brand-400: #5a99ff;
+    --brand-500: #2f78ff;
+    --brand-600: #1659e6;
+    --brand-700: #0f44b8;
+    --brand-800: #0e3893;
+    --brand-900: #0e3077;
+    --ink-900:   #000000;
+    --ink-800:   #000000;
+    --ink-700:   #000000;
+}
+html { scroll-behavior: smooth; }
+body { font-feature-settings: "cv11", "ss01"; }
+.container { max-width: 1200px; }
+a { transition: color .15s ease; }
+
+/* Simple Prose styles for blog / about content */
+.vp-prose h1 { font-size: 2.25rem; font-weight: 800; margin: 0 0 1rem; color: var(--ink-900); }
+.vp-prose h2 { font-size: 1.75rem; font-weight: 700; margin: 2rem 0 .75rem; color: var(--ink-900); }
+.vp-prose h3 { font-size: 1.35rem; font-weight: 700; margin: 1.5rem 0 .5rem; color: var(--ink-800); }
+.vp-prose p  { line-height: 1.7; margin-bottom: 1rem; }
+.vp-prose ul { list-style: disc; padding-left: 1.25rem; margin-bottom: 1rem; }
+.vp-prose ol { list-style: decimal; padding-left: 1.25rem; margin-bottom: 1rem; }
+.vp-prose blockquote { border-left: 3px solid var(--brand-500); padding: .5rem 1rem; background: var(--brand-50); border-radius: .5rem; }
+.vp-prose img { max-width: 100%; border-radius: .5rem; }
+.vp-prose table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+.vp-prose th, .vp-prose td { border: 1px solid #e5e7eb; padding: .5rem .75rem; }
+.vp-prose th { background: #f9fafb; text-align: left; }
+
+/* Pagination */
+.vp-pagination ul li a { display: inline-block; padding: 8px 12px; border: 1px solid #e5e7eb; background: #fff; }
+.vp-pagination ul li:first-child a { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+.vp-pagination ul li:last-child  a { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+
+/* Form polish */
+form .vp-input,
+form .vp-textarea,
+form .vp-select {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+}
+form .vp-input:focus,
+form .vp-textarea:focus,
+form .vp-select:focus {
+    border-color: var(--brand-500);
+    box-shadow: 0 0 0 3px rgba(47,120,255,0.15);
+    outline: 0;
+}
+form label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; color: var(--ink-800); }
+form .vp-help { font-size: 12px; color: #6b7280; margin-top: 4px; }
+form .vp-error { color: #b91c1c; font-size: 12px; margin-top: 4px; }
+
+.vp-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.vp-btn-primary { background: var(--brand-600); color: #fff; }
+.vp-btn-primary:hover { background: var(--brand-700); }
+.vp-btn-secondary { background: #fff; color: var(--ink-800); border: 1px solid #d1d5db; }
+.vp-btn-secondary:hover { background: #f9fafb; }
+.vp-btn-danger { background: #dc2626; color: #fff; }
+.vp-btn-danger:hover { background: #b91c1c; }
+
+/* Status pills (used by quote status) */
+.vp-pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: .5px; }
+
+/* ------------------------------------------------------------------ */
+/* Readability pass: bolder, higher-contrast "write-up" text.          */
+/*                                                                     */
+/* The stock theme leans on thin Tailwind greys (gray-400/500/600) at  */
+/* 400 weight, which renders washed-out on most monitors. This block   */
+/* raises the base weight, darkens every secondary grey used on light  */
+/* backgrounds, and lightens the greys used on the DARK hero sections  */
+/* so both directions gain contrast rather than just one.              */
+/* ------------------------------------------------------------------ */
+html { -webkit-text-size-adjust: 100%; }
+body {
+    font-weight: 500;
+    color: var(--vp-writeup, #000000);
+    background-color: var(--vp-bg, #ffffff);
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Long-form content ("write-up"): bolder, darker, more leading. */
+.vp-prose { color: var(--vp-writeup, #000000); font-size: 1.0625rem; }
+.vp-prose p {
+    font-weight: 500;
+    color: var(--vp-writeup, #000000);
+    line-height: 1.85;
+    font-size: 1.0625rem;
+    letter-spacing: .003em;
+    margin-bottom: 1.15rem;
+}
+.vp-prose li { font-weight: 500; color: #000000; line-height: 1.8; }
+.vp-prose strong, .vp-prose b { font-weight: 700; color: #000000; }
+.vp-prose a { font-weight: 600; color: var(--brand-700); text-decoration: underline; text-underline-offset: 2px; }
+.vp-prose h1, .vp-prose h2, .vp-prose h3, .vp-prose h4 { color: #000000; font-weight: 800; }
+
+/* ---- Light backgrounds: write-up pure black ------------------------ */
+.text-gray-300 { color: #000000 !important; }
+.text-gray-400 { color: #000000 !important; }
+.text-gray-500 { color: #000000 !important; }
+.text-gray-600 { color: #000000 !important; }
+.text-gray-700 { color: #000000 !important; }
+.text-slate-400 { color: #000000 !important; }
+.text-slate-500 { color: #000000 !important; }
+.text-slate-600 { color: #000000 !important; }
+.bg-white p, .bg-gray-50 p, .bg-white li, .bg-gray-50 li,
+section.bg-white, section.bg-gray-50, header.bg-white {
+    color: #000000;
+}
+
+/* ...but on the dark hero / footer panels those same greys must go
+   the other way (lighter), otherwise the rules above would bury them.
+
+   Scope carefully: the dark heroes are `bg-gradient-to-br from-ink-900 ...`
+   and the dark CTA band is `bg-gradient-to-r from-brand-600 ...`, while
+   blog/news card placeholders reuse `bg-gradient-to-br` with LIGHT grey
+   stops (from-gray-100). Keying off the colour stop instead of the
+   gradient direction keeps the light placeholders untouched. */
+.bg-ink-900 .text-gray-300,
+.bg-ink-800 .text-gray-300,
+.from-ink-900 .text-gray-300,
+.from-brand-600 .text-gray-300,
+.bg-black .text-gray-300,
+footer .text-gray-300 { color: #ffffff !important; }
+.bg-ink-900 .text-gray-400,
+.bg-ink-800 .text-gray-400,
+.from-ink-900 .text-gray-400,
+.from-brand-600 .text-gray-400,
+.bg-black .text-gray-400,
+footer .text-gray-400 { color: #ffffff !important; }
+.bg-ink-900 .text-gray-200,
+.bg-ink-800 .text-gray-200,
+.from-ink-900 .text-gray-200,
+.from-brand-600 .text-gray-200,
+.bg-black .text-gray-200,
+footer .text-gray-200 { color: #ffffff !important; font-weight: 500; }
+.bg-ink-900 .text-gray-500,
+.bg-ink-800 .text-gray-500,
+.from-ink-900 .text-gray-500,
+.bg-black .text-gray-500,
+footer .text-gray-500 { color: #f8fafc !important; }
+.from-ink-900 .text-slate-400,
+.bg-ink-900 .text-slate-400,
+.bg-black .text-slate-400,
+footer .text-slate-400 { color: #ffffff !important; }
+.from-ink-900 .text-slate-500,
+.bg-ink-900 .text-slate-500,
+.bg-black .text-slate-500,
+footer .text-slate-500 { color: #ffffff !important; }
+
+.bg-ink-900, .bg-ink-800, .from-ink-900, .from-brand-600, .bg-black {
+    color: #ffffff;
+}
+.bg-ink-900 p, .bg-ink-800 p, .from-ink-900 p, .from-brand-600 p,
+.bg-ink-900 li, .from-ink-900 li, .from-brand-600 li {
+    color: #ffffff;
+}
+.text-white\/80 { color: #ffffff !important; }
+
+/* Footer: solid black, all write-up white */
+footer.bg-black,
+footer.bg-ink-900 {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+footer.bg-black a,
+footer.bg-black p,
+footer.bg-black li,
+footer.bg-black h4,
+footer.bg-black div,
+footer.bg-black span {
+    color: #ffffff !important;
+}
+footer.bg-black a:hover { color: #ffffff !important; text-decoration: underline; }
+
+/* Body copy / lead paragraphs sitting directly in sections. */
+p { font-weight: 500; }
+.text-sm  { font-weight: 500; }
+.text-xs  { font-weight: 600; }        /* SKUs, meta labels, breadcrumbs */
+.uppercase.text-xs, .text-xs.uppercase { letter-spacing: .06em; }
+
+/* Headings across the public site heavier for scannability. */
+h1, h2, h3, h4 { letter-spacing: -0.015em; color: #000000; }
+h1 { font-weight: 800; }
+h2, h3 { font-weight: 700; }
+.bg-ink-900 h1, .bg-ink-800 h1, .from-ink-900 h1, .from-brand-600 h1,
+.bg-ink-900 h2, .bg-ink-800 h2, .from-ink-900 h2, .from-brand-600 h2,
+.bg-ink-900 h3, .bg-ink-800 h3, .from-ink-900 h3, .from-brand-600 h3,
+.bg-ink-900 h4, .bg-ink-800 h4, .from-ink-900 h4, .from-brand-600 h4,
+footer h1, footer h2, footer h3, footer h4 { color: inherit; }
+
+/* Hero lead paragraphs: the biggest "too faint" offender on the site. */
+.from-ink-900 .text-lg, .from-ink-900 .text-xl,
+.bg-ink-900 .text-lg, .bg-ink-900 .text-xl { font-weight: 500; }
+
+/* Cards: product blurbs and list descriptions. */
+.vp-card p, .vp-card li { font-weight: 500; color: #000000; }
+
+/* Customer reviews: dark write-up next to the portrait. */
+.vp-review p { color: #000000; font-weight: 500; }
+.vp-review { color: #000000; }
+
+/* Ink utilities in case Tailwind CDN is late or missing. */
+.text-ink-900 { color: #000000 !important; }
+.text-ink-800 { color: #000000 !important; }
+.text-ink-700 { color: #000000 !important; }
+.bg-ink-900 .text-ink-900,
+.bg-ink-800 .text-ink-900,
+.from-ink-900 .text-ink-900,
+.from-brand-600 .text-ink-900,
+.bg-ink-900 .text-ink-800,
+.from-ink-900 .text-ink-800,
+footer .text-ink-800,
+footer .text-ink-900 { color: #ffffff !important; }
+
+/* Links in body copy read as links. */
+a.hover\:underline, a.underline { font-weight: 600; }
+
+/* Form labels/help text were 12-13px grey — nudge both up. */
+form label { font-size: 14px; font-weight: 700; color: #000000; }
+form .vp-help { font-size: 13px; color: #4b5563; font-weight: 500; }
+form .vp-input, form .vp-textarea, form .vp-select { font-size: 15px; font-weight: 500; color: #000000; }
+form .vp-input::placeholder, form .vp-textarea::placeholder { color: #6b7280; font-weight: 500; }
+
+/* Tables inside prose. */
+.vp-prose td { font-weight: 500; color: #000000; }
+.vp-prose th { font-weight: 700; color: #000000; }
+
+/* ------------------------------------------------------------------ */
+/* Top-of-page write-up bands: WHITE write-up on every site page.      */
+/* Photo heroes keep their faint card over the picture (white text     */
+/* with a dark halo); plain top bands (article/news headers, search,   */
+/* RFQ) sit on a black surface so the white write-up stays readable.   */
+/* ------------------------------------------------------------------ */
+.vp-writeup-band {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+.vp-writeup-band h1,
+.vp-writeup-band h2,
+.vp-writeup-band h3,
+.vp-writeup-band h4,
+.vp-writeup-band p,
+.vp-writeup-band span,
+.vp-writeup-band li,
+.vp-writeup-band div {
+    color: #ffffff !important;
+}
+.vp-writeup-band [class*='text-gray-'],
+.vp-writeup-band [class*='text-slate-'],
+.vp-writeup-band [class*='text-brand-'] {
+    color: #ffffff !important;
+}
+
+/* Photo overlays: white write-up over the picture, let it show through. */
+.vp-writeup-overlay {
+    background-color: rgba(255, 255, 255, 0.10) !important;
+    box-shadow: none !important;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+.vp-writeup-overlay h1,
+.vp-writeup-overlay h2,
+.vp-writeup-overlay h3,
+.vp-writeup-overlay h4,
+.vp-writeup-overlay p,
+.vp-writeup-overlay span,
+.vp-writeup-overlay li,
+.vp-writeup-overlay div {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 14px rgba(0, 0, 0, 0.45);
+}
+.vp-writeup-overlay a {
+    text-shadow: none;
+}
+
+/* Buttons inside the top write-up bands stay white-on-blue. */
+.vp-writeup-band .vp-btn-primary,
+.vp-writeup-band a.bg-brand-500,
+.vp-writeup-band a.bg-brand-600,
+.vp-writeup-band a.bg-brand-700,
+.vp-writeup-band .vp-cta-quote {
+    color: #ffffff !important;
+}
+
+/* Secondary (white) buttons inside the top bands need dark labels. */
+.vp-writeup-band a.bg-white,
+.vp-writeup-band a.bg-gray-50 {
+    color: #000000 !important;
+}
+
+/* Contact page map (Leaflet). Isolate stacking so tiles stay under the header. */
+.vp-contact-map {
+    height: 420px;
+    width: 100%;
+    background: #e5e7eb;
+    isolation: isolate;
+}
+.vp-contact-map .leaflet-container {
+    height: 100%;
+    width: 100%;
+    font-family: inherit;
+}
