@@ -537,7 +537,7 @@ if (!function_exists('vp_seo_config')) {
             'default_description' => (string) $val('seo_default_description', $tagline),
             'keywords'            => (string) $val('seo_keywords', ''),
             'robots'              => (string) $val('seo_robots', 'index, follow'),
-            'og_image'            => (string) $val('seo_og_image', IMG_URL . 'hero-industrial.jpg'),
+            'og_image'            => (string) $val('seo_og_image', IMG_URL . 'hero-jet.jpg'),
             'canonical_domain'    => rtrim((string) $val('seo_canonical_domain', ''), '/'),
             'twitter_site'        => (string) $val('seo_twitter_site', ''),
             'facebook_app_id'     => (string) $val('seo_facebook_app_id', ''),
