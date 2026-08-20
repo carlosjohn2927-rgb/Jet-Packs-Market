@@ -719,3 +719,108 @@ if (!function_exists('vp_chat_config')) {
         ];
     }
 }
+
+/**
+ * 🚀 Marketplace roadmap — single source of truth for "Shipped / Building / Planned".
+ *
+ * Used by:
+ *   • public /roadmap page (modules/Roadmap_page view)
+ *   • admin dashboard widget
+ *   • marketing footer / status block when needed
+ *
+ * Status values: 'shipped' | 'building' | 'planned'. Items with status 'shipped'
+ * are considered complete in production. The total % shipped is computed by
+ * vp_roadmap_progress().
+ */
+if (!function_exists('vp_roadmap_data')) {
+    function vp_roadmap_data()
+    {
+        return [
+            [
+                'name' => 'Marketplace foundation',
+                'items' => [
+                    ['title' => 'CI3 base, no Composer required',                       'status' => 'shipped',  'detail' => 'Works on cPanel from a raw FTP upload — no terminal, SSH, Composer or Node.js needed.'],
+                    ['title' => 'Environment-driven config (.env)',                     'status' => 'shipped',  'detail' => 'Database, secrets, SMTP and site identity all live in a single .env file.'],
+                    ['title' => 'RBAC with per-account overrides',                      'status' => 'shipped',  'detail' => 'Role permissions + per-user allow / deny for every dashboard section.'],
+                    ['title' => 'CSRF + login + global rate limiter',                    'status' => 'shipped',  'detail' => 'Hardened by default — AOG / contact / chat / RFQ have separate buckets.'],
+                ],
+            ],
+            [
+                'name' => 'Public marketplace',
+                'items' => [
+                    ['title' => 'Homepage CMS section builder',                        'status' => 'shipped',  'detail' => 'Hero, stats, categories, featured parts, aircraft, testimonials, partners, CTA.'],
+                    ['title' => 'Aircraft platform marketplace',                       'status' => 'shipped',  'detail' => '12 aviation part categories and 10 aircraft platforms, each with a tile.'],
+                    ['title' => 'Parts search strip on every page',                    'status' => 'shipped',  'detail' => 'Header search posts live to /products?q= and respects the active category.'],
+                    ['title' => 'Part detail pages with condition pills + USD price',  'status' => 'shipped',  'detail' => 'FAA 8130-3 / EASA Form 1 callouts, AOG dispatch line, RT-? RFQ + 'Ask a question'.'],
+                    ['title' => 'Request a Quote (RFQ) public flow',                  'status' => 'shipped',  'detail' => 'Multi-line items, attachments, prefilled part, 24-hr + AOG routing.'],
+                    ['title' => 'Ask a question deep-link from any part',             'status' => 'shipped',  'detail' => 'Card / detail / home quick-action all jump to the contact form prefilled.'],
+                    ['title' => 'AOG hotline strip in footer',                        'status' => 'shipped',  'detail' => '24/7 hotline highlighted in amber on every page.'],
+                ],
+            ],
+            [
+                'name' => 'Super Admin dashboard',
+                'items' => [
+                    ['title' => 'Administrator & permission management',              'status' => 'shipped',  'detail' => 'Create accounts, assign roles, grant / revoke section-level permissions.'],
+                    ['title' => 'Homepage section builder',                          'status' => 'shipped',  'detail' => 'Add / reorder / hide / duplicate sections from a single screen.'],
+                    ['title' => 'CMS pages, navigation, branding, header & footer',    'status' => 'shipped',  'detail' => 'Everything the public site renders is editable from the dashboard.'],
+                    ['title' => 'Media library with replace / delete / update',       'status' => 'shipped',  'detail' => 'Replaces /assets/img/<file>.jpg live without breaking public URLs.'],
+                    ['title' => 'Settings + SEO + Audit + Notifications',            'status' => 'shipped',  'detail' => 'Sales, AOG and careers messages route to the correct staff inbox.'],
+                    ['title' => 'RFQ → admin list with status + assign + note + PDF', 'status' => 'shipped',  'detail' => 'Hardened state machine, CSV export, email on every status change.'],
+                ],
+            ],
+            [
+                'name' => 'Back-office & platform',
+                'items' => [
+                    ['title' => 'cPanel-friendly deployment',                         'status' => 'shipped',  'detail' => 'One .zip upload, one .sql import, edit .env in File Manager.'],
+                    ['title' => 'Optional SQLite dev mode',                          'status' => 'shipped',  'detail' => 'Run the entire site from a single .sqlite file when MySQL isnt available.'],
+                    ['title' => 'Resend / SMTP / mail() fallback in Mailer',          'status' => 'shipped',  'detail' => 'Auto-detects which transport is configured; never silently drops email.'],
+                    ['title' => 'Audit log + per-admin activity timeline',           'status' => 'shipped',  'detail' => 'Filterable by actor, resource, action, IP and date.'],
+                    ['title' => 'CSRF exclusion list for the chat widget',          'status' => 'shipped',  'detail' => 'Avoids 403 when a CDN strips the rotated CSRF cookie on rapid messages.'],
+                    ['title' => 'Stripe / card payments',                            'status' => 'planned',  'detail' => 'Built-in quote flow stops at PO / wire today; card payments are the next launch target.'],
+                    ['title' => 'Multi-warehouse inventory & lot tracking',         'status' => 'planned',  'detail' => 'Show stock per warehouse, batch / lot, expiry on rotables.'],
+                    ['title' => 'Customer accounts + parts-order history',           'status' => 'planned',  'detail' => 'Signed-in customers can re-order, download prior invoices and track AOG dispatches.'],
+                ],
+            ],
+        ];
+    }
+}
+
+if (!function_exists('vp_roadmap_progress')) {
+    /** Returns 0..100 percentage of items with status shipped. */
+    function vp_roadmap_progress()
+    {
+        $total = 0; $done = 0;
+        foreach (vp_roadmap_data() as $phase) {
+            foreach (($phase['items'] ?? []) as $it) {
+                $total++;
+                if (($it['status'] ?? '') === 'shipped') $done++;
+            }
+        }
+        if ($total === 0) return 0;
+        return (int) floor(($done / $total) * 100);
+    }
+}
+
+if (!function_exists('vp_roadmap_recent')) {
+    /**
+     * Returns the N most recent "Shipped" items across all phases, sorted by
+     * phase + order. Used by the dashboard widget and footer status block.
+     */
+    function vp_roadmap_recent($limit = 3)
+    {
+        $items = [];
+        foreach (vp_roadmap_data() as $phase) {
+            foreach (($phase['items'] ?? []) as $it) {
+                if (($it['status'] ?? '') === 'shipped') {
+                    $items[] = [
+                        'phase' => $phase['name'] ?? '',
+                        'title' => $it['title']     ?? '',
+                        'detail'=> $it['detail']   ?? '',
+                    ];
+                }
+            }
+        }
+        // The data struct is already in display order; trim to the limit.
+        return array_slice($items, 0, max(1, (int) $limit));
+    }
+}

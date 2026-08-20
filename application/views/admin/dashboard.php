@@ -165,6 +165,23 @@ $quick = [
         <?php endif; ?>
     </div>
 
+    <!-- Roadmap widget (Super Admin only). Same data struct as the public /roadmap page. -->
+    <?php if (!empty($is_super_admin)): ?>
+        <div class="grid lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <?php $this->load->view('admin/partials/roadmap_widget', [
+                    'roadmap_progress' => $roadmap_progress ?? vp_roadmap_progress(),
+                    'roadmap_recent'   => $roadmap_recent   ?? vp_roadmap_recent(3),
+                ]); ?>
+            </div>
+            <div class="vp-card vp-card-pad">
+                <h3 class="font-bold text-ink-900 mb-2"><i class="ri-question-answer-line text-brand-600"></i> Help &amp; feedback</h3>
+                <p class="text-sm text-ink-800/70">Have an idea for the next milestone — or spotted a workflow gap on this dashboard? Email the Super Admin team at <a class="text-brand-600 hover:underline" href="mailto:<?= vp_safe_html(vp_setting('contact_email', 'sales@jetpacksmarket.com')) ?>"><?= vp_safe_html(vp_setting('contact_email', 'sales@jetpacksmarket.com')) ?></a>. Approved roadmap items land here and on the public <a class="text-brand-600 hover:underline" href="<?= base_url('roadmap') ?>">/roadmap</a> page.</p>
+                <p class="text-xs text-ink-800/60 mt-3">Public roadmap: <a class="text-brand-600 hover:underline" href="<?= base_url('roadmap') ?>" target="_blank" rel="noopener"><?= base_url('roadmap') ?></a></p>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Activity -->
     <?php if (vp_can('audit.view')): ?>
         <section class="bg-white border rounded-2xl">

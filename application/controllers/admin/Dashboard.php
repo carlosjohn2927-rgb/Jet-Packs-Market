@@ -80,6 +80,12 @@ class Dashboard extends Admin_Controller
             $data['email_health'] = vp_email_health();
         }
 
+        // Public-roadmap widget (Super Admin only — product/eng visibility).
+        // Same data struct that /roadmap uses, so the public page can never
+        // disagree with what the team sees internally.
+        $data['roadmap_progress'] = vp_roadmap_progress();
+        $data['roadmap_recent']   = vp_roadmap_recent(3);
+
         if ($this->is_super_admin()) {
             $data['admins'] = $this->db->where_in('role', [ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_SALES, ROLE_ENGINEER, ROLE_EDITOR])
                                        ->order_by('lastLoginAt', 'DESC')->limit(6)->get('users')->result_array();

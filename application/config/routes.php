@@ -44,6 +44,7 @@ $route['sitemap.xml']          = 'seo/sitemap';
 
 /* ---------- AI chat ---------- */
 $route['chat/message']         = 'chat/message';
+$route['roadmap']               = 'roadmap';
 
 $route['login']                = 'auth/login';
 $route['register']             = 'auth/register';
