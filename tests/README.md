@@ -20,6 +20,35 @@ php app/tests/acceptance.php
 
 `acceptance.php --install` runs step 1 for you.
 
+## Standalone unit tests (no DB, no HTTP server, < 1s total)
+
+For fast feedback on a single laptop or in CI before the full acceptance
+suite — and for shape-checking the helpers + permission catalogue without
+a database — there is also a standalone suite under `tests/units/`:
+
+```bash
+# Every standalone suite, all in well under a second.
+bash tests/units/run_all.sh
+# (or)
+php tests/units/run_all.php
+
+# A single suite
+php tests/units/helpers_basic.php
+php tests/units/quote_state_machine.php
+php tests/units/rbac_catalog.php
+php tests/units/product_image_resolution.php
+```
+
+Coverage:
+
+| Suite | Checks |
+|---|---|
+| `helpers_basic.php` | `vp_money`, `vp_condition_badge`, `vp_part_price`, `vp_slugify`, `vp_truncate`, `vp_format_bytes` |
+| `quote_state_machine.php` | `QUOTE_*` constants, `QUOTE_TRANSITIONS` forward-only + terminal contract, `vp_quote_status_label` |
+| `rbac_catalog.php` | every `permissions.php` row well-formed, groups registered, `super_only` set is exactly `{admins.manage, system.manage}`, role defaults reference only existing keys and never a super-only one, every critical key reachable by at least one non-super role |
+| `product_image_resolution.php` | 6-step image URL resolution chain: uploaded > curated > category > keyword > default; null/empty inputs never throw |
+
+
 ## What it verifies (140+ checks)
 
 | Area | Checks |
