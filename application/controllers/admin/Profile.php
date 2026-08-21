@@ -14,7 +14,7 @@ class Profile extends Admin_Controller
     {
         parent::__construct();
         $this->load->model(['User_model', 'Media_model']);
-        $this->load->library(['form_validation', 'vp_upload']);
+        $this->load->library(['form_validation', 'jet_upload']);
         $this->load->helper(['form', 'url', 'security_helper', 'cms_schema_helper']);
         vp_ensure_user_avatar_column();
     }
@@ -22,7 +22,7 @@ class Profile extends Admin_Controller
     public function index()
     {
         $this->page_title = 'My profile';
-        $user = $this->vp_auth->user();
+        $user = $this->jet_auth->user();
         $this->render('admin/profile/index', [
             'row'         => $user,
             'permissions' => $this->acl->effective($user),
@@ -34,7 +34,7 @@ class Profile extends Admin_Controller
     public function save()
     {
         if ($this->input->method() !== 'post') show_404();
-        $user = $this->vp_auth->user();
+        $user = $this->jet_auth->user();
 
         $email = strtolower(trim((string) $this->input->post('email')));
         $this->form_validation->set_data($this->input->post());
@@ -61,7 +61,7 @@ class Profile extends Admin_Controller
 
         // Optional profile picture upload. Role and isActive are deliberately
         // NOT editable here — an administrator can never promote themselves.
-        $upload = $this->vp_upload->handle('avatar', 'avatars', 'jpg|jpeg|png|webp|gif', 2048);
+        $upload = $this->jet_upload->handle('avatar', 'avatars', 'jpg|jpeg|png|webp|gif', 2048);
         if (is_array($upload) && !empty($upload['error'])) {
             $this->flash('error', $upload['error']);
             return redirect('admin/profile');
@@ -94,7 +94,7 @@ class Profile extends Admin_Controller
     public function password()
     {
         if ($this->input->method() !== 'post') show_404();
-        $user = $this->vp_auth->user();
+        $user = $this->jet_auth->user();
 
         $current = (string) $this->input->post('current_password');
         $new     = (string) $this->input->post('new_password');

@@ -24,7 +24,7 @@ class Inline_editor extends Admin_Controller
 
     private function _authorize()
     {
-        $user = $this->vp_auth->user();
+        $user = $this->jet_auth->user();
         if ($this->acl->user_can($user, 'homepage.manage') || $this->acl->user_can($user, 'pages.manage')) {
             return;
         }
@@ -109,7 +109,7 @@ class Inline_editor extends Admin_Controller
         if ($this->input->method() !== 'post') show_404();
         $this->_authorize();
 
-        $user = $this->vp_auth->user();
+        $user = $this->jet_auth->user();
         if (!$this->acl->user_can($user, 'appearance.manage') && !$this->acl->user_can($user, 'homepage.manage')) {
             $this->_deny('You do not have permission to change site colours.');
         }

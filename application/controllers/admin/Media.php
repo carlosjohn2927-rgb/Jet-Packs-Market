@@ -21,7 +21,7 @@ class Media extends Admin_Controller
     {
         parent::__construct();
         $this->load->model('Media_model');
-        $this->load->library('vp_upload');
+        $this->load->library('jet_upload');
         $this->load->helper(['form', 'url', 'security_helper']);
     }
 
@@ -93,7 +93,7 @@ class Media extends Admin_Controller
 
         // SVG deliberately excluded: SVG can carry scripts and would be an
         // XSS vector when opened directly.
-        $result = $this->vp_upload->handle('file', $folder, 'jpg|jpeg|png|webp|gif|ico|pdf|doc|docx|xls|xlsx|zip|mp4|webm|ogg|mov', 51200);
+        $result = $this->jet_upload->handle('file', $folder, 'jpg|jpeg|png|webp|gif|ico|pdf|doc|docx|xls|xlsx|zip|mp4|webm|ogg|mov', 51200);
 
         if (is_array($result) && empty($result['error'])) {
             $id = $this->Media_model->insert([
@@ -106,7 +106,7 @@ class Media extends Admin_Controller
                 'alt'          => trim((string) $this->input->post('alt')) ?: null,
             ]);
             if (strpos((string) $result['mime'], 'image/') === 0) {
-                $this->vp_upload->resize_image($result['path'], 1600);
+                $this->jet_upload->resize_image($result['path'], 1600);
             }
             $this->audit->log(AUDIT_CREATE, 'media', $id, ['name' => $result['name'], 'folder' => $result['folder']]);
 
@@ -129,7 +129,7 @@ class Media extends Admin_Controller
         $row = $id ? $this->Media_model->find($id) : null;
         if (!$row) show_404();
 
-        $result = $this->vp_upload->handle('file', $row['folder'] ?: 'general', 'jpg|jpeg|png|webp|gif|ico|pdf|doc|docx|xls|xlsx|zip', 16384);
+        $result = $this->jet_upload->handle('file', $row['folder'] ?: 'general', 'jpg|jpeg|png|webp|gif|ico|pdf|doc|docx|xls|xlsx|zip', 16384);
         if (!is_array($result) || !empty($result['error'])) {
             $this->flash('error', is_array($result) ? $result['error'] : 'Upload failed.');
             return redirect('admin/media');

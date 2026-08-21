@@ -16,7 +16,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *
  * The response never leaks system prompts or sensitive configuration.
  */
-class Vp_assistant
+class Jet_assistant
 {
     protected $CI;
 
@@ -353,7 +353,7 @@ class Vp_assistant
         curl_close($ch);
 
         if ($response === false) {
-            log_message('error', 'Vp_assistant: remote LLM request failed - ' . $err);
+            log_message('error', 'Jet_assistant: remote LLM request failed - ' . $err);
             return null;
         }
 

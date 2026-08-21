@@ -18,15 +18,15 @@ class Auth extends MY_Controller
 
     public function login()
     {
-        if ($this->vp_auth->check()) {
-            return $this->_redirect_after_login($this->vp_auth->user());
+        if ($this->jet_auth->check()) {
+            return $this->_redirect_after_login($this->jet_auth->user());
         }
         $this->page_title = 'Sign in';
         $this->page_description = 'Sign in to your ' . ($this->config->item('site_name') ?: 'JetPacks Market') . ' account.';
 
         // Heal the session store so a missing ci_sessions table cannot
         // silently swallow the login.
-        $this->vp_auth->ensure_session_store();
+        $this->jet_auth->ensure_session_store();
 
         if ($this->input->method() === 'post') {
             $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
@@ -34,7 +34,7 @@ class Auth extends MY_Controller
             $this->form_validation->set_rules('remember', 'Remember me', 'in_list[0,1]');
 
             if ($this->form_validation->run()) {
-                $user = $this->vp_auth->attempt(
+                $user = $this->jet_auth->attempt(
                     $this->input->post('email'),
                     $this->input->post('password'),
                     (bool) $this->input->post('remember')
@@ -46,9 +46,9 @@ class Auth extends MY_Controller
                 // Show immediately (flashdata alone only appears on the next request).
                 $this->flash('error', 'Invalid email or password.');
                 $this->data['flash'] = ['type' => 'error', 'message' => 'Invalid email or password.'];
-                if ($this->vp_auth->last_attempt_error === 'locked') {
+                if ($this->jet_auth->last_attempt_error === 'locked') {
                     $this->data['flash']['message'] = 'Too many failed attempts - please try again in '
-                        . Vp_auth::WINDOW_MINUTES . ' minutes.';
+                        . Jet_auth::WINDOW_MINUTES . ' minutes.';
                 }
             }
         }
@@ -59,7 +59,7 @@ class Auth extends MY_Controller
 
     public function register()
     {
-        if ($this->vp_auth->check()) redirect('');
+        if ($this->jet_auth->check()) redirect('');
         $this->page_title = 'Create account';
         $this->page_description = 'Create a ' . ($this->config->item('site_name') ?: 'JetPacks Market') . ' account to manage quotes and downloads.';
 
@@ -72,7 +72,7 @@ class Auth extends MY_Controller
             $this->form_validation->set_rules('phone',     'Phone',      'max_length[50]');
 
             if ($this->form_validation->run()) {
-                $res = $this->vp_auth->register([
+                $res = $this->jet_auth->register([
                     'firstName' => $this->input->post('firstName'),
                     'lastName'  => $this->input->post('lastName'),
                     'email'     => $this->input->post('email'),
@@ -93,7 +93,7 @@ class Auth extends MY_Controller
 
     public function logout()
     {
-        $this->vp_auth->logout();
+        $this->jet_auth->logout();
         $this->flash('success', 'You have been signed out.');
         redirect('');
     }
@@ -175,7 +175,7 @@ class Auth extends MY_Controller
 
     public function admin_login()
     {
-        if ($this->vp_auth->check() && $this->vp_auth->is_staff()) {
+        if ($this->jet_auth->check() && $this->jet_auth->is_staff()) {
             redirect('admin');
         }
         $this->layout = '';
@@ -184,7 +184,7 @@ class Auth extends MY_Controller
         // A missing ci_sessions table is the #1 cause of "admin login does
         // nothing": the login succeeds but the session cannot persist, so the
         // next request bounces back here. Heal it before anyone even tries.
-        $sessionStoreOk = $this->vp_auth->ensure_session_store();
+        $sessionStoreOk = $this->jet_auth->ensure_session_store();
 
         if ($this->input->method() === 'post') {
             if (!$sessionStoreOk) {
@@ -196,12 +196,12 @@ class Auth extends MY_Controller
                 ]]);
             }
 
-            $user = $this->vp_auth->attempt(
+            $user = $this->jet_auth->attempt(
                 $this->input->post('email'),
                 $this->input->post('password'),
                 false
             );
-            if ($user && $this->vp_auth->is_staff()) {
+            if ($user && $this->jet_auth->is_staff()) {
                 $this->flash('success', 'Welcome back, ' . $user['firstName'] . '.');
                 // Return to the page that triggered the sign-in, when it is a
                 // safe relative admin path (never an absolute URL).
@@ -211,15 +211,15 @@ class Auth extends MY_Controller
                 }
                 redirect('admin');
             }
-            $this->vp_auth->logout();
+            $this->jet_auth->logout();
 
             // Tell the admin WHY it failed. On the (non-public) admin login
             // this helps far more than it helps an attacker.
-            switch ($this->vp_auth->last_attempt_error) {
+            switch ($this->jet_auth->last_attempt_error) {
                 case 'locked':
                     $mins = (int) ceil($this->rate_limiter->ttl(
                         'login:' . vp_get_client_ip() . ':' . hash('sha256', strtolower(trim((string) $this->input->post('email')))),
-                        Vp_auth::WINDOW_MINUTES * 60
+                        Jet_auth::WINDOW_MINUTES * 60
                     ) / 60);
                     $message = 'Too many failed attempts - this login is locked for about ' . max(1, $mins) . ' more minute(s). '
                         . 'Once you are sure of the password you can clear the lock with: php install/fix-admin.php '
@@ -251,7 +251,7 @@ class Auth extends MY_Controller
 
     public function admin_logout()
     {
-        $this->vp_auth->logout();
+        $this->jet_auth->logout();
         redirect('admin/login');
     }
 
@@ -261,7 +261,7 @@ class Auth extends MY_Controller
     {
         $next = $this->input->get('next') ?: $this->input->post('next');
         if ($next && strpos($next, '/') === 0) redirect($next);
-        if ($this->vp_auth->is_staff()) redirect('admin');
+        if ($this->jet_auth->is_staff()) redirect('admin');
         redirect('');
     }
 }

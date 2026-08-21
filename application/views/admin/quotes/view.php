@@ -21,7 +21,7 @@ $st = vp_quote_status_label($quote['status']);
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="vp-pill <?= $st['class'] ?>"><?= $st['label'] ?></span>
                     <a class="vp-btn vp-btn-secondary vp-btn-sm" href="<?= base_url('admin/quotes/' . $quote['id'] . '/pdf') ?>" target="_blank"><i class="ri-file-pdf-line"></i> PDF</a>
-                    <?php if ($this->vp_auth->has_role(ROLE_SUPER_ADMIN)): ?>
+                    <?php if ($this->jet_auth->has_role(ROLE_SUPER_ADMIN)): ?>
                         <form action="<?= base_url('admin/quotes/' . $quote['id'] . '/delete') ?>" method="post" data-confirm="Delete this quote? This cannot be undone.">
                             <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
                             <button class="vp-btn vp-btn-danger vp-btn-sm" type="submit">Delete</button>

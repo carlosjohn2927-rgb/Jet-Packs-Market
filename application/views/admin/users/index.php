@@ -20,7 +20,7 @@
                 <td class="text-xs text-gray-500"><?= $r['lastLoginAt'] ? vp_time_ago($r['lastLoginAt']) : '—' ?></td>
                 <td class="text-right">
                     <a class="text-gray-600 hover:underline text-xs" href="<?= base_url('admin/users/edit/' . $r['id']) ?>">Edit</a>
-                    <?php if ($r['id'] !== $this->vp_auth->id()): ?>
+                    <?php if ($r['id'] !== $this->jet_auth->id()): ?>
                         <form action="<?= base_url('admin/users/delete/' . $r['id']) ?>" method="post" class="inline" data-confirm="Delete this customer account?">
                             <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
                             <button class="text-red-600 hover:underline text-xs ml-2" type="submit">Delete</button>

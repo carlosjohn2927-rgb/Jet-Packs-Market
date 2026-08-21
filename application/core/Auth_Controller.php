@@ -12,7 +12,7 @@ class Auth_Controller extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-        if (!$this->vp_auth->check()) {
+        if (!$this->jet_auth->check()) {
             $this->flash('warning', 'Please sign in to continue.');
             // Relative path only: the login controllers refuse absolute URLs
             // as an open-redirect guard.

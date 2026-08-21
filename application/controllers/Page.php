@@ -25,7 +25,7 @@ class Page extends MY_Controller
         // Private pages are visible to signed-in staff (useful for previewing).
         if (!$page) {
             $raw = $this->db->get_where('pages', ['slug' => $slug], 1)->row_array();
-            if ($raw && $this->vp_auth->is_staff()) {
+            if ($raw && $this->jet_auth->is_staff()) {
                 $page = $raw;
             }
         }

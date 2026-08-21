@@ -64,7 +64,7 @@ class Blog extends Admin_Controller
             'excerpt'        => $this->input->post('excerpt'),
             'content'        => $this->input->post('content'),
             'featuredImage'  => $this->input->post('featuredImage'),
-            'authorId'       => $this->input->post('authorId') ?: $this->vp_auth->id(),
+            'authorId'       => $this->input->post('authorId') ?: $this->jet_auth->id(),
             'category'       => $this->input->post('category'),
             'tags'           => json_encode(array_values($tags)),
             'status'         => $this->input->post('status') ?: 'DRAFT',

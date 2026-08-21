@@ -15,7 +15,7 @@ class Appearance extends Admin_Controller
     {
         parent::__construct();
         $this->load->model('Media_model');
-        $this->load->library('vp_upload');
+        $this->load->library('jet_upload');
         $this->load->helper(['form', 'url', 'security_helper']);
     }
 
@@ -71,7 +71,7 @@ class Appearance extends Admin_Controller
         }
 
         $types = $target === 'favicon' ? 'png|ico|jpg|jpeg|gif|webp' : 'png|jpg|jpeg|webp|gif';
-        $result = $this->vp_upload->handle('file', 'branding', $types, 4096);
+        $result = $this->jet_upload->handle('file', 'branding', $types, 4096);
         if (!is_array($result) || !empty($result['error'])) {
             $this->flash('error', is_array($result) ? $result['error'] : 'Upload failed.');
             return redirect('admin/appearance');

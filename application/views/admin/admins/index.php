@@ -27,7 +27,7 @@
             </tr>
         </thead>
         <tbody>
-        <?php foreach ($rows as $r): $self = ($r['id'] === $this->vp_auth->id()); ?>
+        <?php foreach ($rows as $r): $self = ($r['id'] === $this->jet_auth->id()); ?>
             <tr>
                 <td>
                     <div class="flex items-center gap-3">

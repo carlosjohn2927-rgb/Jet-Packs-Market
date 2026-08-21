@@ -111,7 +111,7 @@ class Pages extends Admin_Controller
         } else {
             $id = MY_Model::uuid();
             $data['id']        = $id;
-            $data['authorId']  = $this->vp_auth->id();
+            $data['authorId']  = $this->jet_auth->id();
             $data['createdAt'] = date('Y-m-d H:i:s');
             $this->db->insert('pages', $data);
             $this->audit->log(AUDIT_CREATE, 'page', $id, ['title' => $title, 'slug' => $slug, 'status' => $status]);

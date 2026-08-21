@@ -7,7 +7,7 @@ class Careers extends MY_Controller
     {
         parent::__construct();
         $this->load->model(['Career_model', 'Application_model']);
-        $this->load->library(['form_validation', 'vp_upload', 'rate_limiter']);
+        $this->load->library(['form_validation', 'jet_upload', 'rate_limiter']);
         $this->load->helper(['form', 'url', 'security_helper']);
     }
 
@@ -52,7 +52,7 @@ class Careers extends MY_Controller
             redirect('careers/' . $slug);
         }
 
-        $resume = $this->vp_upload->handle('resume', 'careers', 'pdf|doc|docx', 8192);
+        $resume = $this->jet_upload->handle('resume', 'careers', 'pdf|doc|docx', 8192);
         if (!is_array($resume) || !empty($resume['error'])) {
             $this->flash('error', 'Resume upload failed: ' . ($resume['error'] ?? 'unknown'));
             redirect('careers/' . $slug);

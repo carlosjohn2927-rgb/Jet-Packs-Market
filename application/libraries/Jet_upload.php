@@ -15,7 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *  - stored original names are sanitized (basename only, control chars
  *    stripped, truncated)
  */
-class Vp_upload
+class Jet_upload
 {
     /** @var CI_Controller */
     protected $CI;
@@ -83,7 +83,7 @@ class Vp_upload
         $this->CI->upload->initialize($config);
         if (!$this->CI->upload->do_upload($field)) {
             $err = trim($this->CI->upload->display_errors('', ''));
-            log_message('error', 'Vp_upload do_upload failed: ' . $err
+            log_message('error', 'Jet_upload do_upload failed: ' . $err
                 . ' | client_type=' . ($_FILES[$field]['type'] ?? '?')
                 . ' | client_name=' . ($_FILES[$field]['name'] ?? '?')
                 . ' | tmp=' . ($_FILES[$field]['tmp_name'] ?? '?')

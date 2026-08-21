@@ -5,7 +5,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * JetPacks Market — public AI chat endpoint.
  *
  * Serves the floating chat widget available to every site visitor. Replies are
- * produced by the Vp_assistant library (local knowledge base by default, or an
+ * produced by the Jet_assistant library (local knowledge base by default, or an
  * external LLM when configured).
  *
  * Why this endpoint handles CSRF itself
@@ -29,7 +29,7 @@ class Chat extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->library(['vp_assistant', 'rate_limiter']);
+        $this->load->library(['jet_assistant', 'rate_limiter']);
         $this->load->helper('security_helper');
     }
 
@@ -106,7 +106,7 @@ class Chat extends MY_Controller
         }
 
         try {
-            $reply = $this->vp_assistant->reply($message);
+            $reply = $this->jet_assistant->reply($message);
         } catch (Throwable $e) {
             log_message('error', 'Chat: assistant failed - ' . $e->getMessage());
             $reply = 'Sorry, I ran into a problem answering that. Please contact our team directly and we will help right away — '

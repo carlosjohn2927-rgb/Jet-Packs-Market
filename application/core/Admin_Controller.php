@@ -40,7 +40,7 @@ class Admin_Controller extends Auth_Controller
         $this->layout = 'admin';
         $this->body_class = 'admin';
 
-        if (!$this->vp_auth->is_staff()) {
+        if (!$this->jet_auth->is_staff()) {
             $this->_deny('You do not have permission to access the admin area.');
         }
 
@@ -52,10 +52,10 @@ class Admin_Controller extends Auth_Controller
         // This check MUST run before the permission gate: otherwise an
         // account with a temporary password gets a 403 on the very page it is
         // redirected to and can never get in at all.
-        if ($this->vp_auth->must_change_password()) {
+        if ($this->jet_auth->must_change_password()) {
             $uri = strtolower((string) $this->uri->ruri_string());
             $allowed = strpos($uri, 'admin/profile') === 0
-                || strpos($uri, 'admin/users/edit/' . $this->vp_auth->id()) === 0
+                || strpos($uri, 'admin/users/edit/' . $this->jet_auth->id()) === 0
                 || strpos($uri, 'admin/users/save') === 0
                 || strpos($uri, 'auth/admin_logout') !== false
                 || strpos($uri, 'auth/logout') !== false;
@@ -66,7 +66,7 @@ class Admin_Controller extends Auth_Controller
             return; // skip gating for the forced password change itself
         }
 
-        if (!empty($this->allowed_roles) && !$this->vp_auth->has_any_role($this->allowed_roles)) {
+        if (!empty($this->allowed_roles) && !$this->jet_auth->has_any_role($this->allowed_roles)) {
             $this->_deny('You do not have permission to access this section.');
         }
 
@@ -98,13 +98,13 @@ class Admin_Controller extends Auth_Controller
     /** TRUE when the signed-in account is the Super Admin. */
     protected function is_super_admin()
     {
-        return $this->vp_auth->has_role(ROLE_SUPER_ADMIN);
+        return $this->jet_auth->has_role(ROLE_SUPER_ADMIN);
     }
 
     /** TRUE when the signed-in account holds $key. */
     protected function has_permission($key)
     {
-        return $this->acl->user_can($this->vp_auth->user(), $key);
+        return $this->acl->user_can($this->jet_auth->user(), $key);
     }
 
     /**
@@ -123,7 +123,7 @@ class Admin_Controller extends Auth_Controller
     private function _permission_set()
     {
         $out = [];
-        foreach ($this->acl->effective($this->vp_auth->user()) as $k) $out[$k] = true;
+        foreach ($this->acl->effective($this->jet_auth->user()) as $k) $out[$k] = true;
         return $out;
     }
 
@@ -151,7 +151,7 @@ class Admin_Controller extends Auth_Controller
         echo $this->load->view('admin/denied', [
             'message'    => $message,
             'permission' => $permission,
-            'user'       => $this->vp_auth->user(),
+            'user'       => $this->jet_auth->user(),
         ], TRUE);
         exit;
     }

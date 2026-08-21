@@ -8,7 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * prefixed Vp_ so it cannot collide with the admin `Settings` controller —
  * CodeIgniter resolves libraries and controllers in the same class namespace.
  */
-class Vp_settings
+class Jet_settings
 {
     protected $CI;
     protected $cache = null;

@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * - Optional "remember me" cookie (HMAC-signed, 30 days)
  * - Built-in throttling on login (5 fails / 15 min per IP+email)
  */
-class Vp_auth
+class Jet_auth
 {
     const REMEMBER_COOKIE = 'vp_remember';
     const REMEMBER_DAYS   = 30;
@@ -261,12 +261,12 @@ class Vp_auth
         try {
             $exists = $this->CI->db->table_exists('ci_sessions');
         } catch (\Throwable $e) {
-            log_message('error', 'Vp_auth: session store check failed - ' . $e->getMessage());
+            log_message('error', 'Jet_auth: session store check failed - ' . $e->getMessage());
             return $done = false;
         }
         if ($exists) return $done = true;
 
-        log_message('error', 'Vp_auth: ci_sessions table missing - creating it (see install/install.sql).');
+        log_message('error', 'Jet_auth: ci_sessions table missing - creating it (see install/install.sql).');
         $sql = "CREATE TABLE IF NOT EXISTS `ci_sessions` (
             `id`            VARCHAR(128) NOT NULL,
             `ip_address`    VARCHAR(45)  NOT NULL,
@@ -281,7 +281,7 @@ class Vp_auth
         try {
             $ok = (bool) $this->CI->db->query($sql);
         } catch (\Throwable $e) {
-            log_message('error', 'Vp_auth: could not create ci_sessions - ' . $e->getMessage());
+            log_message('error', 'Jet_auth: could not create ci_sessions - ' . $e->getMessage());
             return $done = false;
         }
         if ($ok) {

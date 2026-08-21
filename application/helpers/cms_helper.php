@@ -422,8 +422,8 @@ if (!function_exists('vp_can')) {
     function vp_can($key)
     {
         $CI =& get_instance();
-        if (!isset($CI->acl) || !isset($CI->vp_auth)) return false;
-        return $CI->acl->user_can($CI->vp_auth->user(), $key);
+        if (!isset($CI->acl) || !isset($CI->jet_auth)) return false;
+        return $CI->acl->user_can($CI->jet_auth->user(), $key);
     }
 }
 
@@ -431,7 +431,7 @@ if (!function_exists('vp_is_super_admin')) {
     function vp_is_super_admin()
     {
         $CI =& get_instance();
-        return isset($CI->vp_auth) && $CI->vp_auth->has_role(ROLE_SUPER_ADMIN);
+        return isset($CI->jet_auth) && $CI->jet_auth->has_role(ROLE_SUPER_ADMIN);
     }
 }
 

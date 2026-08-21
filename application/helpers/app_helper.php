@@ -18,11 +18,11 @@ if (!function_exists('vp_setting')) {
     }
 }
 
-if (!function_exists('vp_settings_group')) {
+if (!function_exists('jet_settings_group')) {
     /**
      * Get all settings in a group.
      */
-    function vp_settings_group($group)
+    function jet_settings_group($group)
     {
         $CI =& get_instance();
         if (!isset($CI->settings)) return [];

@@ -188,7 +188,7 @@ return array(
 	// CAD / engineering formats accepted on RFQ attachments. These are
 	// intentionally lenient on the MIME side (different libmagic builds
 	// report DWG/DXF/STEP/IGES inconsistently - some say text/plain or
-	// application/octet-stream); Vp_upload re-validates the actual file
+	// application/octet-stream); Jet_upload re-validates the actual file
 	// structure afterwards, so this list only widens the first-pass check.
 	'dwg'	=>	array('image/vnd.dwg', 'application/acad', 'application/x-acad', 'application/autocad_dwg', 'application/dwg', 'application/x-dwg', 'application/octet-stream'),
 	'dxf'	=>	array('image/vnd.dxf', 'application/dxf', 'application/x-dxf', 'application/autocad_dxf', 'text/plain', 'application/octet-stream'),

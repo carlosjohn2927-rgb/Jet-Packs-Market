@@ -113,7 +113,7 @@ class Quotes extends Admin_Controller
         $assignedTo = $this->input->post('assignedTo') ?: null;
 
         $res = $this->Quote_model->transition_status(
-            $id, $toStatus, $this->vp_auth->id(), $assignedTo, $notes, $expectedVersion
+            $id, $toStatus, $this->jet_auth->id(), $assignedTo, $notes, $expectedVersion
         );
 
         if (!$res['ok']) {
@@ -154,7 +154,7 @@ class Quotes extends Admin_Controller
 
         $assignedTo = $this->input->post('assignedTo');
         $expectedVersion = (int) $this->input->post('version');
-        $res = $this->Quote_model->assign($id, $assignedTo, $this->vp_auth->id(), $expectedVersion);
+        $res = $this->Quote_model->assign($id, $assignedTo, $this->jet_auth->id(), $expectedVersion);
         if (!$res['ok']) {
             $this->flash('error', $res['error']);
         } else {
@@ -187,14 +187,14 @@ class Quotes extends Admin_Controller
             $this->flash('error', 'Note cannot be empty.');
             return redirect('admin/quotes/' . $id);
         }
-        $res = $this->Quote_model->add_internal_note($id, $note, $this->vp_auth->id(), (int) $this->input->post('version'));
+        $res = $this->Quote_model->add_internal_note($id, $note, $this->jet_auth->id(), (int) $this->input->post('version'));
         $this->flash($res['ok'] ? 'success' : 'error', $res['ok'] ? 'Internal note added.' : $res['error']);
         redirect('admin/quotes/' . $id);
     }
 
     public function delete($id = null)
     {
-        if (!$this->vp_auth->has_role(ROLE_SUPER_ADMIN)) {
+        if (!$this->jet_auth->has_role(ROLE_SUPER_ADMIN)) {
             show_error('Only Super Admin can delete quotes.', 403);
         }
         if (!$id) show_404();
@@ -283,7 +283,7 @@ class Quotes extends Admin_Controller
         @file_put_contents($htmlPath, $html);
 
         $url = VP_UPLOAD_URL . 'quotes/' . $q['quoteNumber'] . '.pdf';
-        $this->Quote_model->set_pdf_url($id, $url, $this->vp_auth->id());
+        $this->Quote_model->set_pdf_url($id, $url, $this->jet_auth->id());
         $this->audit->log(AUDIT_PDF, 'quote', $id, ['url' => $url, 'format' => 'pdf']);
 
         // Stream the PDF to the browser

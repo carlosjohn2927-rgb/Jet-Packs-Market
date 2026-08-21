@@ -17,7 +17,7 @@ class Products extends Admin_Controller
         // form_validation must be available to every action — save() used to
         // rely on _form() having loaded it, which silently broke creating and
         // editing products (fatal "Undefined property: $form_validation").
-        $this->load->library(['vp_upload', 'form_validation']);
+        $this->load->library(['jet_upload', 'form_validation']);
         $this->load->helper(['form', 'url', 'security_helper']);
     }
 
@@ -192,7 +192,7 @@ class Products extends Admin_Controller
             // Re-key the global to match this single-file, then call the library, then restore
             $original = $_FILES;
             $_FILES = [$field => $entry];
-            $r = $this->vp_upload->handle($field, $folder, 'jpg|jpeg|png|webp|gif', 8192);
+            $r = $this->jet_upload->handle($field, $folder, 'jpg|jpeg|png|webp|gif', 8192);
             $_FILES = $original;
             if (is_array($r) && empty($r['error'])) $results[] = $r;
         }
@@ -290,7 +290,7 @@ class Products extends Admin_Controller
                 'isPrimary' => (!$hasPrimary && $idx === 0) ? 1 : 0,
                 'sortOrder'     => 999 + $idx,
             ]);
-            $this->vp_upload->resize_image($file['path'], 1600);
+            $this->jet_upload->resize_image($file['path'], 1600);
         }
 
         // Specifications

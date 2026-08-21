@@ -49,8 +49,8 @@ class MY_Controller extends CI_Controller
                 'address' => $site['address'],
             ],
             'social'           => vp_social_links(),
-            'current_user'     => $this->vp_auth->user(),
-            'is_admin'         => $this->vp_auth->check() && $this->vp_auth->is_staff(),
+            'current_user'     => $this->jet_auth->user(),
+            'is_admin'         => $this->jet_auth->check() && $this->jet_auth->is_staff(),
             'page_title'       => '',
             'page_description' => '',
             'body_class'       => '',
@@ -58,7 +58,7 @@ class MY_Controller extends CI_Controller
             'csrf_token_name'  => $this->config->item('csrf_token_name'),
             'csrf_token'       => $this->security->get_csrf_hash(),
             'current_url'      => current_url(),
-            'vp_settings'      => $this->settings ? $this->settings->all() : [],
+            'jet_settings'      => $this->settings ? $this->settings->all() : [],
             'seo'              => vp_seo_config(),
             'chat'             => vp_chat_config(),
             'csp_nonce'        => $csp_nonce,
@@ -66,7 +66,7 @@ class MY_Controller extends CI_Controller
         ];
 
         $this->data['recent_notifications'] = [];
-        if ($this->vp_auth->check() && $this->vp_auth->is_staff()) {
+        if ($this->jet_auth->check() && $this->jet_auth->is_staff()) {
             $this->data['unread_notifications'] = $this->_count_unread();
             $this->data['recent_notifications'] = $this->_recent_notifications();
         }
@@ -89,7 +89,7 @@ class MY_Controller extends CI_Controller
     private function _maintenance_gate()
     {
         if (!vp_maintenance_active()) return;
-        if ($this->vp_auth->check() && $this->vp_auth->is_staff()) return;
+        if ($this->jet_auth->check() && $this->jet_auth->is_staff()) return;
 
         $uri = strtolower((string) $this->uri->uri_string());
         foreach (['admin', 'login', 'logout', 'auth', 'forgot', 'reset', 'assets'] as $allowed) {
@@ -110,7 +110,7 @@ class MY_Controller extends CI_Controller
     private function _recent_notifications()
     {
         if (!$this->db->table_exists('notifications')) return [];
-        return $this->db->where('userId', $this->vp_auth->id())
+        return $this->db->where('userId', $this->jet_auth->id())
                         ->order_by('createdAt', 'DESC')
                         ->limit(6)
                         ->get('notifications')->result_array();
@@ -196,7 +196,7 @@ class MY_Controller extends CI_Controller
      */
     private function _admin_edit_target(array $data)
     {
-        $user = $this->vp_auth->user();
+        $user = $this->jet_auth->user();
         $role = $user['role'] ?? '';
         if (!in_array($role, [ROLE_SUPER_ADMIN, ROLE_ADMIN], true)) return null;
 
@@ -289,8 +289,8 @@ class MY_Controller extends CI_Controller
      */
     private function _inline_can()
     {
-        if (!$this->vp_auth->check() || !$this->vp_auth->is_staff()) return false;
-        $user = $this->vp_auth->user();
+        if (!$this->jet_auth->check() || !$this->jet_auth->is_staff()) return false;
+        $user = $this->jet_auth->user();
         return $this->acl->user_can($user, 'homepage.manage') || $this->acl->user_can($user, 'pages.manage');
     }
 
@@ -368,7 +368,7 @@ class MY_Controller extends CI_Controller
     private function _count_unread()
     {
         if (!$this->db->table_exists('notifications')) return 0;
-        return (int) $this->db->where('userId', $this->vp_auth->id())
+        return (int) $this->db->where('userId', $this->jet_auth->id())
                               ->where('read', 0)
                               ->count_all_results('notifications');
     }

@@ -175,7 +175,7 @@ class Admins extends Admin_Controller
 
         // Permissions come from the same form.
         $keys = (array) $this->input->post('permissions');
-        $this->acl->set_user_permissions($id, $keys, $this->vp_auth->id());
+        $this->acl->set_user_permissions($id, $keys, $this->jet_auth->id());
         $this->acl->clear_cache();
         $this->audit->log('PERMISSION_CHANGE', 'admin_user', $id, ['permissions' => array_values($keys)]);
 
@@ -213,7 +213,7 @@ class Admins extends Admin_Controller
         $this->_assert_manageable($row, 'permissions');
 
         $keys = (array) $this->input->post('permissions');
-        $this->acl->set_user_permissions($row['id'], $keys, $this->vp_auth->id());
+        $this->acl->set_user_permissions($row['id'], $keys, $this->jet_auth->id());
         $this->acl->clear_cache();
         $this->audit->log('PERMISSION_CHANGE', 'admin_user', $row['id'], [
             'email' => $row['email'],
@@ -346,15 +346,15 @@ class Admins extends Admin_Controller
      */
     private function _assert_manageable(array $row, $what = 'modify')
     {
-        if ($row['role'] === ROLE_SUPER_ADMIN && $row['id'] !== $this->vp_auth->id()) {
+        if ($row['role'] === ROLE_SUPER_ADMIN && $row['id'] !== $this->jet_auth->id()) {
             $this->audit->log('ACCESS_DENIED', 'admin_user', $row['id'], ['attempt' => $what]);
             $this->_deny('The Super Admin account is protected and cannot be modified from here.');
         }
-        if ($what === 'delete' && $row['id'] === $this->vp_auth->id()) {
+        if ($what === 'delete' && $row['id'] === $this->jet_auth->id()) {
             $this->flash('error', 'You cannot delete your own account.');
             redirect('admin/admins');
         }
-        if ($what === 'disable' && $row['id'] === $this->vp_auth->id()) {
+        if ($what === 'disable' && $row['id'] === $this->jet_auth->id()) {
             $this->flash('error', 'You cannot disable your own account.');
             redirect('admin/admins');
         }

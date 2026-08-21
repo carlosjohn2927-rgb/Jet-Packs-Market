@@ -70,7 +70,7 @@ class Rfq extends MY_Controller
             return $this->index();
         }
 
-        $userId = $this->vp_auth->id() ?: null;
+        $userId = $this->jet_auth->id() ?: null;
         $quoteData = [
             'userId'         => $userId,
             'companyName'    => $this->input->post('companyName'),
@@ -189,7 +189,7 @@ class Rfq extends MY_Controller
     private function _save_attachments($quoteId)
     {
         if (empty($_FILES['attachments']) || !isset($_FILES['attachments']['name'])) return 0;
-        $this->load->library('vp_upload');
+        $this->load->library('jet_upload');
         $names = (array) $_FILES['attachments']['name'];
         $count = count($names);
         $saved = 0;
@@ -206,7 +206,7 @@ class Rfq extends MY_Controller
             ];
             $original = $_FILES;
             $_FILES = ['attachments' => $entry];
-            $r = $this->vp_upload->handle('attachments', 'quotes', 'pdf|doc|docx|xls|xlsx|txt|jpg|jpeg|png|gif|dwg|dxf|step|stp|iges|igs|zip', 16384);
+            $r = $this->jet_upload->handle('attachments', 'quotes', 'pdf|doc|docx|xls|xlsx|txt|jpg|jpeg|png|gif|dwg|dxf|step|stp|iges|igs|zip', 16384);
             $_FILES = $original;
             if (is_array($r) && empty($r['error'])) {
                 $this->db->insert('quote_attachments', [

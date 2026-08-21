@@ -15,7 +15,7 @@ class Notifications extends Admin_Controller
     public function index()
     {
         $this->page_title = 'Notifications';
-        $rows = $this->db->where('userId', $this->vp_auth->id())
+        $rows = $this->db->where('userId', $this->jet_auth->id())
                          ->order_by('createdAt', 'DESC')
                          ->limit(100)
                          ->get('notifications')->result_array();
@@ -25,14 +25,14 @@ class Notifications extends Admin_Controller
     public function read($id = null)
     {
         if (!$id) show_404();
-        $this->db->update('notifications', ['read' => 1], ['id' => $id, 'userId' => $this->vp_auth->id()]);
+        $this->db->update('notifications', ['read' => 1], ['id' => $id, 'userId' => $this->jet_auth->id()]);
         redirect('admin/notifications');
     }
 
     public function read_all()
     {
         if ($this->input->method() !== 'post') show_404();
-        $this->db->update('notifications', ['read' => 1], ['userId' => $this->vp_auth->id(), 'read' => 0]);
+        $this->db->update('notifications', ['read' => 1], ['userId' => $this->jet_auth->id(), 'read' => 0]);
         $this->flash('success', 'All notifications marked as read.');
         redirect('admin/notifications');
     }
@@ -41,14 +41,14 @@ class Notifications extends Admin_Controller
     {
         if ($this->input->method() !== 'post') show_404();
         if (!$id) show_404();
-        $this->db->delete('notifications', ['id' => $id, 'userId' => $this->vp_auth->id()]);
+        $this->db->delete('notifications', ['id' => $id, 'userId' => $this->jet_auth->id()]);
         redirect('admin/notifications');
     }
 
     public function clear()
     {
         if ($this->input->method() !== 'post') show_404();
-        $this->db->delete('notifications', ['userId' => $this->vp_auth->id(), 'read' => 1]);
+        $this->db->delete('notifications', ['userId' => $this->jet_auth->id(), 'read' => 1]);
         $this->flash('success', 'Read notifications cleared.');
         redirect('admin/notifications');
     }

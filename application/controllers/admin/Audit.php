@@ -4,7 +4,7 @@
  * JetPacks Market — administrator activity / audit log.
  *
  * Every privileged action (sign-in, content change, permission change,
- * denied access attempt …) is written here by the Vp_audit library. The Super
+ * denied access attempt …) is written here by the Jet_audit library. The Super
  * Admin reviews them from this screen; an Admin needs the audit.view
  * permission.
  */
