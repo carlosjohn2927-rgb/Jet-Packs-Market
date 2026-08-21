@@ -1,0 +1,43 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Auto-generated secrets (created on first boot if no env vars are set)
+application/config/.secrets.php
+
+# Deployment package
+application-deployment.zip
+*.zip
+
+# Dependencies and generated output
+node_modules/
+.next/
+dist/
+build/
+coverage/
+
+# Logs and local tooling
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# Vortex Precision / CodeIgniter 3 - writable directories
+assets/logs/*
+!assets/logs/.gitkeep
+!assets/logs/.htaccess
+assets/logs/cache/*
+!assets/logs/cache/.gitkeep
+!assets/logs/cache/.htaccess
+assets/logs/ratelimit/*
+!assets/logs/ratelimit/.gitkeep
+!assets/logs/ratelimit/.htaccess
+assets/uploads/*
+!assets/uploads/.gitkeep
+
+# Legacy app/ directory (duplicate of application/)
+app/
+# Local development SQLite database (production uses MySQL/MariaDB)
+database/*.sqlite
+database/*.sqlite-journal

@@ -1,0 +1,28 @@
+# Vortex Precision - assets protection
+Options -Indexes
+
+# Never execute anything uploaded under assets/ (uploads, logs, cache).
+# Matches the root .htaccess block; kept here as defence in depth in case
+# assets/ is ever served from its own vhost or the root rules change.
+<FilesMatch "\.(php|php3|php4|php5|php7|php8|phtml|phar|phps|cgi|pl|py|sh|bash|shtml|shtm|pht)$">
+    Require all denied
+</FilesMatch>
+
+# Also disable PHP execution explicitly for mod_php setups
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>

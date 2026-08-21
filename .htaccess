@@ -1,0 +1,75 @@
+# Vortex Precision - CodeIgniter 3 (cPanel/Cloudflare-friendly)
+RewriteEngine On
+Options -Indexes
+
+# ---------------------------------------------------------------------
+# Force HTTPS.
+# Cloudflare-safe: when the site sits behind Cloudflare (or another TLS
+# proxy) the origin sees plain HTTP, so we only redirect when BOTH the
+# connection and the X-Forwarded-Proto header are plain HTTP. This prevents
+# a redirect loop on cPanel + Cloudflare setups.
+# ---------------------------------------------------------------------
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ---------------------------------------------------------------------
+# Block direct web access to non-public parts of the app.
+# Works on Apache 2.4 and is harmless on LiteSpeed.
+# ---------------------------------------------------------------------
+RewriteRule ^(application|system|sql|tests)/ - [F,L,NC]
+
+# Block sensitive files wherever they are (incl. legacy sql/ leftovers)
+<FilesMatch "(^\.|(^|/)(install\.sql|seed\.sql|seed\.php|install\.php)$)">
+    Require all denied
+</FilesMatch>
+<FilesMatch "\.(sql|md|log|json)$">
+    Require all denied
+</FilesMatch>
+
+# Block dotfiles (.env, .git, .htaccess contents, etc.)
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# ---------------------------------------------------------------------
+# Executable files: never execute, never serve.
+# RewriteRule (URI-based) instead of FilesMatch because FilesMatch would
+# also match index.php after CI3's internal rewrite and take the whole
+# site down. index.php itself is the only allowed .php URL.
+# ---------------------------------------------------------------------
+RewriteCond %{REQUEST_URI} !^/index\.php [NC]
+RewriteRule \.(php|php3|php4|php5|php7|php8|phtml|phar|phps|cgi|pl|py|sh|bash|shtml|shtm|pht)$ - [F,L,NC]
+
+# ---------------------------------------------------------------------
+# Send non-existent files / dirs to CodeIgniter
+# ---------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+
+# ---------------------------------------------------------------------
+# Security headers
+# ---------------------------------------------------------------------
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # CSP: no unsafe-eval anywhere; 'unsafe-inline' is required ONLY for
+    # styles (Tailwind CDN injects <style> blocks at runtime and a handful
+    # of templates use inline style="" attributes). Scripts are external
+    # files only - inline script is blocked.
+    Header set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com https:; script-src 'self' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://code.jquery.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; connect-src 'self' https:; frame-src https://www.youtube.com https://player.vimeo.com https://www.google.com https://maps.google.com https://www.openstreetmap.org"
+    <If "%{HTTPS} == 'on'">
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    </If>
+</IfModule>
+
+# Character encoding
+AddDefaultCharset UTF-8
+
+# Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json application/xml
+</IfModule>

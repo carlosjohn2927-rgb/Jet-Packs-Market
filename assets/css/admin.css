@@ -1,0 +1,119 @@
+/* Vortex Precision - admin CSS */
+.vp-admin-table { width: 100%; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.vp-admin-table th { text-align: left; background: #f9fafb; padding: 10px 14px; font-size: 12px; text-transform: uppercase; color: #4b5563; border-bottom: 1px solid #e5e7eb; }
+.vp-admin-table td { padding: 12px 14px; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+.vp-admin-table tr:last-child td { border-bottom: 0; }
+.vp-admin-table tr:hover td { background: #fafbfc; }
+
+.vp-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; }
+.vp-card-pad { padding: 20px; }
+.vp-card h2, .vp-card h3 { font-weight: 700; }
+
+.vp-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.vp-btn-primary { background: #2f78ff; color: #fff; }
+.vp-btn-primary:hover { background: #1659e6; }
+.vp-btn-secondary { background: #fff; color: #1b2740; border: 1px solid #d1d5db; }
+.vp-btn-secondary:hover { background: #f9fafb; }
+.vp-btn-danger  { background: #dc2626; color: #fff; }
+.vp-btn-danger:hover  { background: #b91c1c; }
+.vp-btn-success { background: #16a34a; color: #fff; }
+.vp-btn-success:hover { background: #15803d; }
+.vp-btn-sm { padding: 6px 10px; font-size: 12px; }
+
+.vp-input,
+.vp-textarea,
+.vp-select {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+}
+.vp-input:focus,
+.vp-textarea:focus,
+.vp-select:focus {
+    border-color: #2f78ff;
+    box-shadow: 0 0 0 3px rgba(47,120,255,0.15);
+    outline: 0;
+}
+.vp-form-row { margin-bottom: 14px; }
+.vp-form-row label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; color: #1b2740; }
+.vp-form-row .vp-help { font-size: 12px; color: #6b7280; margin-top: 4px; }
+.vp-form-row .vp-error { color: #b91c1c; font-size: 12px; margin-top: 4px; }
+
+.vp-pill { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .5px; }
+
+.vp-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.vp-grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.vp-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+@media (max-width: 768px) {
+    .vp-grid-2, .vp-grid-3, .vp-grid-4 { grid-template-columns: 1fr; }
+}
+
+.vp-timeline { border-left: 2px solid #e5e7eb; padding-left: 16px; margin-left: 8px; }
+.vp-timeline-item { position: relative; padding: 8px 0 16px; }
+.vp-timeline-item::before { content:""; position: absolute; left: -22px; top: 12px; width: 10px; height: 10px; border-radius: 50%; background: #2f78ff; }
+.vp-timeline-item time { font-size: 12px; color: #6b7280; }
+.vp-timeline-item .vp-action { font-weight: 600; font-size: 14px; }
+.vp-timeline-item .vp-desc { font-size: 13px; color: #4b5563; }
+
+/* ------------------------------------------------------------------ */
+/* Readability pass (admin): the stock greys render too faint.         */
+/* ------------------------------------------------------------------ */
+body.admin, .vp-admin { font-weight: 500; color: #0b1424; font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+.vp-admin-table th { color: #1f2937; font-weight: 700; letter-spacing: .04em; }
+.vp-admin-table td { color: #111827; font-weight: 500; font-size: 14.5px; }
+.vp-admin-table td a { font-weight: 600; }
+.vp-card h2, .vp-card h3, .vp-card h4 { color: #0b1424; }
+.vp-card p, .vp-card li { color: #1f2937; font-weight: 500; }
+.vp-form-row label { font-size: 14px; color: #0b1424; font-weight: 700; }
+.vp-form-row .vp-help { font-size: 13px; color: #4b5563; font-weight: 500; }
+.vp-input, .vp-textarea, .vp-select { font-size: 15px; font-weight: 500; color: #0b1424; }
+.vp-input::placeholder, .vp-textarea::placeholder { color: #6b7280; }
+.vp-timeline-item time { color: #4b5563; font-weight: 600; }
+.vp-timeline-item .vp-desc { color: #1f2937; font-weight: 500; font-size: 14px; }
+/* Faint Tailwind greys used across the admin views. */
+.admin .text-gray-400, body.admin .text-gray-400 { color: #1b2740 !important; }
+.admin .text-gray-500, body.admin .text-gray-500 { color: #101b2e !important; }
+.admin .text-gray-600, body.admin .text-gray-600 { color: #0b1424 !important; }
+.admin .text-gray-700, body.admin .text-gray-700 { color: #0b1424 !important; }
+aside.vp-admin-sidebar .text-gray-200,
+aside.vp-admin-sidebar .text-gray-400,
+aside.vp-admin-sidebar .text-gray-500 { color: var(--vp-sidebar-writeup, #ffffff) !important; }
+
+/* Admin / Super Admin sidebar: black background, white write-up by default.
+   Both colours are dashboard-managed (Appearance → Colours). */
+aside.vp-admin-sidebar {
+    background-color: var(--vp-sidebar-bg, #000000) !important;
+    color: var(--vp-sidebar-writeup, #ffffff) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+aside.vp-admin-sidebar,
+aside.vp-admin-sidebar a,
+aside.vp-admin-sidebar span,
+aside.vp-admin-sidebar div,
+aside.vp-admin-sidebar nav,
+aside.vp-admin-sidebar p,
+aside.vp-admin-sidebar i {
+    color: var(--vp-sidebar-writeup, #ffffff);
+}
+aside.vp-admin-sidebar a.bg-brand-600,
+aside.vp-admin-sidebar a.bg-brand-600 span,
+aside.vp-admin-sidebar a.bg-brand-600 i,
+aside.vp-admin-sidebar .bg-red-500 {
+    color: #ffffff !important;
+}
+
+/* --- dashboard form widgets (CMS editors) --- */
+.vp-label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; color: #1b2740; }
+.vp-input[type="checkbox"] { width: auto; display: inline-block; }
+.vp-help { font-size: 12px; color: #6b7280; }
+.vp-section-row { transition: box-shadow .15s; }
+.vp-section-row:hover { box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.vp-tab { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #475569; }
+.vp-tab:hover { background: #f1f5f9; }
+.vp-tab-active { background: #0b1424; color: #fff; }
+.vp-perm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
