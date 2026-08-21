@@ -88,7 +88,18 @@ $qty = (int) ($product['quantity'] ?? 1);
 
         <dl class="grid grid-cols-2 gap-x-6 gap-y-3 mt-8 text-sm">
             <?php if (!empty($product['manufacturer'])): ?><div><dt class="text-ink-800">Manufacturer</dt><dd class="font-semibold"><?= vp_safe_html($product['manufacturer']) ?></dd></div><?php endif; ?>
-            <?php if (!empty($product['aircraftType'])): ?><div><dt class="text-ink-800">Aircraft compatibility</dt><dd class="font-semibold"><?= vp_safe_html($product['aircraftType']) ?></dd></div><?php endif; ?>
+            <?php if (!empty($product['aircraftType'])): ?>
+                <div class="vp-form-row lg:col-span-2">
+                    <dt class="text-ink-800">Aircraft compatibility</dt>
+                    <dd class="font-semibold flex flex-wrap gap-x-3 gap-y-1">
+                        <?php foreach (json_decode($product['aircraftType'], true) as $at_id): ?>
+                            <?php if (isset($aircraft_names[$at_id])): ?>
+                                <span class="jpm-chip"><?= vp_safe_html($aircraft_names[$at_id]) ?></span>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </dd>
+                </div>
+            <?php endif; ?>
             <?php if ($product['condition']): ?><div><dt class="text-ink-800">Condition</dt><dd class="font-semibold"><?= vp_safe_html($product['condition']) ?></dd></div><?php endif; ?>
             <?php if ($qty > 0): ?><div><dt class="text-ink-800">Quantity available</dt><dd class="font-semibold"><?= $qty ?></dd></div><?php endif; ?>
             <?php if ($product['material']): ?><div><dt class="text-ink-800">Material</dt><dd class="font-semibold"><?= vp_safe_html($product['material']) ?></dd></div><?php endif; ?>

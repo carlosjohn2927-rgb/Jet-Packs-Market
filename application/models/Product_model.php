@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Product_model extends MY_Model
 {
     protected $table = 'products';
-    protected $fillable = ['name','slug','sku','description','shortDescription','price','categoryId','industryIds','material','pressure','temperature','voltage','dimensions','weight','certifications','availability','featured','isActive','views','metaTitle','metaDescription','metaKeywords'];
+    protected $fillable = ['name','slug','sku','description','shortDescription','price','categoryId','industryIds','aircraftType','material','pressure','temperature','voltage','dimensions','weight','certifications','quantity','condition','manufacturer','availability','featured','isActive','views','metaTitle','metaDescription','metaKeywords'];
     protected $order_by = ['createdAt' => 'DESC'];
 
     /**

@@ -65,7 +65,15 @@ $action = $is_create ? base_url('admin/products/save') : base_url('admin/product
         </div>
         <div class="vp-grid-2">
             <div class="vp-form-row"><label>Manufacturer</label><input class="vp-input" name="manufacturer" value="<?= vp_safe_html($product['manufacturer'] ?? '') ?>" placeholder="Honeywell, Collins, Goodrich…"></div>
-            <div class="vp-form-row"><label>Aircraft compatibility</label><input class="vp-input" name="aircraftType" value="<?= vp_safe_html($product['aircraftType'] ?? '') ?>" placeholder="Gulfstream GIV/GV, Citation X…"></div>
+            <div class="vp-form-row">
+                <label>Aircraft compatibility</label>
+                <select class="vp-select" name="aircraftType[]" multiple size="6">
+                    <?php foreach ($all_industries as $i): ?>
+                        <option value="<?= $i['id'] ?>" <?= in_array($i['id'], $selected_aircraft_types) ? 'checked' : '' ?>><?= vp_safe_html($i['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="vp-help">Select one or more aircraft platforms this part is compatible with.</p>
+            </div>
             <div class="vp-form-row"><label>Price (USD)</label><input class="vp-input" type="number" step="0.01" name="price" value="<?= vp_safe_html($product['price'] ?? '') ?>"></div>
             <div class="vp-form-row"><label>Quantity in stock</label><input class="vp-input" type="number" min="0" step="1" name="quantity" value="<?= vp_safe_html($product['quantity'] ?? '1') ?>"></div>
             <div class="vp-form-row">

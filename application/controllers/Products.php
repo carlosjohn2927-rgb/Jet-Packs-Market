@@ -42,6 +42,11 @@ class Products extends MY_Controller
         // show a real photo instead of the generic placeholder.
         $result['rows'] = $this->Product_model->attach_images($result['rows']);
 
+        $aircraft_names = [];
+        foreach ($this->Industry_model->find_all([], ['name' => 'ASC']) as $ind) {
+            $aircraft_names[$ind['id']] = $ind['name'];
+        }
+
         $data = [
             'rows'        => $result['rows'],
             'total'       => $result['total'],
@@ -49,6 +54,7 @@ class Products extends MY_Controller
             'page'        => $result['page'],
             'categories'  => $this->Category_model->find_all(['isActive' => 1], ['sortOrder' => 'ASC'], 12),
             'industries'  => $this->Industry_model->find_all(['isActive' => 1], ['sortOrder' => 'ASC'], 12),
+            'aircraft_names' => $aircraft_names,
             'current_category' => $category,
             'current_industry' => $industry,
             'search'      => $search,
@@ -83,6 +89,11 @@ class Products extends MY_Controller
         $this->page_title = $product['metaTitle'] ?: $product['name'];
         $this->page_description = $product['metaDescription'] ?: vp_truncate(strip_tags($product['shortDescription'] ?? $product['description']), 160);
 
+        $aircraft_names = [];
+        foreach ($this->Industry_model->find_all([], ['name' => 'ASC']) as $ind) {
+            $aircraft_names[$ind['id']] = $ind['name'];
+        }
+
         $this->render('products/view', [
             'product'   => $product,
             'images'    => $images,
@@ -91,6 +102,7 @@ class Products extends MY_Controller
             'related'   => $related,
             'category'  => $category,
             'industries'=> $this->_industries_for($product['industryIds']),
+            'aircraft_names' => $aircraft_names,
             'certifications' => $product['certifications'] ? json_decode($product['certifications'], true) : [],
         ]);
     }

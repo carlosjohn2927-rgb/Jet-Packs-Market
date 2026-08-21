@@ -245,7 +245,7 @@ class Products extends Admin_Controller
             'price'            => $this->input->post('price') ?: null,
             'categoryId'       => $this->input->post('categoryId') ?: null,
             'manufacturer'     => $this->input->post('manufacturer'),
-            'aircraftType'     => $this->input->post('aircraftType'),
+            'aircraftType'     => json_encode((array) $this->input->post('aircraftType')),
             'material'         => $this->input->post('material'),
             'pressure'         => $this->input->post('pressure'),
             'temperature'      => $this->input->post('temperature'),

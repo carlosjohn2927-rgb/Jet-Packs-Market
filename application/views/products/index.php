@@ -89,7 +89,13 @@
                             <span class="jpm-price"><?= vp_part_price($p['price']) ?></span>
                         </div>
                         <?php if (!empty($p['aircraftType'])): ?>
-                            <div class="jpm-chip mt-3"><i class="ri-flight-takeoff-line"></i> <?= vp_safe_html($p['aircraftType']) ?></div>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <?php foreach (json_decode($p['aircraftType'], true) as $at_id): ?>
+                                    <?php if (isset($aircraft_names[$at_id])): ?>
+                                        <span class="jpm-chip"><i class="ri-flight-takeoff-line"></i> <?= vp_safe_html($aircraft_names[$at_id]) ?></span>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
                         <?php endif; ?>
                         <div class="mt-4 pt-3 border-t border-gray-100 flex gap-2">
                             <a href="<?= base_url('rfq?product=' . urlencode($p['slug'])) ?>" class="vp-btn vp-btn-quote flex-1 justify-center text-sm"><i class="ri-quote-text"></i> RFQ</a>
