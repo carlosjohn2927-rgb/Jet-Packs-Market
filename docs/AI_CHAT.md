@@ -58,11 +58,11 @@ back to the local knowledge base, so the chat never appears "broken".
 
 ## How it works under the hood
 
-- Widget markup: `app/application/views/partials/chat_widget.php`
-- Front-end:      `app/assets/js/chat.js`, `app/assets/css/chat.css`
-- Endpoint:       `POST /chat/message` → `app/application/controllers/Chat.php`
-- Brain:          `app/application/libraries/Vp_assistant.php`
-- Settings:       `vp_chat_config()` in `app/application/helpers/app_helper.php`
+- Widget markup: `application/views/partials/chat_widget.php`
+- Front-end:      `assets/js/chat.js`, `assets/css/chat.css`
+- Endpoint:       `POST /chat/message` → `application/controllers/Chat.php`
+- Brain:          `application/libraries/Jet_assistant.php`
+- Settings:       `vp_chat_config()` in `application/helpers/app_helper.php`
 
 The endpoint is CSRF-protected and rate-limited per IP. The CSRF token is
 rotated on every message (the response returns the fresh token for the next

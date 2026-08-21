@@ -1,6 +1,6 @@
-# Halyk Petroleum — Industrial Manufacturing Website
+# Jet Packs Market — Aircraft Parts Marketplace
 
-A CodeIgniter 3 PHP application for an industrial manufacturing company, featuring:
+A CodeIgniter 3 PHP application for an aircraft parts marketplace, featuring:
 
 - **Public site**: Home, Products, Services, Industries, Blog, News, Careers, FAQ, Contact, RFQ (quote requests) — every page, menu, logo and text is database-driven
 - **Super Admin Dashboard**: full control of the application — administrators, permissions, homepage, pages, navigation, header/footer, branding, media, settings, system
@@ -37,7 +37,7 @@ See [`DEPLOYMENT.md`](DEPLOYMENT.md) for the complete step-by-step guide.
 
 | Field    | Value                          |
 |----------|--------------------------------|
-| Email    | `admin@halykpetroleum-kz.com` |
+| Email    | `admin@jetpacksmarket.com` |
 | Password | `Nigeria1234@`                |
 | Role     | `SUPER_ADMIN`                  |
 
@@ -110,8 +110,8 @@ EOF
 bash scripts/start.sh
 ```
 
-Accounts created by the script: `superadmin@halykpetroleum-kz.com / SuperAdmin123!`
-(SUPER_ADMIN) and `admin@halykpetroleum-kz.com / Admin123!` (ADMIN).
+Accounts created by the script: `superadmin@jetpacksmarket.com / SuperAdmin123!`
+(SUPER_ADMIN) and `admin@jetpacksmarket.com / Admin123!` (ADMIN).
 
 ### Tests
 

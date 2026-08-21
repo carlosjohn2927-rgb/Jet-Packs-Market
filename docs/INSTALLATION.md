@@ -1,4 +1,4 @@
-# JetPacks Market — Installation
+# Jet Packs Market — Installation
 
 This guide covers two paths:
 
