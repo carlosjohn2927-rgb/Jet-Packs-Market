@@ -21,13 +21,18 @@ if (empty($menu)) {
 }
 ?>
 <?php if ($site['topbar_enabled'] && $site['topbar_text']): ?>
-    <div class="jpm-topbar">
-        <div class="container mx-auto px-4 py-2 flex flex-wrap items-center gap-3">
-            <span><i class="ri-flight-takeoff-line"></i> <?= vp_safe_html($site['topbar_text']) ?></span>
-            <?php if ($site['phone']): ?>
-                <a class="ml-auto" href="tel:<?= vp_safe_html(preg_replace('/[^0-9+]/', '', $site['phone'])) ?>"><i class="ri-phone-line"></i> <?= vp_safe_html($site['phone']) ?></a>
-            <?php endif; ?>
-            <a href="<?= base_url('rfq') ?>" class="hidden sm:inline"><i class="ri-quote-text"></i> Request a Quote</a>
+    <div class="jpm-topbar" role="marquee" aria-live="off">
+        <div class="jpm-topbar-track">
+            <?php for ($__i = 0; $__i < 6; $__i++): ?>
+            <span class="jpm-topbar-item">
+                <i class="ri-flight-takeoff-line"></i>
+                <?= vp_safe_html($site['topbar_text']) ?>
+                <?php if ($site['phone']): ?>
+                    <a href="tel:<?= vp_safe_html(preg_replace('/[^0-9+]/', '', $site['phone'])) ?>"><i class="ri-phone-line"></i> <?= vp_safe_html($site['phone']) ?></a>
+                <?php endif; ?>
+                <a href="<?= base_url('rfq') ?>"><i class="ri-quote-text"></i> Request a Quote</a>
+            </span>
+            <?php endfor; ?>
         </div>
     </div>
 <?php endif; ?>
