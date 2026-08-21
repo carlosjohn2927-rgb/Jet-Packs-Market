@@ -1,4 +1,4 @@
-# Admin Guide — Halyk Petroleum
+# Admin Guide — Jet Packs Market
 
 Sign in at `/admin/login` with your staff account. A fresh installation has no seeded passwords: `install/install.php` creates the first Super Admin with the password you provide via `VP_ADMIN_PASSWORD` — or a randomly generated temporary password printed by the installer. Temporary passwords are flagged in the database, and the account's first login is redirected to its edit screen so the password must be changed before using the rest of the admin area. The sidebar then gives you access to all admin areas.
 

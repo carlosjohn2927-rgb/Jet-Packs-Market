@@ -1,10 +1,10 @@
 # Troubleshooting — admin login & cPanel email
 
 Two tools do the diagnosis for you. Both are CLI-only (they refuse to run over
-HTTP) and both read `app/.env` themselves, so there is nothing to configure.
+HTTP) and both read `.env` themselves, so there is nothing to configure.
 
 Open **cPanel → Terminal** (or SSH in), `cd` to the folder that contains
-`app/` and `install/`, then:
+`application/` and `install/`, then:
 
 ```bash
 php install/fix-admin.php --check     # diagnose, change nothing
@@ -20,15 +20,15 @@ If cPanel gives you PHP 7.x by default, call the 8.x binary explicitly:
 
 ## 1. Admin login
 
-Sign in at **https://halykpetroleum-kz.com/admin/login**
+Sign in at **https://jetpacksmarket.com/admin/login**
 
 | | |
 |---|---|
-| Email | the value of `VP_ADMIN_EMAIL` in `app/.env` |
-| Password | the value of `VP_ADMIN_PASSWORD` in `app/.env` |
+| Email | the value of `VP_ADMIN_EMAIL` in `.env` |
+| Password | the value of `VP_ADMIN_PASSWORD` in `.env` |
 
-(Those live only in `app/.env`, which is gitignored — deliberately never
-committed. `cat app/.env | grep VP_ADMIN` on the server if you need to look
+(Those live only in `.env`, which is gitignored — deliberately never
+committed. `cat .env | grep VP_ADMIN` on the server if you need to look
 them up.)
 
 `php install/fix-admin.php` checks and repairs all six things that make this
@@ -55,8 +55,8 @@ and writes it back.
 
 ### 1.3 `isActive = 0`
 
-This one is nastier than it looks. `Vp_auth::attempt()` refuses the login, and
-`Vp_auth::user()` **force-logs-out** any existing session belonging to an
+This one is nastier than it looks. `Jet_auth::attempt()` refuses the login, and
+`Jet_auth::user()` **force-logs-out** any existing session belonging to an
 inactive user on the very next request. So even if you somehow got a session,
 you are ejected immediately.
 
@@ -81,19 +81,19 @@ Staff roles are `SUPER_ADMIN`, `ADMIN`, `SALES`, `ENGINEER`, `EDITOR`.
 ### 1.6 You are locked out by the rate limiter
 
 **This is the one that catches people who are typing the correct password.**
-After 5 failed attempts in 15 minutes, `Vp_auth::attempt()` returns `null`
+After 5 failed attempts in 15 minutes, `Jet_auth::attempt()` returns `null`
 *before it ever calls `password_verify()`*. Once you finally remember the right
 password, it still fails, which convinces you the password is wrong and makes
 you try more — extending the lockout.
 
-The lockout is a JSON file under `app/assets/logs/ratelimit/`, keyed
+The lockout is a JSON file under `assets/logs/ratelimit/`, keyed
 `login:<your-ip>:<sha256 of the email>` with every character outside
 `[A-Za-z0-9._-]` replaced by `_`.
 
 *Fix:* the tool deletes them. By hand:
 
 ```bash
-rm -f app/assets/logs/ratelimit/login_*
+rm -f assets/logs/ratelimit/login_*
 ```
 
 Waiting 15 minutes also clears it.
@@ -116,8 +116,8 @@ The tool checks all three causes:
   exactly the schema in `install/install.sql` (including the `primary_key`
   column CI3 needs when `sess_match_ip` is on).
 - **`VP_COOKIE_DOMAIN` does not match `VP_BASE_URL`.** The browser silently
-  discards the cookie. Ours is `.halykpetroleum-kz.com` against
-  `https://halykpetroleum-kz.com/` — the leading dot covers both the apex and
+  discards the cookie. Ours is `.jetpacksmarket.com` against
+  `https://jetpacksmarket.com/` — the leading dot covers both the apex and
   `www`, so that pair is correct. If you ever move the site to a subdomain,
   update both together.
 - **`http://` base URL with secure cookies.** `VP_FORCE_HTTPS=1` marks cookies
@@ -133,7 +133,7 @@ from inside the admin UI. Passwords under 8 characters can only be set by
 `install/fix-admin.php`, by `install/install.php`, or by direct SQL.
 
 Please change it to something long and unique once you are in
-(**Admin → Users → your account**). Set the new value in `app/.env` as
+(**Admin → Users → your account**). Set the new value in `.env` as
 `VP_ADMIN_PASSWORD` too, so the recovery tool stays in sync.
 
 ---
@@ -151,7 +151,7 @@ Please change it to something long and unique once you are in
 So a blank `VP_SMTP_PASS` does not raise an error. It quietly demotes you to
 PHP `mail()`, which shared hosts routinely drop or spam-folder. This is the
 single most common cause of "SMTP doesn't work", and it is the current state of
-`app/.env`: everything is filled in **except the password**.
+`.env`: everything is filled in **except the password**.
 
 > New in this build: partial SMTP config is now **loud**:
 > - it is written to the app log every time an email is skipped to `mail()`;
@@ -164,9 +164,9 @@ single most common cause of "SMTP doesn't work", and it is the current state of
 
 ### 2.2 Finishing the setup
 
-1. cPanel → **Email Accounts** → find or **Create** `no-reply@halykpetroleum-kz.com`.
+1. cPanel → **Email Accounts** → find or **Create** `no-reply@jetpacksmarket.com`.
 2. **Manage** → set a password → copy it exactly.
-3. Put it in `app/.env`:
+3. Put it in `.env`:
 
    ```
    VP_SMTP_PASS=the-password-you-just-set
@@ -187,9 +187,9 @@ message — printing every server reply, so a failure names the exact step.
 ### 2.3 Current values
 
 ```
-VP_SMTP_HOST=mail.halykpetroleum-kz.com
+VP_SMTP_HOST=mail.jetpacksmarket.com
 VP_SMTP_PORT=465
-VP_SMTP_USER=no-reply@halykpetroleum-kz.com
+VP_SMTP_USER=no-reply@jetpacksmarket.com
 VP_SMTP_PASS=            <-- fill this in
 VP_SMTP_CRYPTO=ssl
 ```
@@ -203,7 +203,7 @@ authentication:
 ```
 VP_SMTP_HOST=localhost
 VP_SMTP_PORT=25
-VP_SMTP_USER=no-reply@halykpetroleum-kz.com
+VP_SMTP_USER=no-reply@jetpacksmarket.com
 VP_SMTP_PASS=anything-non-empty
 VP_SMTP_CRYPTO=
 ```
@@ -215,7 +215,7 @@ Port 587 with `VP_SMTP_CRYPTO=tls` is the other thing worth trying.
 
 ### 2.5 Mail arrives but lands in spam
 
-cPanel → **Email Deliverability** → `halykpetroleum-kz.com` → install the
+cPanel → **Email Deliverability** → `jetpacksmarket.com` → install the
 suggested **SPF** and **DKIM** records. Sending as `no-reply@` at your own
 domain without those two is what triggers spam filters.
 
@@ -223,7 +223,7 @@ domain without those two is what triggers spam filters.
 
 Every send is recorded in the `email_logs` table (status, provider id, and the
 error text on failure), and failures are also written to
-`app/assets/logs/`. Admin → Email Log shows the same data in the UI.
+`assets/logs/`. Admin → Email Log shows the same data in the UI.
 
 ---
 

@@ -1,4 +1,4 @@
-# Vortex Precision — RFQ (Request for Quote) System
+# Jet Packs Market — RFQ (Request for Quote) System
 
 The RFQ system is the highest-value piece of the application. It was ported carefully from the original NestJS implementation and preserves all production hardening.
 
@@ -21,7 +21,7 @@ REJECTED
 - **`assignedTo` is required** once status leaves `NEW`.
 - **No transitions from terminal states** (`REJECTED`, `COMPLETED`).
 
-The state machine is encoded in `app/application/config/constants.php` under `QUOTE_TRANSITIONS` and enforced by `Quote_model::transition_status()`.
+The state machine is encoded in `application/config/constants.php` under `QUOTE_TRANSITIONS` and enforced by `Quote_model::transition_status()`.
 
 ## Optimistic locking
 
@@ -54,7 +54,7 @@ Every meaningful action (status change, assignment, internal note, PDF generatio
 
 When a notification email is sent, it's logged to `email_logs` with a `dedupe_key` of the form `template:recipient[:quoteId]`. The Mailer checks this key before sending and refuses to re-send an already-sent email. The `retryCount` tracks failed attempts.
 
-Templates: `quote_submitted_admin`, `quote_confirmation_customer`, `quote_status_update`. Each is a PHP view under `app/application/views/emails/`.
+Templates: `quote_submitted_admin`, `quote_confirmation_customer`, `quote_status_update`. Each is a PHP view under `application/views/emails/`.
 
 ## Rate limiting
 
@@ -65,7 +65,7 @@ Two layers:
 | Global | 100 requests | 15 min | All `POST /rfq/submit` |
 | RFQ submission | 5 quotes | 1 hour | `POST /rfq/submit` |
 
-Implementation: file-based counter under `app/assets/logs/ratelimit/`, keyed by `rfq:ip:email` for RFQ and `global:ip` for the global limit.
+Implementation: file-based counter under `assets/logs/ratelimit/`, keyed by `rfq:ip:email` for RFQ and `global:ip` for the global limit.
 
 ## Public submission flow
 
