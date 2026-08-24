@@ -37,7 +37,10 @@ Click any quote to see:
 - Status update form (only valid forward transitions are shown)
 - Internal note form (separate from customer-facing notes)
 - PDF generation (rendered as printable HTML, downloadable via the browser's print dialog)
+- **Card payment** panel: after a quote is **Approved**, enter the final amount and email a one-time Stripe-hosted checkout link. Paid Stripe events automatically complete the quote.
 - Delete (Super Admin only)
+
+See [`PAYMENTS.md`](PAYMENTS.md) for Stripe credentials, webhook setup, and the payment security model.
 
 ## Products
 

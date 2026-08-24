@@ -179,8 +179,12 @@ $config['csrf_regenerate'] = TRUE;
  * second chat message fail with an HTML 403 the widget could not parse. The
  * controller enforces its own same-origin + rate-limit protection instead and
  * always answers with JSON (see application/controllers/Chat.php).
+ *
+ * `payments/stripe/webhook` receives server-to-server callbacks from Stripe.
+ * It cannot carry a browser CSRF token, so it verifies the Stripe-Signature
+ * HMAC over the exact raw request body before processing an event.
  */
-$config['csrf_exclude_uris'] = ['chat/message'];
+$config['csrf_exclude_uris'] = ['chat/message', 'payments/stripe/webhook'];
 $config['csrf_use_ssl'] = $vp_is_https;
 
 // Encryption key - NEVER hard-code a production value. See header comment.
@@ -234,6 +238,12 @@ $config['smtp_port']   = $vp_smtp_port;
 $config['smtp_user']   = vp_config_env('VP_SMTP_USER', $config['from_email']);
 $config['smtp_pass']   = vp_config_env('VP_SMTP_PASS');
 $config['smtp_crypto'] = vp_config_env('VP_SMTP_CRYPTO', ($vp_smtp_port == '587' || $vp_smtp_port == '25') ? 'tls' : 'ssl');
+
+// Stripe is intentionally environment-only: card processor credentials must
+// never be saved in the dashboard database or rendered in the browser. The
+// dashboard controls enablement, currency and link lifetime separately.
+$config['stripe_secret_key']     = vp_config_env('VP_STRIPE_SECRET_KEY');
+$config['stripe_webhook_secret'] = vp_config_env('VP_STRIPE_WEBHOOK_SECRET');
 $config['auth_secret']     = $vp_secrets['auth_secret']; // HMAC key for remember-me cookies / reset tokens
 $config['pagination_per_page'] = 12;
 $config['admin_pagination']    = 25;

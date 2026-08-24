@@ -500,6 +500,11 @@ INSERT INTO `settings` (`id`,`key`,`value`,`type`,`group`,`sortOrder`) VALUES
 (UUID(),'rfq_rate_limit_per_hour','5','INT','RFQ',2),
 (UUID(),'rfq_admin_email','admin@jetpacksmarket.com','STRING','RFQ',3),
 
+-- ----- Stripe card payments -----
+(UUID(),'stripe_payments_enabled','0','BOOL','PAYMENTS',1),
+(UUID(),'stripe_currency','USD','STRING','PAYMENTS',2),
+(UUID(),'stripe_checkout_ttl_hours','24','INT','PAYMENTS',3),
+
 -- ----- SEO -----
 (UUID(),'seo_default_title','JetPacks Market — Aircraft Parts Marketplace','STRING','SEO',1),
 (UUID(),'seo_default_description','JetPacks Market sells new, overhauled and used aircraft parts for Gulfstream, Falcon, Citation, Challenger, Hawker, Learjet, Boeing and Airbus. FAA 8130-3 certified parts, 24/7 AOG support, worldwide shipping.','TEXT','SEO',2),

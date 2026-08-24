@@ -39,8 +39,8 @@ class Settings extends Admin_Controller
     {
         parent::__construct();
         $this->load->model('Setting_model');
-        $this->load->library('form_validation');
-        $this->load->helper(['form', 'url', 'security_helper']);
+        $this->load->library(['form_validation', 'stripe_gateway']);
+        $this->load->helper(['form', 'url', 'security_helper', 'payment_helper']);
     }
 
     /* ---------------- General ------------------------------------------ */
@@ -168,7 +168,12 @@ class Settings extends Admin_Controller
                 'smtp_user'           => (string) $this->settings->get('smtp_user', (string) $this->config->item('smtp_user')),
                 'smtp_crypto'         => (string) $this->settings->get('smtp_crypto', (string) ($this->config->item('smtp_crypto') ?: 'ssl')),
                 'smtp_has_password'   => (trim((string) $this->settings->get('smtp_pass', '')) !== '' || trim((string) $this->config->item('smtp_pass')) !== '') ? '1' : '0',
+                'stripe_payments_enabled' => (string) $this->settings->get('stripe_payments_enabled', '0'),
+                'stripe_currency' => vp_payment_currency($this->settings->get('stripe_currency', 'USD')),
+                'stripe_checkout_ttl_hours' => (string) $this->settings->get('stripe_checkout_ttl_hours', '24'),
             ],
+            'stripe' => $this->stripe_gateway->status(),
+            'payment_currencies' => vp_payment_supported_currencies(),
         ]);
     }
 
@@ -189,6 +194,17 @@ class Settings extends Admin_Controller
         $this->settings->set('rfq_enabled', $this->input->post('rfq_enabled') ? '1' : '0', 'BOOL', 'RFQ');
         $this->settings->set('rfq_admin_email', trim((string) $this->input->post('rfq_admin_email')), 'STRING', 'RFQ');
         $this->settings->set('rfq_rate_limit_per_hour', (int) $this->input->post('rfq_rate_limit_per_hour'), 'INT', 'RFQ');
+
+        // Stripe credentials stay in .env only. The database owns the safe,
+        // non-secret controls that business users need to operate checkout.
+        $currencyPosted = strtoupper(trim((string) $this->input->post('stripe_currency')));
+        $currencies = vp_payment_supported_currencies();
+        $currency = isset($currencies[$currencyPosted]) ? $currencyPosted : 'USD';
+        $ttl = (int) $this->input->post('stripe_checkout_ttl_hours');
+        $ttl = max(1, min(24, $ttl ?: 24));
+        $this->settings->set('stripe_payments_enabled', $this->input->post('stripe_payments_enabled') ? '1' : '0', 'BOOL', 'PAYMENTS');
+        $this->settings->set('stripe_currency', $currency, 'STRING', 'PAYMENTS');
+        $this->settings->set('stripe_checkout_ttl_hours', $ttl, 'INT', 'PAYMENTS');
 
         // Outgoing email identity + SMTP server. SMTP password is write-only:
         // blank keeps the existing setting/env value, unless Clear is checked.

@@ -137,14 +137,16 @@ they may use (**Dashboard → People → Administrators**). See
 
 ## Upgrading an Existing Installation (dashboard / CMS release)
 
-If your database was imported **before** this release, add the new tables by
-importing two more files in phpMyAdmin — no CLI, no data loss:
+If your database was imported **before** this release, import the applicable
+incremental files in phpMyAdmin — no CLI and no data loss:
 
 1. phpMyAdmin → your database → **Import**
 2. `database/migrations/001_cms_and_permissions.sql` → **Go**
 3. `database/migrations/002_cms_seed.sql` → **Go**
 4. `database/migrations/003_admin_full_page_editing.sql` → **Go**
 5. `database/migrations/004_black_writeup.sql` → **Go**
+6. `database/migrations/005_jet_parts_market.sql` → **Go**
+7. `database/migrations/006_stripe_card_payments.sql` → **Go** (only when enabling Stripe card payments)
 
 All files are safe to import more than once (`CREATE TABLE IF NOT EXISTS`,
 `INSERT IGNORE`, `ON DUPLICATE KEY UPDATE`). The three `ALTER TABLE media …`

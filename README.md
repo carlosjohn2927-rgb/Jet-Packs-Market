@@ -9,6 +9,7 @@ A CodeIgniter 3 PHP application for an aircraft parts marketplace, featuring:
 - **AI Chat Assistant**: Floating widget with optional LLM integration (OpenAI-compatible)
 - **Auth system**: Login/register, password reset, roles + per-account permissions (Super Admin, Admin, Sales, Engineer, Editor, Customer)
 - **Email**: SMTP (cPanel) or Resend API with fallback to PHP `mail()`
+- **Card payments**: Stripe-hosted Checkout for approved quotes, signed webhooks and an idempotent payment ledger
 - **Security**: CSRF, login rate limiting, session protection, bcrypt passwords, audit logging, maintenance mode
 
 See [`docs/DASHBOARD.md`](docs/DASHBOARD.md) for the complete dashboard / CMS guide.
@@ -49,15 +50,19 @@ which dashboard sections they can use: `Dashboard → People → Administrators`
 
 ### Upgrading an existing installation
 
-Import these two files in phpMyAdmin (in order) to add the dashboard/CMS tables
-to a database created before this release — both are safe to re-run:
+Import the applicable files below in phpMyAdmin (in order) to bring a database
+created before this release up to date — all are safe to re-run:
 
 ```
 database/migrations/001_cms_and_permissions.sql
 database/migrations/002_cms_seed.sql
 database/migrations/003_admin_full_page_editing.sql
 database/migrations/004_black_writeup.sql
+database/migrations/005_jet_parts_market.sql
+database/migrations/006_stripe_card_payments.sql
 ```
+
+See [`docs/PAYMENTS.md`](docs/PAYMENTS.md) to configure Stripe card payments and its signed webhook.
 
 ---
 

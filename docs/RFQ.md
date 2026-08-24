@@ -16,6 +16,8 @@ APPROVED  →  COMPLETED
 REJECTED
 ```
 
+An approved quote can also be collected through the Stripe card-payment panel. A verified Stripe payment automatically performs the same `APPROVED → COMPLETED` transition.
+
 - **Forward-only.** No backward transitions.
 - **No skipping stages.**
 - **`assignedTo` is required** once status leaves `NEW`.
@@ -83,8 +85,11 @@ Implementation: file-based counter under `assets/logs/ratelimit/`, keyed by `rfq
 3. Clicks a quote to see the detail page (items, history, activity, assignment, status update form).
 4. Updates status (state machine validates; concurrent edit detected via version).
 5. Optionally adds an internal note (separate from customer-visible status note).
-6. Generates PDF (renders the printable HTML view, saves to `assets/uploads/quotes/`).
-7. Exports all quotes to CSV via `/admin/quotes/export/csv`.
+6. Once a quote is **Approved**, can email one secure Stripe card-payment link from the Card payment panel. A signed Stripe webhook marks it paid and completes the quote.
+7. Generates PDF (renders the printable HTML view, saves to `assets/uploads/quotes/`).
+8. Exports all quotes to CSV via `/admin/quotes/export/csv`.
+
+See [`PAYMENTS.md`](PAYMENTS.md) for the Stripe setup and webhook requirements.
 
 ## Endpoints (route → action)
 
@@ -98,6 +103,11 @@ Implementation: file-based counter under `assets/logs/ratelimit/`, keyed by `rfq
 | `POST /admin/quotes/{id}/status` | Update status (state machine) |
 | `POST /admin/quotes/{id}/assign` | Assign / reassign |
 | `POST /admin/quotes/{id}/note` | Add internal note |
+| `POST /admin/quotes/{id}/payments/request` | Create and email secure Stripe payment link |
+| `POST /admin/quotes/{id}/payments/{paymentId}/cancel` | Expire/cancel a card-payment request |
+| `GET /pay/{token}` | Customer payment page |
+| `POST /pay/{token}/checkout` | Redirect customer to Stripe-hosted Checkout |
+| `POST /payments/stripe/webhook` | Verify and process signed Stripe event |
 | `GET  /admin/quotes/{id}/pdf` | Render printable PDF |
 | `GET  /admin/quotes/export/csv` | Export all as CSV |
 | `POST /admin/quotes/{id}/delete` | Delete (Super Admin only) |
@@ -109,6 +119,8 @@ Implementation: file-based counter under `assets/logs/ratelimit/`, keyed by `rfq
 - `quote_attachments` (not exposed in the public form yet)
 - `quote_status_history` (immutable)
 - `quote_activities` (audit trail with action enum)
+- `payments` (immutable quote amount, Stripe IDs/status, opaque customer link token)
+- `payment_events` (Stripe webhook event idempotency; raw payloads are not retained)
 - `email_logs` (with `dedupeKey` for idempotency)
 
 See `install/install.sql` for full schema.

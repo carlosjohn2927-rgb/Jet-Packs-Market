@@ -298,7 +298,7 @@ CREATE TABLE IF NOT EXISTS `quote_activities` (
   `id`          CHAR(36) NOT NULL,
   `quoteId`     CHAR(36) NOT NULL,
   `actorId`     CHAR(36) DEFAULT NULL,
-  `action`      ENUM('QUOTE_CREATED','ASSIGNED','STATUS_CHANGED','INTERNAL_NOTE_ADDED','QUOTE_UPDATED','PDF_GENERATED','EMAIL_QUEUED','EMAIL_SENT') NOT NULL,
+  `action`      ENUM('QUOTE_CREATED','ASSIGNED','STATUS_CHANGED','INTERNAL_NOTE_ADDED','QUOTE_UPDATED','PDF_GENERATED','EMAIL_QUEUED','EMAIL_SENT','PAYMENT_REQUESTED','PAYMENT_PAID','PAYMENT_CANCELED','PAYMENT_EXPIRED','PAYMENT_FAILED') NOT NULL,
   `description` VARCHAR(500) DEFAULT NULL,
   `metadata`    JSON DEFAULT NULL,
   `ipAddress`   VARCHAR(45) DEFAULT NULL,
@@ -308,6 +308,50 @@ CREATE TABLE IF NOT EXISTS `quote_activities` (
   KEY `idx_qa_quote_created` (`quoteId`,`createdAt`),
   CONSTRAINT `fk_qa_quote` FOREIGN KEY (`quoteId`) REFERENCES `quotes`(`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_qa_actor` FOREIGN KEY (`actorId`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Stripe-hosted card payments
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `payments` (
+  `id`                       CHAR(36)      NOT NULL,
+  `quoteId`                  CHAR(36)      NOT NULL,
+  `provider`                 VARCHAR(40)   NOT NULL DEFAULT 'stripe',
+  `status`                   ENUM('PENDING','OPEN','PAID','EXPIRED','CANCELED','FAILED','REFUNDED') NOT NULL DEFAULT 'PENDING',
+  `amount`                   DECIMAL(14,2) NOT NULL,
+  `amountMinor`              BIGINT        NOT NULL,
+  `currency`                 CHAR(3)       NOT NULL DEFAULT 'USD',
+  `accessToken`              CHAR(64)      NOT NULL, -- HMAC-SHA256 of opaque customer link token
+  `description`              VARCHAR(255)  DEFAULT NULL,
+  `stripeCheckoutSessionId`  VARCHAR(255)  DEFAULT NULL,
+  `stripePaymentIntentId`    VARCHAR(255)  DEFAULT NULL,
+  `checkoutUrl`              VARCHAR(500)  DEFAULT NULL,
+  `expiresAt`                DATETIME      DEFAULT NULL,
+  `paidAt`                   DATETIME      DEFAULT NULL,
+  `createdBy`                CHAR(36)      DEFAULT NULL,
+  `lastError`                VARCHAR(1000) DEFAULT NULL,
+  `createdAt`                DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt`                DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payments_access_token` (`accessToken`),
+  UNIQUE KEY `uk_payments_stripe_session` (`stripeCheckoutSessionId`),
+  KEY `idx_payments_quote_created` (`quoteId`,`createdAt`),
+  KEY `idx_payments_status_expiry` (`status`,`expiresAt`),
+  CONSTRAINT `fk_payments_quote` FOREIGN KEY (`quoteId`) REFERENCES `quotes`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_payments_created_by` FOREIGN KEY (`createdBy`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `payment_events` (
+  `id`              CHAR(36)     NOT NULL,
+  `paymentId`       CHAR(36)     DEFAULT NULL,
+  `provider`        VARCHAR(40)  NOT NULL,
+  `providerEventId` VARCHAR(255) NOT NULL,
+  `eventType`       VARCHAR(100) NOT NULL,
+  `createdAt`       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payment_event_provider_id` (`provider`,`providerEventId`),
+  KEY `idx_payment_events_payment_created` (`paymentId`,`createdAt`),
+  CONSTRAINT `fk_payment_events_payment` FOREIGN KEY (`paymentId`) REFERENCES `payments`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `email_logs` (
@@ -1110,6 +1154,9 @@ INSERT INTO `settings` (`id`,`key`,`value`,`type`,`group`,`sortOrder`) VALUES
 (UUID(),'rfq_enabled','1','BOOL','RFQ',1),
 (UUID(),'rfq_rate_limit_per_hour','5','INT','RFQ',2),
 (UUID(),'rfq_admin_email','admin@jetpacksmarket.com','STRING','RFQ',3),
+(UUID(),'stripe_payments_enabled','0','BOOL','PAYMENTS',1),
+(UUID(),'stripe_currency','USD','STRING','PAYMENTS',2),
+(UUID(),'stripe_checkout_ttl_hours','24','INT','PAYMENTS',3),
 (UUID(),'seo_default_title','JetPacks Market — Aircraft Parts Marketplace','STRING','SEO',1),
 (UUID(),'seo_default_description','JetPacks Market sells new, overhauled and used aircraft parts for Gulfstream, Falcon, Citation, Challenger, Hawker, Learjet, Boeing and Airbus. FAA 8130-3 certified parts, 24/7 AOG support, worldwide shipping.','TEXT','SEO',2),
 (UUID(),'seo_keywords','aircraft parts, jet parts, aviation parts, airplane parts, aircraft marketplace, AOG parts, Gulfstream parts, Falcon parts, Citation parts, rotables, wheels and brakes, aircraft engines','STRING','SEO',3),
