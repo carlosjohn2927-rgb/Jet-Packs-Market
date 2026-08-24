@@ -1,5 +1,7 @@
 <?php
 /** @var array|null $prefill */
+/** @var array|null $prefill_items */
+/** @var array|null $prefill_quote */
 ?>
 <section class="vp-writeup-band jpm-navy border-b">
     <div class="container mx-auto px-4 py-12">
@@ -10,6 +12,12 @@
 </section>
 
 <section class="container mx-auto px-4 py-10">
+    <?php if (!empty($prefill_items) && !empty($prefill_quote)): ?>
+    <div class="rounded-lg bg-brand-50 border border-brand-200 px-4 py-3 mb-6 text-sm text-brand-900 flex items-center gap-2">
+        <i class="ri-repeat-line text-lg"></i>
+        <span>You are re-ordering <strong><?= vp_safe_html($prefill_quote['quoteNumber']) ?></strong>. Review the details below and submit to place a new request.</span>
+    </div>
+    <?php endif; ?>
     <form method="post" action="<?= base_url('rfq/submit') ?>" enctype="multipart/form-data" class="grid lg:grid-cols-3 gap-6">
         <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
 
@@ -17,20 +25,20 @@
             <div class="vp-card vp-card-pad">
                 <h2 class="font-bold text-lg mb-4">Company &amp; contact</h2>
                 <div class="vp-grid-2">
-                    <div class="vp-form-row"><label>Company *</label><input class="vp-input" name="companyName" required value="<?= vp_safe_html($this->input->post('companyName')) ?>"></div>
-                    <div class="vp-form-row"><label>Contact person *</label><input class="vp-input" name="contactPerson" required value="<?= vp_safe_html($this->input->post('contactPerson')) ?>"></div>
-                    <div class="vp-form-row"><label>Email *</label><input class="vp-input" type="email" name="email" required value="<?= vp_safe_html($this->input->post('email')) ?>"></div>
-                    <div class="vp-form-row"><label>Phone</label><input class="vp-input" name="phone" value="<?= vp_safe_html($this->input->post('phone')) ?>"></div>
-                    <div class="vp-form-row"><label>Country *</label><input class="vp-input" name="country" required value="<?= vp_safe_html($this->input->post('country')) ?>"></div>
+                    <div class="vp-form-row"><label>Company *</label><input class="vp-input" name="companyName" required value="<?= vp_safe_html($prefill_quote['companyName'] ?? $this->input->post('companyName')) ?>"></div>
+                    <div class="vp-form-row"><label>Contact person *</label><input class="vp-input" name="contactPerson" required value="<?= vp_safe_html($prefill_quote['contactPerson'] ?? $this->input->post('contactPerson')) ?>"></div>
+                    <div class="vp-form-row"><label>Email *</label><input class="vp-input" type="email" name="email" required value="<?= vp_safe_html($prefill_quote['email'] ?? $this->input->post('email')) ?>"></div>
+                    <div class="vp-form-row"><label>Phone</label><input class="vp-input" name="phone" value="<?= vp_safe_html($prefill_quote['phone'] ?? $this->input->post('phone')) ?>"></div>
+                    <div class="vp-form-row"><label>Country *</label><input class="vp-input" name="country" required value="<?= vp_safe_html($prefill_quote['country'] ?? $this->input->post('country')) ?>"></div>
                     <div class="vp-form-row"><label>Aircraft type</label>
                         <select class="vp-select" name="industry">
                             <option value="">—</option>
                             <?php foreach (['Gulfstream','Dassault Falcon','Cessna Citation','Bombardier Challenger','Hawker','Learjet','Boeing','Airbus','Embraer','Pilatus','Other'] as $i): ?>
-                                <option <?= $this->input->post('industry') === $i ? 'selected' : '' ?>><?= $i ?></option>
+                                <option <?= ($prefill_quote['industry'] ?? $this->input->post('industry')) === $i ? 'selected' : '' ?>><?= $i ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="vp-form-row lg:col-span-2"><label>Address</label><input class="vp-input" name="address" value="<?= vp_safe_html($this->input->post('address')) ?>"></div>
+                    <div class="vp-form-row lg:col-span-2"><label>Address</label><input class="vp-input" name="address" value="<?= vp_safe_html($prefill_quote['address'] ?? $this->input->post('address')) ?>"></div>
                 </div>
             </div>
 
@@ -38,13 +46,37 @@
                 <h2 class="font-bold text-lg mb-4">Parts required</h2>
                 <p class="text-sm text-ink-800 mb-3">Add one row per part — part number, quantity and any notes (condition preferred, certificate required).</p>
                 <div id="vp-items" class="space-y-3">
-                    <?php $firstItem = $prefill ? ['name' => $prefill['name'] . ' (' . $prefill['sku'] . ')', 'sku' => $prefill['sku'], 'productId' => $prefill['id']] : null; ?>
+                    <?php
+                    $initial_items = [];
+                    if (!empty($prefill_items)) {
+                        foreach ($prefill_items as $it) {
+                            $initial_items[] = [
+                                'name'      => $it['productName'],
+                                'spec'      => $it['specifications'] ?? '',
+                                'productId' => $it['productId'] ?? '',
+                                'qty'       => $it['quantity'] ?? 1,
+                            ];
+                        }
+                    } elseif ($prefill) {
+                        $initial_items[] = [
+                            'name'      => $prefill['name'] . ' (' . $prefill['sku'] . ')',
+                            'spec'      => '',
+                            'productId' => $prefill['id'],
+                            'qty'       => 1,
+                        ];
+                    }
+                    if (empty($initial_items)) {
+                        $initial_items[] = ['name' => '', 'spec' => '', 'productId' => '', 'qty' => 1];
+                    }
+                    ?>
+                    <?php foreach ($initial_items as $ii): ?>
                     <div class="vp-item-row grid grid-cols-12 gap-2">
-                        <input class="vp-input col-span-6" name="item_name[]" placeholder="Part name / part number" value="<?= vp_safe_html($firstItem['name'] ?? '') ?>" required>
-                        <input class="vp-input col-span-2" name="item_qty[]"  type="number" min="1" value="1" required>
-                        <input class="vp-input col-span-4" name="item_spec[]" placeholder="Condition / certs (NEW, OHC, 8130-3…)">
-                        <?php if (!empty($firstItem['productId'])): ?><input type="hidden" name="item_productId[]" value="<?= $firstItem['productId'] ?>"><?php endif; ?>
+                        <input class="vp-input col-span-6" name="item_name[]" placeholder="Part name / part number" value="<?= vp_safe_html($ii['name']) ?>" required>
+                        <input class="vp-input col-span-2" name="item_qty[]"  type="number" min="1" value="<?= (int) ($ii['qty'] ?? 1) ?>" required>
+                        <input class="vp-input col-span-4" name="item_spec[]" placeholder="Condition / certs (NEW, OHC, 8130-3…)" value="<?= vp_safe_html($ii['spec'] ?? '') ?>">
+                        <?php if (!empty($ii['productId'])): ?><input type="hidden" name="item_productId[]" value="<?= vp_safe_html($ii['productId']) ?>"><?php endif; ?>
                     </div>
+                    <?php endforeach; ?>
                 </div>
                 <button type="button" id="vp-item-add" class="vp-btn vp-btn-secondary mt-3 vp-btn-sm">+ Add line item</button>
             </div>
@@ -52,11 +84,11 @@
             <div class="vp-card vp-card-pad">
                 <h2 class="font-bold text-lg mb-4">Additional notes</h2>
                 <div class="vp-form-row">
-                    <textarea class="vp-textarea" name="notes" rows="5" placeholder="Anything else we should know (AOG status, delivery date, airworthiness certificates required, exchange core available)"><?= vp_safe_html($this->input->post('notes')) ?></textarea>
+                    <textarea class="vp-textarea" name="notes" rows="5" placeholder="Anything else we should know (AOG status, delivery date, airworthiness certificates required, exchange core available)"><?= vp_safe_html($prefill_quote['notes'] ?? $this->input->post('notes')) ?></textarea>
                 </div>
                 <div class="vp-form-row mt-3">
                     <label>Required delivery date (optional)</label>
-                    <input class="vp-input" type="date" name="deadline" data-flatpickr value="<?= vp_safe_html($this->input->post('deadline')) ?>">
+                    <input class="vp-input" type="date" name="deadline" data-flatpickr value="<?= vp_safe_html($prefill_quote['deadline'] ?? $this->input->post('deadline')) ?>">
                 </div>
             </div>
 

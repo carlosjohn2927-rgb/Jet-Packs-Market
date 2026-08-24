@@ -25,7 +25,24 @@ class Rfq extends MY_Controller
             $prefill = $this->Product_model->find_by_slug($productSlug);
         }
 
-        $this->render('rfq/index', ['prefill' => $prefill]);
+        // Re-order: a signed-in customer can clone a past quote's line items
+        // and company details straight into a fresh RFQ.
+        $prefill_items = null;
+        $prefill_quote = null;
+        $reorderId = $this->input->get('reorder');
+        if ($reorderId && $this->jet_auth->check()) {
+            $src = $this->Quote_model->find($reorderId);
+            if ($src && $src['userId'] === $this->jet_auth->id()) {
+                $prefill_items = $this->Quote_model->get_items($reorderId);
+                $prefill_quote = $src;
+            }
+        }
+
+        $this->render('rfq/index', [
+            'prefill'       => $prefill,
+            'prefill_items' => $prefill_items,
+            'prefill_quote' => $prefill_quote,
+        ]);
     }
 
     public function submit()

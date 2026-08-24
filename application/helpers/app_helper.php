@@ -543,6 +543,7 @@ if (!function_exists('vp_seo_config')) {
             'facebook_app_id'     => (string) $val('seo_facebook_app_id', ''),
             'google_verification' => (string) $val('seo_google_verification', ''),
             'bing_verification'   => (string) $val('seo_bing_verification', ''),
+            'google_analytics'   => (string) $val('seo_google_analytics', ''),
             'enable_jsonld'       => $bool('seo_enable_jsonld', true),
             'schema_type'         => (string) $val('seo_schema_type', 'Organization'),
             'schema_name'         => (string) $val('seo_schema_name', $site),
@@ -674,6 +675,13 @@ if (!function_exists('vp_seo_head')) {
             $out .= '<meta name="msvalidate.01" content="' . vp_safe_html($seo['bing_verification']) . '">' . "\n";
         }
 
+        // Google Analytics 4 (optional — set the GA4 Measurement ID in SEO settings)
+        if ($seo['google_analytics'] !== '') {
+            $ga = vp_safe_html($seo['google_analytics']);
+            $out .= '<script async src="https://www.googletagmanager.com/gtag/js?id=' . $ga . '"></script>' . "\n";
+            $out .= '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","' . $ga . '");</script>' . "\n";
+        }
+
         // Structured data
         $out .= vp_seo_jsonld($nonce);
 
@@ -778,7 +786,7 @@ if (!function_exists('vp_roadmap_data')) {
                     ['title' => 'CSRF exclusion list for the chat widget',          'status' => 'shipped',  'detail' => 'Avoids 403 when a CDN strips the rotated CSRF cookie on rapid messages.'],
                     ['title' => 'Stripe / card payments',                            'status' => 'shipped',  'detail' => 'Approved quotes can be paid through Stripe-hosted Checkout, with signed webhooks, payment ledger and automatic completion.'],
                     ['title' => 'Multi-warehouse inventory & lot tracking',         'status' => 'shipped',  'detail' => 'Warehouse-level lots, reserved stock, expiry control, AOG hubs, movement ledger and safe public stock aggregates.'],
-                    ['title' => 'Customer accounts + parts-order history',           'status' => 'planned',  'detail' => 'Signed-in customers can re-order, download prior invoices and track AOG dispatches.'],
+                    ['title' => 'Customer accounts + parts-order history',           'status' => 'shipped', 'detail' => 'Signed-in customers re-order past quotes, download PDF invoices from paid card orders, and track AOG dispatches from /account.'],
                 ],
             ],
         ];
