@@ -4,7 +4,7 @@
     'hero_alt'           => 'The JetPacks Market team working in the hangar',
     'hero_eyebrow'       => 'Join the team',
     'hero_title_html'    => vp_inline_text('careers_hero_title', 'Careers', 'h1', 'text-4xl lg:text-5xl font-extrabold mt-3'),
-    'hero_subtitle_html' => vp_inline_text('careers_hero_subtitle', 'Join the team that keeps the world''s aircraft flying.', 'p', 'mt-3 max-w-2xl text-lg'),
+    'hero_subtitle_html' => vp_inline_text('careers_hero_subtitle', 'Join the team that keeps the world\'s aircraft flying.', 'p', 'mt-3 max-w-2xl text-lg'),
     'hero_min'           => '420px',
 ]); ?>
 <section class="container mx-auto px-4 py-12 max-w-3xl">

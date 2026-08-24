@@ -1,6 +1,6 @@
 # Admin Guide — Jet Packs Market
 
-Sign in at `/admin/login` with your staff account. A fresh installation has no seeded passwords: `install/install.php` creates the first Super Admin with the password you provide via `VP_ADMIN_PASSWORD` — or a randomly generated temporary password printed by the installer. Temporary passwords are flagged in the database, and the account's first login is redirected to its edit screen so the password must be changed before using the rest of the admin area. The sidebar then gives you access to all admin areas.
+Sign in at `/admin/login` with your staff account. A fresh cPanel deployment imported from `database/production.sql` includes `admin@jetpacksmarket.com` with the bootstrap password documented in [`DEPLOYMENT.md`](../DEPLOYMENT.md). The account is flagged with `mustChangePassword=1`, so its first sign-in is redirected to the password-change screen before any dashboard area can be used. No CLI installer or terminal-created administrator is required.
 
 > **Super Admin / Admin dashboards, roles and permissions, and the whole CMS
 > (homepage, pages, navigation, logo, header/footer, settings) are documented in
@@ -37,7 +37,11 @@ Click any quote to see:
 - Status update form (only valid forward transitions are shown)
 - Internal note form (separate from customer-facing notes)
 - PDF generation (rendered as printable HTML, downloadable via the browser's print dialog)
+- **Card payment** panel: after a quote is **Approved**, enter the final amount and email a one-time Stripe-hosted checkout link. Paid Stripe events automatically complete the quote.
 - Delete (Super Admin only)
+- **Inventory lots**: receive traceable batches per warehouse, reserve/release stock, record adjustments, track expiry, and transfer unreserved stock between locations
+
+See [`PAYMENTS.md`](PAYMENTS.md) for Stripe credentials, webhook setup, and the payment security model.
 
 ## Products
 

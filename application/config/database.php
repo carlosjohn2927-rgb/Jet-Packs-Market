@@ -35,6 +35,15 @@ if (!function_exists('vp_db_env')) {
     }
 }
 
+if (!function_exists('vp_db_placeholder')) {
+    function vp_db_placeholder($value)
+    {
+        $value = strtolower(trim((string) $value));
+        return $value === '' || strpos($value, 'change_me') !== false
+            || strpos($value, 'replace_with') !== false || strpos($value, 'your_') === 0;
+    }
+}
+
 $db_host = vp_db_env('host', 'localhost');
 $db_name = vp_db_env('name', 'vortex_precision');
 $db_user = vp_db_env('user', 'vortex_user');
@@ -53,10 +62,9 @@ $is_sqlite  = ($db_driver === 'sqlite3' || $db_driver === 'sqlite');
 if (!$is_sqlite && defined('ENVIRONMENT') && ENVIRONMENT === 'production') {
     $missing = [];
     if ($db_host === 'localhost' && vp_db_env('host') === '') $missing[] = 'VP_DB_HOST';
-    if (vp_db_env('name') === '') $missing[] = 'VP_DB_NAME';
-    if (vp_db_env('user') === '') $missing[] = 'VP_DB_USER';
-    if (vp_db_env('pass') === '') $missing[] = 'VP_DB_PASS';
-    if ($db_pass === 'change_me') $missing[] = 'VP_DB_PASS';
+    if (vp_db_placeholder(vp_db_env('name'))) $missing[] = 'VP_DB_NAME';
+    if (vp_db_placeholder(vp_db_env('user'))) $missing[] = 'VP_DB_USER';
+    if (vp_db_placeholder(vp_db_env('pass'))) $missing[] = 'VP_DB_PASS';
     if (!empty($missing)) {
         $missing = array_unique($missing);
         $msg = 'Vortex Precision: production database configuration is missing. '

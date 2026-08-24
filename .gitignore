@@ -3,7 +3,7 @@
 .env.*
 !.env.example
 
-# Auto-generated secrets (created on first boot if no env vars are set)
+# Legacy secret file from older releases. New portable deployments use .env only.
 application/config/.secrets.php
 
 # Deployment package

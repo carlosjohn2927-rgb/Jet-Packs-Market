@@ -326,8 +326,7 @@ exec('grep -RIn "\\$2y\\$\\|\\$2a\\$\\|\\$2b\\$" ' . escapeshellarg($ROOT . '/in
 check('no bcrypt password hashes in install/ (admin created at install time)', count($grepOut) === 0, count($grepOut) . ' hit(s)');
 exec('cd ' . escapeshellarg($ROOT) . ' && git check-ignore -q app/.env', $o, $ignoreCode);
 check('app/.env is gitignored', $ignoreCode === 0);
-exec('cd ' . escapeshellarg($ROOT) . ' && git check-ignore -q app/application/config/.secrets.php', $o, $ignoreCode2);
-check('application/config/.secrets.php is gitignored', $ignoreCode2 === 0);
+check('portable deployment has no tracked generated secret file', !is_file($APP . '/application/config/.secrets.php'));
 
 /* ------------------------------------------------------------------ */
 /* 3. Public routes (item 15.6)                                        */
@@ -985,14 +984,7 @@ $r = http_req('GET', "http://127.0.0.1:$portProd/");
 check('production server renders homepage', $r['status'] === 200, 'HTTP ' . $r['status']);
 $r = http_req('GET', "http://127.0.0.1:$portNoEnv/");
 check('production without DB env fails fast (503, no secrets leaked)', $r['status'] === 503 && stripos($r['body'], 'VP_DB') === false, 'HTTP ' . $r['status']);
-check('.secrets.php auto-generated when env keys absent', is_file($APP . '/application/config/.secrets.php'));
-if (is_file($APP . '/application/config/.secrets.php')) {
-    // Inspect the file contents (it contains a BASEPATH guard, so don't include it).
-    $secRaw = (string) file_get_contents($APP . '/application/config/.secrets.php');
-    preg_match_all('/\x27([0-9a-f]{64})\x27/', $secRaw, $m);
-    check('.secrets.php contains strong random keys', count($m[1] ?? []) >= 2);
-    @unlink($APP . '/application/config/.secrets.php');
-}
+check('no .secrets.php is generated when production env keys are absent', !is_file($APP . '/application/config/.secrets.php'));
 
 /* ------------------------------------------------------------------ */
 /* 17. Logs                                                            */
@@ -1010,7 +1002,7 @@ check('log content present', $total > 0, $total . ' bytes');
 section("18. Database integrity");
 $expectedTables = ['users','role_permissions','sessions','ci_sessions','categories','products','product_images',
     'specifications','product_downloads','related_products','quotes','quote_items','quote_attachments',
-    'quote_status_history','quote_activities','email_logs','contacts','blog_posts','careers','applications',
+    'quote_status_history','quote_activities','payments','payment_events','warehouses','inventory_lots','inventory_movements','email_logs','contacts','blog_posts','careers','applications',
     'testimonials','partners','news','downloads','faqs','industries','settings','media','audit_logs',
     'notifications','password_resets'];
 $missing = [];

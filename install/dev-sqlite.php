@@ -42,6 +42,13 @@ if (is_file($target)) {
 $pdo = new PDO('sqlite:' . $target);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $pdo->exec('PRAGMA foreign_keys = ON');
+// Keep UUID() as a SQLite function rather than replacing it with one literal
+// during SQL translation. A literal works for VALUES inserts but breaks an
+// INSERT ... SELECT that creates a row per product/lot (every row gets the
+// same id). The registered function runs once for every selected row.
+if (method_exists($pdo, 'sqliteCreateFunction')) {
+    $pdo->sqliteCreateFunction('UUID', function () { return uuid4(); }, 0);
+}
 
 /* --------------------------------------------------------------------- */
 
@@ -84,10 +91,8 @@ function sql_statements($sql)
 /** Replace MySQL function calls that SQLite has no equivalent for. */
 function translate_functions($stmt)
 {
-    // UUID() -> literal uuid
-    while (($p = stripos($stmt, 'UUID()')) !== false) {
-        $stmt = substr($stmt, 0, $p) . "'" . uuid4() . "'" . substr($stmt, $p + 6);
-    }
+    // UUID() is registered as a SQLite function above so it stays dynamic for
+    // both VALUES and INSERT ... SELECT statements.
     // NOW() / CURRENT_TIMESTAMP() -> literal datetime
     $stmt = preg_replace('/\bNOW\(\)/i', "'" . date('Y-m-d H:i:s') . "'", $stmt);
 

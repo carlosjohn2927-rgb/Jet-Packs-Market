@@ -217,6 +217,82 @@ CREATE TABLE IF NOT EXISTS `related_products` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
+-- Multi-warehouse inventory / lot traceability
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `warehouses` (
+  `id`        CHAR(36)     NOT NULL,
+  `name`      VARCHAR(190) NOT NULL,
+  `code`      VARCHAR(30)  NOT NULL,
+  `address`   VARCHAR(500) DEFAULT NULL,
+  `city`      VARCHAR(100) DEFAULT NULL,
+  `region`    VARCHAR(100) DEFAULT NULL,
+  `country`   VARCHAR(100) DEFAULT NULL,
+  `timezone`  VARCHAR(100) NOT NULL DEFAULT 'UTC',
+  `phone`     VARCHAR(50)  DEFAULT NULL,
+  `isAogHub`  TINYINT(1)   NOT NULL DEFAULT 0,
+  `isActive`  TINYINT(1)   NOT NULL DEFAULT 1,
+  `sortOrder` INT          NOT NULL DEFAULT 0,
+  `notes`     TEXT         DEFAULT NULL,
+  `createdAt` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_warehouses_code` (`code`),
+  KEY `idx_warehouses_active_order` (`isActive`,`sortOrder`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `inventory_lots` (
+  `id`               CHAR(36)     NOT NULL,
+  `productId`        CHAR(36)     NOT NULL,
+  `warehouseId`      CHAR(36)     NOT NULL,
+  `lotNumber`        VARCHAR(100) NOT NULL,
+  `serialNumber`     VARCHAR(100) DEFAULT NULL,
+  `binLocation`      VARCHAR(100) DEFAULT NULL,
+  `condition`        VARCHAR(40)  DEFAULT NULL,
+  `certification`    VARCHAR(255) DEFAULT NULL,
+  `traceabilityRef`  VARCHAR(255) DEFAULT NULL,
+  `quantityOnHand`   INT          NOT NULL DEFAULT 0,
+  `quantityReserved` INT          NOT NULL DEFAULT 0,
+  `receivedAt`       DATE         DEFAULT NULL,
+  `expiresAt`        DATE         DEFAULT NULL,
+  `status`           ENUM('ACTIVE','QUARANTINE','EXPIRED','DEPLETED') NOT NULL DEFAULT 'ACTIVE',
+  `notes`            TEXT         DEFAULT NULL,
+  `createdBy`        CHAR(36)     DEFAULT NULL,
+  `createdAt`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_inventory_lot` (`productId`,`warehouseId`,`lotNumber`),
+  KEY `idx_inventory_lots_warehouse_status` (`warehouseId`,`status`),
+  KEY `idx_inventory_lots_product_status` (`productId`,`status`),
+  KEY `idx_inventory_lots_expiry` (`expiresAt`),
+  CONSTRAINT `fk_inventory_lots_product` FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_inventory_lots_warehouse` FOREIGN KEY (`warehouseId`) REFERENCES `warehouses`(`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_inventory_lots_creator` FOREIGN KEY (`createdBy`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `inventory_movements` (
+  `id`               CHAR(36)     NOT NULL,
+  `inventoryLotId`   CHAR(36)     NOT NULL,
+  `productId`        CHAR(36)     NOT NULL,
+  `warehouseId`      CHAR(36)     NOT NULL,
+  `movementType`     ENUM('RECEIPT','ADJUST_IN','ADJUST_OUT','RESERVE','RELEASE','TRANSFER_IN','TRANSFER_OUT','DETAIL_UPDATE','WRITE_OFF') NOT NULL,
+  `quantityDelta`    INT          NOT NULL DEFAULT 0,
+  `reservedDelta`    INT          NOT NULL DEFAULT 0,
+  `referenceType`    VARCHAR(60)  DEFAULT NULL,
+  `referenceId`      VARCHAR(100) DEFAULT NULL,
+  `notes`            VARCHAR(500) DEFAULT NULL,
+  `actorId`          CHAR(36)     DEFAULT NULL,
+  `createdAt`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_inventory_movements_lot_created` (`inventoryLotId`,`createdAt`),
+  KEY `idx_inventory_movements_product_created` (`productId`,`createdAt`),
+  KEY `idx_inventory_movements_warehouse_created` (`warehouseId`,`createdAt`),
+  CONSTRAINT `fk_inventory_movements_lot` FOREIGN KEY (`inventoryLotId`) REFERENCES `inventory_lots`(`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_inventory_movements_product` FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_inventory_movements_warehouse` FOREIGN KEY (`warehouseId`) REFERENCES `warehouses`(`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_inventory_movements_actor` FOREIGN KEY (`actorId`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
 -- Quotes / RFQ
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `quotes` (
@@ -298,7 +374,7 @@ CREATE TABLE IF NOT EXISTS `quote_activities` (
   `id`          CHAR(36) NOT NULL,
   `quoteId`     CHAR(36) NOT NULL,
   `actorId`     CHAR(36) DEFAULT NULL,
-  `action`      ENUM('QUOTE_CREATED','ASSIGNED','STATUS_CHANGED','INTERNAL_NOTE_ADDED','QUOTE_UPDATED','PDF_GENERATED','EMAIL_QUEUED','EMAIL_SENT') NOT NULL,
+  `action`      ENUM('QUOTE_CREATED','ASSIGNED','STATUS_CHANGED','INTERNAL_NOTE_ADDED','QUOTE_UPDATED','PDF_GENERATED','EMAIL_QUEUED','EMAIL_SENT','PAYMENT_REQUESTED','PAYMENT_PAID','PAYMENT_CANCELED','PAYMENT_EXPIRED','PAYMENT_FAILED') NOT NULL,
   `description` VARCHAR(500) DEFAULT NULL,
   `metadata`    JSON DEFAULT NULL,
   `ipAddress`   VARCHAR(45) DEFAULT NULL,
@@ -308,6 +384,50 @@ CREATE TABLE IF NOT EXISTS `quote_activities` (
   KEY `idx_qa_quote_created` (`quoteId`,`createdAt`),
   CONSTRAINT `fk_qa_quote` FOREIGN KEY (`quoteId`) REFERENCES `quotes`(`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_qa_actor` FOREIGN KEY (`actorId`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Stripe-hosted card payments
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `payments` (
+  `id`                       CHAR(36)      NOT NULL,
+  `quoteId`                  CHAR(36)      NOT NULL,
+  `provider`                 VARCHAR(40)   NOT NULL DEFAULT 'stripe',
+  `status`                   ENUM('PENDING','OPEN','PAID','EXPIRED','CANCELED','FAILED','REFUNDED') NOT NULL DEFAULT 'PENDING',
+  `amount`                   DECIMAL(14,2) NOT NULL,
+  `amountMinor`              BIGINT        NOT NULL,
+  `currency`                 CHAR(3)       NOT NULL DEFAULT 'USD',
+  `accessToken`              CHAR(64)      NOT NULL, -- HMAC-SHA256 of opaque customer link token
+  `description`              VARCHAR(255)  DEFAULT NULL,
+  `stripeCheckoutSessionId`  VARCHAR(255)  DEFAULT NULL,
+  `stripePaymentIntentId`    VARCHAR(255)  DEFAULT NULL,
+  `checkoutUrl`              VARCHAR(500)  DEFAULT NULL,
+  `expiresAt`                DATETIME      DEFAULT NULL,
+  `paidAt`                   DATETIME      DEFAULT NULL,
+  `createdBy`                CHAR(36)      DEFAULT NULL,
+  `lastError`                VARCHAR(1000) DEFAULT NULL,
+  `createdAt`                DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt`                DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payments_access_token` (`accessToken`),
+  UNIQUE KEY `uk_payments_stripe_session` (`stripeCheckoutSessionId`),
+  KEY `idx_payments_quote_created` (`quoteId`,`createdAt`),
+  KEY `idx_payments_status_expiry` (`status`,`expiresAt`),
+  CONSTRAINT `fk_payments_quote` FOREIGN KEY (`quoteId`) REFERENCES `quotes`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_payments_created_by` FOREIGN KEY (`createdBy`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `payment_events` (
+  `id`              CHAR(36)     NOT NULL,
+  `paymentId`       CHAR(36)     DEFAULT NULL,
+  `provider`        VARCHAR(40)  NOT NULL,
+  `providerEventId` VARCHAR(255) NOT NULL,
+  `eventType`       VARCHAR(100) NOT NULL,
+  `createdAt`       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payment_event_provider_id` (`provider`,`providerEventId`),
+  KEY `idx_payment_events_payment_created` (`paymentId`,`createdAt`),
+  CONSTRAINT `fk_payment_events_payment` FOREIGN KEY (`paymentId`) REFERENCES `payments`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `email_logs` (
@@ -575,9 +695,9 @@ CREATE TABLE IF NOT EXISTS `notifications` (
 -- Email:    admin@jetpacksmarket.com
 -- Password: Nigeria1234@
 --
--- The password is bcrypt-hashed (cost 12). To change it, either:
---   • Log into the admin panel → Users → edit your account
---   • Or hash a new password and UPDATE this row
+-- The password is bcrypt-hashed (cost 12). This seeded account has
+-- mustChangePassword=1, so the first sign-in is forced to the password-change
+-- screen. Do not leave the documented bootstrap password in use.
 -- #############################################################################
 
 INSERT INTO `users` (`id`, `email`, `password`, `firstName`, `lastName`, `role`, `company`, `isActive`, `mustChangePassword`, `emailVerified`, `createdAt`, `updatedAt`)
@@ -590,7 +710,7 @@ VALUES (
   'SUPER_ADMIN',
   'JetPacks Market',
   1,
-  0,
+  1,
   1,
   NOW(),
   NOW()
@@ -607,6 +727,7 @@ VALUES (
 INSERT INTO `role_permissions` (`id`,`role`,`resource`,`actions`) VALUES
 (UUID(),'SUPER_ADMIN','*',JSON_ARRAY('*')),
 (UUID(),'ADMIN','products',JSON_ARRAY('read','create','update','delete')),
+(UUID(),'ADMIN','inventory',JSON_ARRAY('manage','read','create','update','delete')),
 (UUID(),'ADMIN','categories',JSON_ARRAY('read','create','update','delete')),
 (UUID(),'ADMIN','quotes',JSON_ARRAY('read','create','update','delete','export','status')),
 (UUID(),'ADMIN','contacts',JSON_ARRAY('read','update','delete')),
@@ -629,6 +750,7 @@ INSERT INTO `role_permissions` (`id`,`role`,`resource`,`actions`) VALUES
 (UUID(),'SALES','quotes',JSON_ARRAY('read','create','update','status','export')),
 (UUID(),'SALES','contacts',JSON_ARRAY('read','update')),
 (UUID(),'ENGINEER','products',JSON_ARRAY('read','update')),
+(UUID(),'ENGINEER','inventory',JSON_ARRAY('manage','read','create','update')),
 (UUID(),'ENGINEER','quotes',JSON_ARRAY('read','update')),
 (UUID(),'EDITOR','blog',JSON_ARRAY('read','create','update','delete')),
 (UUID(),'EDITOR','news',JSON_ARRAY('read','create','update','delete')),
@@ -1050,7 +1172,30 @@ UNION ALL SELECT
 
 
 -- #############################################################################
--- 7. FAQs
+-- 7. WAREHOUSES + OPENING LOT BALANCES
+-- #############################################################################
+INSERT INTO `warehouses` (`id`,`name`,`code`,`address`,`city`,`region`,`country`,`timezone`,`phone`,`isAogHub`,`isActive`,`sortOrder`,`notes`) VALUES
+(UUID(),'Dallas AOG Hub','DAL-AOG','Hangar 4, Dallas Executive Airport','Dallas','Texas','USA','America/Chicago','+1 (214) 350-0107',1,1,1,'24/7 AOG dispatch and primary receiving hub'),
+(UUID(),'Amsterdam EU Hub','AMS-EU','Schiphol-Rijk logistics campus','Amsterdam','North Holland','Netherlands','Europe/Amsterdam','+31 20 000 0000',0,1,2,'European consolidation and export hub');
+
+INSERT INTO `inventory_lots` (`id`,`productId`,`warehouseId`,`lotNumber`,`serialNumber`,`binLocation`,`condition`,`certification`,`traceabilityRef`,`quantityOnHand`,`quantityReserved`,`receivedAt`,`expiresAt`,`status`,`notes`)
+SELECT UUID(), p.id,
+       CASE WHEN p.slug IN ('vhf-4000-comm-radio','primus-660-weather-radar','laseref-iv-inertial-reference')
+            THEN (SELECT id FROM warehouses WHERE code='AMS-EU' LIMIT 1)
+            ELSE (SELECT id FROM warehouses WHERE code='DAL-AOG' LIMIT 1) END,
+       p.sku, NULL, 'OPENING', p.condition, 'FAA 8130-3 / EASA Form 1', p.sku,
+       p.quantity, 0, CURRENT_DATE,
+       CASE WHEN p.slug='main-gear-tire-132-101-0' THEN '2027-06-30' ELSE NULL END,
+       CASE WHEN p.quantity > 0 THEN 'ACTIVE' ELSE 'DEPLETED' END,
+       'Opening balance migrated from catalog seed.'
+FROM products p;
+
+INSERT INTO `inventory_movements` (`id`,`inventoryLotId`,`productId`,`warehouseId`,`movementType`,`quantityDelta`,`reservedDelta`,`notes`,`createdAt`)
+SELECT UUID(), l.id, l.productId, l.warehouseId, 'RECEIPT', l.quantityOnHand, 0, 'Opening balance from catalog seed.', NOW()
+FROM inventory_lots l;
+
+-- #############################################################################
+-- 8. FAQs
 -- #############################################################################
 INSERT INTO `faqs` (`id`,`question`,`answer`,`category`,`sortOrder`,`isActive`) VALUES
 (UUID(),'What is your typical lead time?','Stock parts ship the same or next business day. AOG (Aircraft on Ground) requests are prioritized and dispatched within hours, 24/7.','Lead Times',1,1),
@@ -1110,6 +1255,9 @@ INSERT INTO `settings` (`id`,`key`,`value`,`type`,`group`,`sortOrder`) VALUES
 (UUID(),'rfq_enabled','1','BOOL','RFQ',1),
 (UUID(),'rfq_rate_limit_per_hour','5','INT','RFQ',2),
 (UUID(),'rfq_admin_email','admin@jetpacksmarket.com','STRING','RFQ',3),
+(UUID(),'stripe_payments_enabled','0','BOOL','PAYMENTS',1),
+(UUID(),'stripe_currency','USD','STRING','PAYMENTS',2),
+(UUID(),'stripe_checkout_ttl_hours','24','INT','PAYMENTS',3),
 (UUID(),'seo_default_title','JetPacks Market — Aircraft Parts Marketplace','STRING','SEO',1),
 (UUID(),'seo_default_description','JetPacks Market sells new, overhauled and used aircraft parts for Gulfstream, Falcon, Citation, Challenger, Hawker, Learjet, Boeing and Airbus. FAA 8130-3 certified parts, 24/7 AOG support, worldwide shipping.','TEXT','SEO',2),
 (UUID(),'seo_keywords','aircraft parts, jet parts, aviation parts, airplane parts, aircraft marketplace, AOG parts, Gulfstream parts, Falcon parts, Citation parts, rotables, wheels and brakes, aircraft engines','STRING','SEO',3),
@@ -1385,6 +1533,7 @@ INSERT INTO `role_permissions` (`id`,`role`,`resource`,`actions`) VALUES
 (UUID(),'ADMIN','quotes',JSON_ARRAY('manage','read','create','update','delete','export','status')),
 (UUID(),'ADMIN','contacts',JSON_ARRAY('manage','read','update','delete')),
 (UUID(),'ADMIN','products',JSON_ARRAY('manage','read','create','update','delete')),
+(UUID(),'ADMIN','inventory',JSON_ARRAY('manage','read','create','update','delete')),
 (UUID(),'ADMIN','categories',JSON_ARRAY('manage','read','create','update','delete')),
 (UUID(),'ADMIN','homepage',JSON_ARRAY('manage','read','create','update','delete')),
 (UUID(),'ADMIN','pages',JSON_ARRAY('manage','read','create','update','delete')),

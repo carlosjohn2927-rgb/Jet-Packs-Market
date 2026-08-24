@@ -46,6 +46,13 @@ $route['sitemap.xml']          = 'seo/sitemap';
 $route['chat/message']         = 'chat/message';
 $route['roadmap']               = 'roadmap';
 
+/* ---------- Stripe-hosted card payments ---------- */
+// Keep the specific token routes before the generic /pay/{token} route.
+$route['pay/(:any)/checkout']  = 'payments/checkout/$1';
+$route['pay/(:any)/complete']  = 'payments/complete/$1';
+$route['pay/(:any)']           = 'payments/show/$1';
+$route['payments/stripe/webhook'] = 'payments/stripe_webhook';
+
 $route['login']                = 'auth/login';
 $route['register']             = 'auth/register';
 $route['logout']               = 'auth/logout';
@@ -64,6 +71,9 @@ $route['admin/products/edit/(:any)']      = 'admin/products/edit/$1';
 $route['admin/products/delete/(:any)']   = 'admin/products/delete/$1';
 $route['admin/products/(:any)/images/(:any)/delete'] = 'admin/products/image_delete/$1/$2';
 $route['admin/products/(:any)/images/(:any)/primary'] = 'admin/products/image_primary/$1/$2';
+$route['admin/products/(:any)/inventory/lots/create'] = 'admin/products/inventory_lot_create/$1';
+$route['admin/products/(:any)/inventory/lots/(:any)/adjust'] = 'admin/products/inventory_lot_adjust/$1/$2';
+$route['admin/products/(:any)/inventory/lots/(:any)/update'] = 'admin/products/inventory_lot_update/$1/$2';
 
 $route['admin/categories']                = 'admin/categories';
 $route['admin/categories/create']         = 'admin/categories/create';
@@ -78,7 +88,18 @@ $route['admin/quotes/(:any)/note']        = 'admin/quotes/note/$1';
 $route['admin/quotes/(:any)/pdf']         = 'admin/quotes/pdf/$1';
 $route['admin/quotes/(:any)/delete']      = 'admin/quotes/delete/$1';
 $route['admin/quotes/(:any)/attachments/(:any)/delete'] = 'admin/quotes/attachment_delete/$1/$2';
+$route['admin/quotes/(:any)/payments/request'] = 'admin/quotes/payment_request/$1';
+$route['admin/quotes/(:any)/payments/(:any)/cancel'] = 'admin/quotes/payment_cancel/$1/$2';
 $route['admin/quotes/export/csv']         = 'admin/quotes/export_csv';
+
+/* ---------- Admin: multi-warehouse inventory ---------- */
+$route['admin/inventory']                  = 'admin/inventory';
+$route['admin/inventory/transfer/(:any)']  = 'admin/inventory/transfer/$1';
+$route['admin/warehouses']                 = 'admin/warehouses';
+$route['admin/warehouses/create']          = 'admin/warehouses/create';
+$route['admin/warehouses/edit/(:any)']     = 'admin/warehouses/edit/$1';
+$route['admin/warehouses/save']            = 'admin/warehouses/save';
+$route['admin/warehouses/delete/(:any)']   = 'admin/warehouses/delete/$1';
 
 $route['admin/users']                     = 'admin/users';
 $route['admin/users/create']              = 'admin/users/create';

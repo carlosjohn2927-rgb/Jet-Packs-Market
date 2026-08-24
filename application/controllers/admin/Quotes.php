@@ -20,9 +20,9 @@ class Quotes extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model(['Quote_model', 'User_model']);
-        $this->load->library(['mailer']);
-        $this->load->helper(['form', 'url', 'security_helper']);
+        $this->load->model(['Quote_model', 'User_model', 'Payment_model']);
+        $this->load->library(['mailer', 'stripe_gateway']);
+        $this->load->helper(['form', 'url', 'security_helper', 'payment_helper']);
     }
 
     public function index()
@@ -69,6 +69,7 @@ class Quotes extends Admin_Controller
         $history     = $this->Quote_model->get_status_history($id);
         $activity    = $this->Quote_model->get_activities($id);
         $attachments = $this->Quote_model->get_attachments($id);
+        $payments    = $this->Payment_model->for_quote($id);
         $assignee    = $q['assignedTo'] ? $this->User_model->find($q['assignedTo']) : null;
         $customer    = $q['userId'] ? $this->User_model->find($q['userId']) : null;
         $staff       = $this->User_model->staff();
@@ -79,6 +80,9 @@ class Quotes extends Admin_Controller
             'history' => $history,
             'activity' => $activity,
             'attachments' => $attachments,
+            'payments' => $payments,
+            'stripe' => $this->stripe_gateway->status(),
+            'payment_currencies' => vp_payment_supported_currencies(),
             'assignee' => $assignee,
             'customer' => $customer,
             'staff' => $staff,
@@ -98,6 +102,122 @@ class Quotes extends Admin_Controller
         $this->db->delete('quote_attachments', ['id' => $attachmentId]);
         $this->audit->log(AUDIT_DELETE, 'quote_attachment', $attachmentId, ['quoteId' => $quoteId, 'filename' => $row['filename']]);
         $this->flash('success', 'Attachment removed.');
+        redirect('admin/quotes/' . $quoteId);
+    }
+
+    /**
+     * Create a one-time card payment request for an approved quote. The amount
+     * is stored in integer minor units before any call to Stripe, and the email
+     * carries an opaque local link rather than a reusable direct Checkout URL.
+     */
+    public function payment_request($id = null)
+    {
+        if (!$id || $this->input->method() !== 'post') show_404();
+        $quote = $this->Quote_model->find($id);
+        if (!$quote) show_404();
+
+        $stripe = $this->stripe_gateway->status();
+        if (empty($stripe['configured'])) {
+            $this->flash('error', 'Stripe card payments are not configured. ' . ($stripe['message'] ?? ''));
+            return redirect('admin/quotes/' . $id);
+        }
+        if ($quote['status'] !== QUOTE_APPROVED) {
+            $this->flash('error', 'Approve this quote before requesting a card payment.');
+            return redirect('admin/quotes/' . $id);
+        }
+
+        $amountMinor = vp_payment_minor_units($this->input->post('amount'));
+        $currencyPosted = strtoupper(trim((string) $this->input->post('currency')));
+        $currencies = vp_payment_supported_currencies();
+        if (!isset($currencies[$currencyPosted])) {
+            $this->flash('error', 'Select one of the supported checkout currencies.');
+            return redirect('admin/quotes/' . $id);
+        }
+        $currency = $currencyPosted;
+        $hours = (int) $this->input->post('expires_hours');
+        $hours = max(1, min(24, $hours ?: (int) $stripe['ttl_hours']));
+        if ($amountMinor === null) {
+            $this->flash('error', 'Enter a positive amount with no more than two decimal places.');
+            return redirect('admin/quotes/' . $id);
+        }
+
+        $expiresAt = date('Y-m-d H:i:s', time() + ($hours * 3600));
+        $created = $this->Payment_model->create_request(
+            $id,
+            $amountMinor,
+            $currency,
+            $this->jet_auth->id(),
+            (int) $this->input->post('version'),
+            $expiresAt
+        );
+        if (empty($created['ok'])) {
+            $this->flash('error', $created['error'] ?? 'Could not create the card payment request.');
+            return redirect('admin/quotes/' . $id);
+        }
+
+        $payment = $created['payment'];
+        $payment['customerToken'] = $created['customerToken'];
+        $paymentUrl = base_url('pay/' . rawurlencode($payment['customerToken']));
+        $tpl = $this->mailer->template_card_payment_request($quote, $payment, $paymentUrl);
+        $email = $this->mailer->send(
+            $quote['email'],
+            $tpl['subject'],
+            $tpl['html'],
+            'card_payment_request',
+            'card_payment_request:' . $payment['id'],
+            ['quoteId' => $id]
+        );
+
+        $this->audit->log(AUDIT_PAYMENT_REQUESTED, 'payment', $payment['id'], [
+            'quoteId' => $id,
+            'quoteNumber' => $quote['quoteNumber'],
+            'amountMinor' => $amountMinor,
+            'currency' => $currency,
+            'expiresAt' => $expiresAt,
+            'emailStatus' => $email['status'] ?? null,
+        ]);
+        $this->notify(
+            'payment_requested',
+            'Card payment requested: ' . $quote['quoteNumber'],
+            $quote['companyName'] . ' was sent a secure card-payment link for ' . vp_payment_format_minor($amountMinor, $currency) . '.',
+            ['quoteId' => $id, 'paymentId' => $payment['id'], 'quoteNumber' => $quote['quoteNumber']],
+            !empty($quote['assignedTo']) ? $quote['assignedTo'] : null
+        );
+
+        $message = 'Secure card-payment link created and emailed to ' . $quote['email'] . '.';
+        if (($email['status'] ?? '') !== EMAIL_SENT && ($email['status'] ?? '') !== 'DUPLICATE') {
+            $message .= ' The request was saved, but the email could not be sent; fix email delivery, then cancel and create a new request to issue a fresh secure link.';
+        }
+        $this->flash('success', $message);
+        redirect('admin/quotes/' . $id);
+    }
+
+    /** Cancel a local payment request and expire its remote Checkout Session first. */
+    public function payment_cancel($quoteId = null, $paymentId = null)
+    {
+        if (!$quoteId || !$paymentId || $this->input->method() !== 'post') show_404();
+        $payment = $this->Payment_model->find($paymentId);
+        if (!$payment || $payment['quoteId'] !== $quoteId) show_404();
+        if ($payment['status'] === PAYMENT_PAID) {
+            $this->flash('error', 'A paid card payment cannot be canceled.');
+            return redirect('admin/quotes/' . $quoteId);
+        }
+
+        if ($payment['status'] === PAYMENT_OPEN && !empty($payment['stripeCheckoutSessionId'])) {
+            $expired = $this->stripe_gateway->expire_checkout_session($payment['stripeCheckoutSessionId']);
+            if (empty($expired['ok'])) {
+                $this->flash('error', 'Stripe could not expire the open checkout. It was not canceled locally to avoid an accidental charge.');
+                return redirect('admin/quotes/' . $quoteId);
+            }
+        }
+
+        $result = $this->Payment_model->cancel($paymentId, $this->jet_auth->id());
+        if (empty($result['ok'])) {
+            $this->flash('error', $result['error'] ?? 'Could not cancel the payment request.');
+            return redirect('admin/quotes/' . $quoteId);
+        }
+        $this->audit->log(AUDIT_UPDATE, 'payment', $paymentId, ['quoteId' => $quoteId, 'status' => PAYMENT_CANCELED]);
+        $this->flash('success', 'Card-payment request canceled.');
         redirect('admin/quotes/' . $quoteId);
     }
 

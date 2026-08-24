@@ -86,7 +86,7 @@ in a logged `403 ACCESS_DENIED`. Hiding a sidebar entry is cosmetic only.
 |---|---|
 | Overview | `dashboard.view`, `reports.view` |
 | Sales | `quotes.manage`, `contacts.manage` |
-| Catalog | `products.manage`, `categories.manage`, `industries.manage`, `downloads.manage` |
+| Catalog | `products.manage`, `inventory.manage`, `categories.manage`, `industries.manage`, `downloads.manage` |
 | Content | `blog.manage`, `news.manage`, `faqs.manage`, `careers.manage`, `testimonials.manage`, `partners.manage` |
 | Website | `homepage.manage`, `pages.manage`, `menus.manage`, `appearance.manage`, `media.manage`, `seo.manage` |
 | People | `customers.manage`, `admins.manage` *(Super Admin only)* |

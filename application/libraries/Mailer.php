@@ -15,7 +15,7 @@ class Mailer
         $this->CI =& get_instance();
         $this->CI->load->database();
         
-        $this->CI->load->helper('security_helper');
+        $this->CI->load->helper(['security_helper', 'payment_helper']);
     }
 
     /**
@@ -431,6 +431,41 @@ class Mailer
         ];
         $html = $this->render_email('quote_status_update', $vars);
         return ['subject' => 'Your RFQ ' . $vars['quoteNumber'] . ' is now ' . $newStatus, 'html' => $html];
+    }
+
+    /** Email a customer the opaque link to Stripe-hosted Checkout. */
+    public function template_card_payment_request($quote, $payment, $paymentUrl)
+    {
+        $contact = trim((string) ($quote['contactPerson'] ?? ''));
+        $firstName = $contact !== '' ? preg_split('/\s+/', $contact)[0] : '';
+        $vars = [
+            'quoteNumber' => $quote['quoteNumber'] ?? '',
+            'firstName'   => $firstName,
+            'companyName' => $quote['companyName'] ?? '',
+            'amount'      => vp_payment_format_minor($payment['amountMinor'] ?? 0, $payment['currency'] ?? 'USD'),
+            'currency'    => $payment['currency'] ?? 'USD',
+            'expiresAt'   => $payment['expiresAt'] ?? null,
+            'paymentUrl'  => $paymentUrl,
+        ];
+        $html = $this->render_email('card_payment_request', $vars);
+        return ['subject' => 'Secure card payment for quote ' . $vars['quoteNumber'], 'html' => $html];
+    }
+
+    /** Customer-facing confirmation after the payment is verified by Stripe. */
+    public function template_card_payment_receipt($quote, $payment)
+    {
+        $contact = trim((string) ($quote['contactPerson'] ?? ''));
+        $firstName = $contact !== '' ? preg_split('/\s+/', $contact)[0] : '';
+        $vars = [
+            'quoteNumber' => $quote['quoteNumber'] ?? '',
+            'firstName'   => $firstName,
+            'companyName' => $quote['companyName'] ?? '',
+            'amount'      => vp_payment_format_minor($payment['amountMinor'] ?? 0, $payment['currency'] ?? 'USD'),
+            'currency'    => $payment['currency'] ?? 'USD',
+            'paidAt'      => $payment['paidAt'] ?? null,
+        ];
+        $html = $this->render_email('card_payment_receipt', $vars);
+        return ['subject' => 'Payment received for quote ' . $vars['quoteNumber'], 'html' => $html];
     }
 
     private function render_email($template, $vars)

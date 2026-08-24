@@ -34,6 +34,7 @@ $config['permissions'] = [
     'contacts.manage'     => ['Manage contact messages',                 'Sales',    false],
 
     'products.manage'     => ['Manage products',                         'Catalog',  false],
+    'inventory.manage'    => ['Manage warehouse inventory and lots',     'Catalog',  false],
     'categories.manage'   => ['Manage categories',                       'Catalog',  false],
     'industries.manage'   => ['Manage industries',                       'Catalog',  false],
     'downloads.manage'    => ['Manage downloads',                        'Catalog',  false],
@@ -71,7 +72,7 @@ $config['role_default_permissions'] = [
         // Administrators are full website editors. These content permissions
         // are also protected in Acl::effective(), so an old per-user override
         // cannot accidentally leave an ADMIN unable to edit a public page.
-        'products.manage', 'categories.manage', 'industries.manage', 'downloads.manage',
+        'products.manage', 'inventory.manage', 'categories.manage', 'industries.manage', 'downloads.manage',
         'blog.manage', 'news.manage', 'faqs.manage', 'careers.manage',
         'testimonials.manage', 'partners.manage',
         'homepage.manage', 'pages.manage', 'menus.manage', 'appearance.manage',
@@ -81,7 +82,7 @@ $config['role_default_permissions'] = [
         'dashboard.view', 'quotes.manage', 'contacts.manage',
     ],
     'ENGINEER' => [
-        'dashboard.view', 'products.manage', 'downloads.manage',
+        'dashboard.view', 'products.manage', 'inventory.manage', 'downloads.manage',
     ],
     'EDITOR' => [
         'dashboard.view', 'blog.manage', 'news.manage',

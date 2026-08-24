@@ -45,6 +45,8 @@ Coverage:
 |---|---|
 | `helpers_basic.php` | `vp_money`, `vp_condition_badge`, `vp_part_price`, `vp_slugify`, `vp_truncate`, `vp_format_bytes` |
 | `quote_state_machine.php` | `QUOTE_*` constants, `QUOTE_TRANSITIONS` forward-only + terminal contract, `vp_quote_status_label` |
+| `stripe_payments.php` | exact decimal-to-minor-unit conversion, opaque link tokens, Stripe webhook HMAC verification and hosted-Checkout URL allowlist |
+| `inventory_helpers.php` | lot-number normalization, expiry warnings and lot-status UI contract |
 | `rbac_catalog.php` | every `permissions.php` row well-formed, groups registered, `super_only` set is exactly `{admins.manage, system.manage}`, role defaults reference only existing keys and never a super-only one, every critical key reachable by at least one non-super role |
 | `product_image_resolution.php` | 6-step image URL resolution chain: uploaded > curated > category > keyword > default; null/empty inputs never throw |
 | `pdf_render.php` | pure-PHP PDF generator: `%PDF-1.4` magic + `%%EOF` trailer, required object types (Catalog / Pages / Page / Font), A4 MediaBox, content stream + /Length, full quote document round-trip, parentheses + backslash escaping, empty doc + 60-row bulk render |
@@ -55,7 +57,7 @@ Coverage:
 | Area | Checks |
 |---|---|
 | Syntax | `php -l` on every file under `app/` |
-| Secrets | no change-me placeholders, no default passwords, no bcrypt hashes in `install/`, `.env`/`.secrets.php` gitignored |
+| Secrets | no change-me placeholders, no bcrypt hashes in `install/`, stable production keys come from `.env`, no generated `.secrets.php` dependency |
 | Public site | `/`, about, services, contact, rfq, products (+detail), industries (+detail), blog (+post), careers (+detail), faq, downloads, news (+item), login, register, forgot, search |
 | Auth | admin login/logout, invalid password, lockout after 5 failures (file-based), session persistence, session-id rotation (fixation), deactivated users signed out mid-session, forced password change for temp passwords |
 | CSRF | POST without token rejected (403), token rotation |
@@ -70,7 +72,7 @@ Coverage:
 | Email | transport failure logged as FAILED with error message (dead endpoint server) |
 | Downloads | redirect + counter |
 | Admin CRUD | category create/edit/delete + audit trail |
-| Production | homepage 200; missing DB env → fail-fast 503 with no secret leakage; `.secrets.php` auto-generation |
+| Production | homepage 200; missing DB/secrets env → fail-fast 503 with no secret leakage and no generated secret file |
 | Database | 31 tables, 16+ FKs, 100+ indexes, UUID CHAR(36), JSON round-trip, role permissions, CI3 sessions |
 | Runtime health | zero PHP warnings/deprecations/fatals across every server log |
 

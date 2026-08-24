@@ -15,6 +15,7 @@
 INSERT INTO `role_permissions` (`id`,`role`,`resource`,`actions`) VALUES
 (UUID(),'SUPER_ADMIN','*',JSON_ARRAY('*')),
 (UUID(),'ADMIN','products',JSON_ARRAY('read','create','update','delete')),
+(UUID(),'ADMIN','inventory',JSON_ARRAY('manage','read','create','update','delete')),
 (UUID(),'ADMIN','categories',JSON_ARRAY('read','create','update','delete')),
 (UUID(),'ADMIN','quotes',JSON_ARRAY('read','create','update','delete','export','status')),
 (UUID(),'ADMIN','contacts',JSON_ARRAY('read','update','delete')),
@@ -33,6 +34,7 @@ INSERT INTO `role_permissions` (`id`,`role`,`resource`,`actions`) VALUES
 (UUID(),'SALES','quotes',JSON_ARRAY('read','create','update','status','export')),
 (UUID(),'SALES','contacts',JSON_ARRAY('read','update')),
 (UUID(),'ENGINEER','products',JSON_ARRAY('read','update')),
+(UUID(),'ENGINEER','inventory',JSON_ARRAY('manage','read','create','update')),
 (UUID(),'ENGINEER','quotes',JSON_ARRAY('read','update')),
 (UUID(),'EDITOR','blog',JSON_ARRAY('read','create','update','delete')),
 (UUID(),'EDITOR','news',JSON_ARRAY('read','create','update','delete')),
@@ -447,6 +449,31 @@ UNION ALL SELECT
   5600.00,0,1,38,'APU Fire Extinguisher Bottle - 830121-01';
 
 
+-- ---------------------------------------------------------------------
+-- Warehouses + opening lot balances. Product.quantity is now derived from
+-- these lots after every inventory movement; this data keeps seeded parts
+-- immediately usable in the multi-warehouse module.
+-- ---------------------------------------------------------------------
+INSERT INTO `warehouses` (`id`,`name`,`code`,`address`,`city`,`region`,`country`,`timezone`,`phone`,`isAogHub`,`isActive`,`sortOrder`,`notes`) VALUES
+(UUID(),'Dallas AOG Hub','DAL-AOG','Hangar 4, Dallas Executive Airport','Dallas','Texas','USA','America/Chicago','+1 (214) 350-0107',1,1,1,'24/7 AOG dispatch and primary receiving hub'),
+(UUID(),'Amsterdam EU Hub','AMS-EU','Schiphol-Rijk logistics campus','Amsterdam','North Holland','Netherlands','Europe/Amsterdam','+31 20 000 0000',0,1,2,'European consolidation and export hub');
+
+INSERT INTO `inventory_lots` (`id`,`productId`,`warehouseId`,`lotNumber`,`serialNumber`,`binLocation`,`condition`,`certification`,`traceabilityRef`,`quantityOnHand`,`quantityReserved`,`receivedAt`,`expiresAt`,`status`,`notes`)
+SELECT UUID(), p.id,
+       CASE WHEN p.slug IN ('vhf-4000-comm-radio','primus-660-weather-radar','laseref-iv-inertial-reference')
+            THEN (SELECT id FROM warehouses WHERE code='AMS-EU' LIMIT 1)
+            ELSE (SELECT id FROM warehouses WHERE code='DAL-AOG' LIMIT 1) END,
+       p.sku, NULL, 'OPENING', p.condition, 'FAA 8130-3 / EASA Form 1', p.sku,
+       p.quantity, 0, CURRENT_DATE,
+       CASE WHEN p.slug='main-gear-tire-132-101-0' THEN '2027-06-30' ELSE NULL END,
+       CASE WHEN p.quantity > 0 THEN 'ACTIVE' ELSE 'DEPLETED' END,
+       'Opening balance migrated from catalog seed.'
+FROM products p;
+
+INSERT INTO `inventory_movements` (`id`,`inventoryLotId`,`productId`,`warehouseId`,`movementType`,`quantityDelta`,`reservedDelta`,`notes`,`createdAt`)
+SELECT UUID(), l.id, l.productId, l.warehouseId, 'RECEIPT', l.quantityOnHand, 0, 'Opening balance from catalog seed.', NOW()
+FROM inventory_lots l;
+
 INSERT INTO `faqs` (`id`,`question`,`answer`,`category`,`sortOrder`,`isActive`) VALUES
 (UUID(),'What is your typical lead time?','Stock parts ship the same or next business day. AOG (Aircraft on Ground) requests are prioritized and dispatched within hours, 24/7.','Lead Times',1,1),
 (UUID(),'What do NEW, OHC, USED and SERVICEABLE mean?','NEW is unused manufacturer-new stock. OHC means Overhauled — disassembled, repaired to manufacturer limits with a bench test report. USED parts are removed serviceable with traceable history. SERVICEABLE parts are inspected and ready to install.','Part Conditions',2,1),
@@ -499,6 +526,11 @@ INSERT INTO `settings` (`id`,`key`,`value`,`type`,`group`,`sortOrder`) VALUES
 (UUID(),'rfq_enabled','1','BOOL','RFQ',1),
 (UUID(),'rfq_rate_limit_per_hour','5','INT','RFQ',2),
 (UUID(),'rfq_admin_email','admin@jetpacksmarket.com','STRING','RFQ',3),
+
+-- ----- Stripe card payments -----
+(UUID(),'stripe_payments_enabled','0','BOOL','PAYMENTS',1),
+(UUID(),'stripe_currency','USD','STRING','PAYMENTS',2),
+(UUID(),'stripe_checkout_ttl_hours','24','INT','PAYMENTS',3),
 
 -- ----- SEO -----
 (UUID(),'seo_default_title','JetPacks Market — Aircraft Parts Marketplace','STRING','SEO',1),
@@ -596,6 +628,7 @@ INSERT IGNORE INTO `permissions` (`id`,`key`,`label`,`groupName`,`superOnly`,`so
 (UUID(),'quotes.manage','Manage quote requests (RFQ)','Sales',0,4),
 (UUID(),'contacts.manage','Manage contact messages','Sales',0,5),
 (UUID(),'products.manage','Manage products','Catalog',0,6),
+(UUID(),'inventory.manage','Manage warehouse inventory and lots','Catalog',0,7),
 (UUID(),'categories.manage','Manage categories','Catalog',0,7),
 (UUID(),'industries.manage','Manage industries','Catalog',0,8),
 (UUID(),'downloads.manage','Manage downloads','Catalog',0,9),
@@ -628,6 +661,7 @@ INSERT INTO `role_permissions` (`id`,`role`,`resource`,`actions`) VALUES
 (UUID(),'ADMIN','quotes',JSON_ARRAY('manage','read','create','update','delete','export','status')),
 (UUID(),'ADMIN','contacts',JSON_ARRAY('manage','read','update','delete')),
 (UUID(),'ADMIN','products',JSON_ARRAY('manage','read','create','update','delete')),
+(UUID(),'ADMIN','inventory',JSON_ARRAY('manage','read','create','update','delete')),
 (UUID(),'ADMIN','categories',JSON_ARRAY('manage','read','create','update','delete')),
 (UUID(),'ADMIN','media',JSON_ARRAY('manage','read','create','delete')),
 (UUID(),'SALES','dashboard',JSON_ARRAY('view','read')),
@@ -635,6 +669,7 @@ INSERT INTO `role_permissions` (`id`,`role`,`resource`,`actions`) VALUES
 (UUID(),'SALES','contacts',JSON_ARRAY('manage','read','update')),
 (UUID(),'ENGINEER','dashboard',JSON_ARRAY('view','read')),
 (UUID(),'ENGINEER','products',JSON_ARRAY('manage','read','update')),
+(UUID(),'ENGINEER','inventory',JSON_ARRAY('manage','read','create','update')),
 (UUID(),'ENGINEER','downloads',JSON_ARRAY('manage','read','update','create')),
 (UUID(),'EDITOR','dashboard',JSON_ARRAY('view','read')),
 (UUID(),'EDITOR','blog',JSON_ARRAY('manage','read','create','update','delete')),

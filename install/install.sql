@@ -171,6 +171,82 @@ CREATE TABLE IF NOT EXISTS `related_products` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
+-- Multi-warehouse inventory / lot traceability
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `warehouses` (
+  `id`        CHAR(36)     NOT NULL,
+  `name`      VARCHAR(190) NOT NULL,
+  `code`      VARCHAR(30)  NOT NULL,
+  `address`   VARCHAR(500) DEFAULT NULL,
+  `city`      VARCHAR(100) DEFAULT NULL,
+  `region`    VARCHAR(100) DEFAULT NULL,
+  `country`   VARCHAR(100) DEFAULT NULL,
+  `timezone`  VARCHAR(100) NOT NULL DEFAULT 'UTC',
+  `phone`     VARCHAR(50)  DEFAULT NULL,
+  `isAogHub`  TINYINT(1)   NOT NULL DEFAULT 0,
+  `isActive`  TINYINT(1)   NOT NULL DEFAULT 1,
+  `sortOrder` INT          NOT NULL DEFAULT 0,
+  `notes`     TEXT         DEFAULT NULL,
+  `createdAt` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_warehouses_code` (`code`),
+  KEY `idx_warehouses_active_order` (`isActive`,`sortOrder`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `inventory_lots` (
+  `id`               CHAR(36)     NOT NULL,
+  `productId`        CHAR(36)     NOT NULL,
+  `warehouseId`      CHAR(36)     NOT NULL,
+  `lotNumber`        VARCHAR(100) NOT NULL,
+  `serialNumber`     VARCHAR(100) DEFAULT NULL,
+  `binLocation`      VARCHAR(100) DEFAULT NULL,
+  `condition`        VARCHAR(40)  DEFAULT NULL,
+  `certification`    VARCHAR(255) DEFAULT NULL,
+  `traceabilityRef`  VARCHAR(255) DEFAULT NULL,
+  `quantityOnHand`   INT          NOT NULL DEFAULT 0,
+  `quantityReserved` INT          NOT NULL DEFAULT 0,
+  `receivedAt`       DATE         DEFAULT NULL,
+  `expiresAt`        DATE         DEFAULT NULL,
+  `status`           ENUM('ACTIVE','QUARANTINE','EXPIRED','DEPLETED') NOT NULL DEFAULT 'ACTIVE',
+  `notes`            TEXT         DEFAULT NULL,
+  `createdBy`        CHAR(36)     DEFAULT NULL,
+  `createdAt`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_inventory_lot` (`productId`,`warehouseId`,`lotNumber`),
+  KEY `idx_inventory_lots_warehouse_status` (`warehouseId`,`status`),
+  KEY `idx_inventory_lots_product_status` (`productId`,`status`),
+  KEY `idx_inventory_lots_expiry` (`expiresAt`),
+  CONSTRAINT `fk_inventory_lots_product` FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_inventory_lots_warehouse` FOREIGN KEY (`warehouseId`) REFERENCES `warehouses`(`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_inventory_lots_creator` FOREIGN KEY (`createdBy`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `inventory_movements` (
+  `id`               CHAR(36)     NOT NULL,
+  `inventoryLotId`   CHAR(36)     NOT NULL,
+  `productId`        CHAR(36)     NOT NULL,
+  `warehouseId`      CHAR(36)     NOT NULL,
+  `movementType`     ENUM('RECEIPT','ADJUST_IN','ADJUST_OUT','RESERVE','RELEASE','TRANSFER_IN','TRANSFER_OUT','DETAIL_UPDATE','WRITE_OFF') NOT NULL,
+  `quantityDelta`    INT          NOT NULL DEFAULT 0,
+  `reservedDelta`    INT          NOT NULL DEFAULT 0,
+  `referenceType`    VARCHAR(60)  DEFAULT NULL,
+  `referenceId`      VARCHAR(100) DEFAULT NULL,
+  `notes`            VARCHAR(500) DEFAULT NULL,
+  `actorId`          CHAR(36)     DEFAULT NULL,
+  `createdAt`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_inventory_movements_lot_created` (`inventoryLotId`,`createdAt`),
+  KEY `idx_inventory_movements_product_created` (`productId`,`createdAt`),
+  KEY `idx_inventory_movements_warehouse_created` (`warehouseId`,`createdAt`),
+  CONSTRAINT `fk_inventory_movements_lot` FOREIGN KEY (`inventoryLotId`) REFERENCES `inventory_lots`(`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_inventory_movements_product` FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_inventory_movements_warehouse` FOREIGN KEY (`warehouseId`) REFERENCES `warehouses`(`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_inventory_movements_actor` FOREIGN KEY (`actorId`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
 -- Quotes / RFQ
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `quotes` (
@@ -252,7 +328,7 @@ CREATE TABLE IF NOT EXISTS `quote_activities` (
   `id`          CHAR(36) NOT NULL,
   `quoteId`     CHAR(36) NOT NULL,
   `actorId`     CHAR(36) DEFAULT NULL,
-  `action`      ENUM('QUOTE_CREATED','ASSIGNED','STATUS_CHANGED','INTERNAL_NOTE_ADDED','QUOTE_UPDATED','PDF_GENERATED','EMAIL_QUEUED','EMAIL_SENT') NOT NULL,
+  `action`      ENUM('QUOTE_CREATED','ASSIGNED','STATUS_CHANGED','INTERNAL_NOTE_ADDED','QUOTE_UPDATED','PDF_GENERATED','EMAIL_QUEUED','EMAIL_SENT','PAYMENT_REQUESTED','PAYMENT_PAID','PAYMENT_CANCELED','PAYMENT_EXPIRED','PAYMENT_FAILED') NOT NULL,
   `description` VARCHAR(500) DEFAULT NULL,
   `metadata`    JSON DEFAULT NULL,
   `ipAddress`   VARCHAR(45) DEFAULT NULL,
@@ -262,6 +338,50 @@ CREATE TABLE IF NOT EXISTS `quote_activities` (
   KEY `idx_qa_quote_created` (`quoteId`,`createdAt`),
   CONSTRAINT `fk_qa_quote` FOREIGN KEY (`quoteId`) REFERENCES `quotes`(`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_qa_actor` FOREIGN KEY (`actorId`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- Stripe-hosted card payments
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `payments` (
+  `id`                       CHAR(36)      NOT NULL,
+  `quoteId`                  CHAR(36)      NOT NULL,
+  `provider`                 VARCHAR(40)   NOT NULL DEFAULT 'stripe',
+  `status`                   ENUM('PENDING','OPEN','PAID','EXPIRED','CANCELED','FAILED','REFUNDED') NOT NULL DEFAULT 'PENDING',
+  `amount`                   DECIMAL(14,2) NOT NULL,
+  `amountMinor`              BIGINT        NOT NULL,
+  `currency`                 CHAR(3)       NOT NULL DEFAULT 'USD',
+  `accessToken`              CHAR(64)      NOT NULL, -- HMAC-SHA256 of opaque customer link token
+  `description`              VARCHAR(255)  DEFAULT NULL,
+  `stripeCheckoutSessionId`  VARCHAR(255)  DEFAULT NULL,
+  `stripePaymentIntentId`    VARCHAR(255)  DEFAULT NULL,
+  `checkoutUrl`              VARCHAR(500)  DEFAULT NULL,
+  `expiresAt`                DATETIME      DEFAULT NULL,
+  `paidAt`                   DATETIME      DEFAULT NULL,
+  `createdBy`                CHAR(36)      DEFAULT NULL,
+  `lastError`                VARCHAR(1000) DEFAULT NULL,
+  `createdAt`                DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt`                DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payments_access_token` (`accessToken`),
+  UNIQUE KEY `uk_payments_stripe_session` (`stripeCheckoutSessionId`),
+  KEY `idx_payments_quote_created` (`quoteId`,`createdAt`),
+  KEY `idx_payments_status_expiry` (`status`,`expiresAt`),
+  CONSTRAINT `fk_payments_quote` FOREIGN KEY (`quoteId`) REFERENCES `quotes`(`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_payments_created_by` FOREIGN KEY (`createdBy`) REFERENCES `users`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `payment_events` (
+  `id`              CHAR(36)     NOT NULL,
+  `paymentId`       CHAR(36)     DEFAULT NULL,
+  `provider`        VARCHAR(40)  NOT NULL,
+  `providerEventId` VARCHAR(255) NOT NULL,
+  `eventType`       VARCHAR(100) NOT NULL,
+  `createdAt`       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payment_event_provider_id` (`provider`,`providerEventId`),
+  KEY `idx_payment_events_payment_created` (`paymentId`,`createdAt`),
+  CONSTRAINT `fk_payment_events_payment` FOREIGN KEY (`paymentId`) REFERENCES `payments`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `email_logs` (

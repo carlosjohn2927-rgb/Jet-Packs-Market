@@ -5,16 +5,17 @@
  *   php install/install.php                 # interactive-default install
  *   php install/install.php --source=production  # force the combined database/production.sql
  *   php install/install.php --source=minimal  # force install.sql + seed.sql + migrations
- *   php install/install.php --users-only     # skip import; only create SUPER_ADMIN + secrets
+ *   php install/install.php --users-only     # skip import; only create/reset SUPER_ADMIN
  *   php install/install.php --status        # show what is currently in the DB, do not write
  *
  * 1. Imports the schema (database/production.sql by default; falls back to
  *    install/install.sql + the database/migrations/* files + install/seed.sql
  *    when the combined file is unavailable)
  * 2. Applies every .sql migration in `database/migrations` (idempotent)
- * 3. Creates (or repaves) the initial SUPER_ADMIN account
- * 4. Generates stable secret keys at application/config/.secrets.php when
- *    VP_ENCRYPTION_KEY / VP_AUTH_SECRET are not already in the environment
+ * 3. Creates (or repaves) the initial SUPER_ADMIN account for optional local
+ *    developer workflows; normal cPanel deployments use production.sql instead
+ * 4. Requires stable VP_ENCRYPTION_KEY / VP_AUTH_SECRET from .env and never
+ *    writes an application/config/.secrets.php file
  * 5. Prints row counts for every important table so the operator can
  *    confirm the install actually loaded
  *
@@ -67,7 +68,8 @@ function vp_install_env($key, $default = '')
 $root = dirname(__DIR__);              // <repoRoot>
 $application_dir = $root . '/application';
 $public_dir      = $root;              // document root == repo root
-$secrets_file    = $application_dir . '/config/.secrets.php';
+// Portable production deployments use stable VP_ENCRYPTION_KEY and
+// VP_AUTH_SECRET from .env only. No application/config secret file is used.
 
 /* ------------------------------------------------------------------ */
 /* Argument parsing                                                     */
@@ -297,31 +299,16 @@ $mysqli->query(
 );
 
 /* ------------------------------------------------------------------ */
-/* 3. Stable secrets (.secrets.php)                                     */
+/* 3. Stable secrets (.env only)                                       */
 /* ------------------------------------------------------------------ */
-if (vp_install_env('VP_ENCRYPTION_KEY') !== '' && vp_install_env('VP_AUTH_SECRET') !== '') {
-    fwrite(STDOUT, "Secrets: using VP_ENCRYPTION_KEY / VP_AUTH_SECRET from the environment.\n");
-} elseif (!is_file($secrets_file)) {
-    if (!is_dir(dirname($secrets_file))) {
-        @mkdir(dirname($secrets_file), 0755, true);
-    }
-    $secrets = [
-        'encryption_key' => bin2hex(random_bytes(32)),
-        'auth_secret'    => bin2hex(random_bytes(32)),
-    ];
-    $payload = "<?php defined('BASEPATH') OR exit('No direct script access allowed');\n"
-        . "// Auto-generated secrets - do not commit to version control.\n"
-        . "return " . var_export($secrets, true) . ";\n";
-    if (@file_put_contents($secrets_file, $payload, LOCK_EX) !== false) {
-        @chmod($secrets_file, 0600);
-        fwrite(STDOUT, "  OK - generated {$secrets_file} (chmod 0600).\n");
-    } else {
-        fwrite(STDERR, "  WARNING: could not write {$secrets_file} - the app will fall back "
-            . "to per-request random keys until VP_ENCRYPTION_KEY / VP_AUTH_SECRET are set.\n");
-    }
-} else {
-    fwrite(STDOUT, "  OK - {$secrets_file} already present.\n");
+$enc = vp_install_env('VP_ENCRYPTION_KEY');
+$auth = vp_install_env('VP_AUTH_SECRET');
+if (strlen($enc) < 32 || strlen($auth) < 32) {
+    fwrite(STDERR, "VP_ENCRYPTION_KEY and VP_AUTH_SECRET must be configured in .env.\n"
+        . "This installer will not generate application/config/.secrets.php.\n");
+    exit(1);
 }
+fwrite(STDOUT, "Secrets: using stable VP_ENCRYPTION_KEY / VP_AUTH_SECRET from .env.\n");
 
 /* ------------------------------------------------------------------ */
 /* 4. Verify + summary                                                  */

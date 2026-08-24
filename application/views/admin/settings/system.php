@@ -73,6 +73,29 @@
             <?= vp_text_field('chat_quick_replies', $values['chat_quick_replies'], 'Quick reply buttons', ['help' => 'Comma separated, e.g. Products, Request a quote, Delivery times, Contact']) ?>
         <?= vp_admin_card_close() ?>
 
+        <?= vp_admin_card_open('Stripe card payments', 'Customers are sent to Stripe-hosted Checkout; this website never stores card details.', 'ri-bank-card-line') ?>
+            <div class="rounded-lg border px-3 py-3 text-sm <?= !empty($stripe['configured']) ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-amber-200 bg-amber-50 text-amber-900' ?>">
+                <?php if (!empty($stripe['configured'])): ?>
+                    <strong>Stripe is ready.</strong> Running in <?= vp_safe_html(($stripe['mode'] ?? 'unknown') === 'live' ? 'live' : 'test') ?> mode.
+                <?php else: ?>
+                    <strong>Stripe is not ready.</strong> <?= vp_safe_html($stripe['message'] ?? 'Add credentials to .env.') ?>
+                <?php endif; ?>
+                <?php if (empty($stripe['webhook_configured'])): ?>
+                    <div class="mt-1">Add <code>VP_STRIPE_WEBHOOK_SECRET</code> after creating the webhook endpoint below; paid orders are finalized by its signed event.</div>
+                <?php endif; ?>
+            </div>
+            <?= vp_toggle_field('stripe_payments_enabled', $values['stripe_payments_enabled'] === '1', 'Enable card payments', 'Requires VP_STRIPE_SECRET_KEY in .env; keep disabled until Stripe test mode is verified.') ?>
+            <div class="grid md:grid-cols-2 gap-4">
+                <?= vp_select_field('stripe_currency', $payment_currencies, $values['stripe_currency'], 'Checkout currency') ?>
+                <?= vp_select_field('stripe_checkout_ttl_hours', ['1' => '1 hour', '4' => '4 hours', '8' => '8 hours', '24' => '24 hours'], $values['stripe_checkout_ttl_hours'], 'Payment-link lifetime') ?>
+            </div>
+            <div class="rounded-lg bg-gray-50 border px-3 py-3 text-xs text-ink-800/70">
+                <strong>One-time setup:</strong> add <code>VP_STRIPE_SECRET_KEY</code> and <code>VP_STRIPE_WEBHOOK_SECRET</code> to <code>.env</code>, then create a Stripe webhook for
+                <code><?= vp_safe_html($stripe['webhook_url'] ?? base_url('payments/stripe/webhook')) ?></code>.
+                Listen for <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>checkout.session.async_payment_failed</code>, and <code>checkout.session.expired</code>.
+            </div>
+        <?= vp_admin_card_close() ?>
+
         <?= vp_admin_card_open('Features', '', 'ri-toggle-line') ?>
             <?= vp_toggle_field('rfq_enabled', $values['rfq_enabled'] === '1', 'Accept quote requests (RFQ form)') ?>
             <div class="grid md:grid-cols-2 gap-4">

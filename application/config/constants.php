@@ -49,8 +49,23 @@ define('AUDIT_STATUS',  'STATUS_CHANGE');
 define('AUDIT_ASSIGN',  'ASSIGN');
 define('AUDIT_EMAIL',   'EMAIL_SENT');
 define('AUDIT_EMAIL_FAILED', 'EMAIL_FAILED');
-define('AUDIT_PDF',     'PDF_GENERATED');
+define('AUDIT_PDF',         'PDF_GENERATED');
+define('AUDIT_PAYMENT_REQUESTED', 'PAYMENT_REQUESTED');
+define('AUDIT_PAYMENT_PAID',      'PAYMENT_PAID');
+define('AUDIT_PAYMENT_FAILED',    'PAYMENT_FAILED');
 define('AUDIT_LOGIN_FAILED', 'LOGIN_FAILED');
+
+// Stripe / card-payment statuses. Payments are deliberately separate from the
+// quote state machine: Stripe is the financial source of truth, while a quote
+// can still be reviewed/fulfilled by staff.
+define('PAYMENT_PROVIDER_STRIPE', 'stripe');
+define('PAYMENT_PENDING',  'PENDING');
+define('PAYMENT_OPEN',     'OPEN');
+define('PAYMENT_PAID',     'PAID');
+define('PAYMENT_EXPIRED',  'EXPIRED');
+define('PAYMENT_CANCELED', 'CANCELED');
+define('PAYMENT_FAILED',   'FAILED');
+define('PAYMENT_REFUNDED', 'REFUNDED');
 
 // Asset / path constants
 define('ASSETS_URL', '/assets/');
@@ -72,3 +87,8 @@ define('QA_UPDATED',     'QUOTE_UPDATED');
 define('QA_PDF',         'PDF_GENERATED');
 define('QA_EMAIL_QUEUED','EMAIL_QUEUED');
 define('QA_EMAIL_SENT',  'EMAIL_SENT');
+define('QA_PAYMENT_REQUESTED', 'PAYMENT_REQUESTED');
+define('QA_PAYMENT_PAID',      'PAYMENT_PAID');
+define('QA_PAYMENT_CANCELED',  'PAYMENT_CANCELED');
+define('QA_PAYMENT_EXPIRED',   'PAYMENT_EXPIRED');
+define('QA_PAYMENT_FAILED',    'PAYMENT_FAILED');

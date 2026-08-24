@@ -7,7 +7,19 @@
 /** @var array $selected_related */
 /** @var string $certifications_csv */
 /** @var array $specs_rows */
+/** @var bool $inventory_available */
+/** @var array|null $inventory_summary */
+/** @var array $inventory_lots */
+/** @var array $inventory_movements */
+/** @var array $inventory_warehouses */
 $is_create = empty($product);
+$inventory_available = !empty($inventory_available);
+$inventory_summary = $inventory_summary ?? null;
+$inventory_lots = $inventory_lots ?? [];
+$inventory_movements = $inventory_movements ?? [];
+$inventory_warehouses = $inventory_warehouses ?? [];
+$all_industries = $all_industries ?? ($industries ?? []);
+$selected_aircraft_types = $selected_aircraft_types ?? (json_decode($product['aircraftType'] ?? '[]', true) ?: []);
 $action = $is_create ? base_url('admin/products/save') : base_url('admin/products/save');
 ?>
 <form method="post" action="<?= $action ?>" enctype="multipart/form-data" class="space-y-6">
@@ -75,7 +87,17 @@ $action = $is_create ? base_url('admin/products/save') : base_url('admin/product
                 <p class="vp-help">Select one or more aircraft platforms this part is compatible with.</p>
             </div>
             <div class="vp-form-row"><label>Price (USD)</label><input class="vp-input" type="number" step="0.01" name="price" value="<?= vp_safe_html($product['price'] ?? '') ?>"></div>
-            <div class="vp-form-row"><label>Quantity in stock</label><input class="vp-input" type="number" min="0" step="1" name="quantity" value="<?= vp_safe_html($product['quantity'] ?? '1') ?>"></div>
+            <div class="vp-form-row">
+                <?php if (!$is_create && $inventory_available && $inventory_summary !== null): ?>
+                    <label>Available stock (derived from lots)</label>
+                    <input class="vp-input bg-gray-50" type="text" readonly value="<?= (int) $inventory_summary['available'] ?> unit<?= (int) $inventory_summary['available'] === 1 ? '' : 's' ?> across <?= (int) $inventory_summary['warehouseCount'] ?> warehouse<?= (int) $inventory_summary['warehouseCount'] === 1 ? '' : 's' ?>">
+                    <input type="hidden" name="quantity" value="<?= (int) $inventory_summary['available'] ?>">
+                    <p class="vp-help">Use the Inventory lots panel below to receive, reserve or move stock.</p>
+                <?php else: ?>
+                    <label>Opening quantity</label><input class="vp-input" type="number" min="0" step="1" name="quantity" value="<?= vp_safe_html($product['quantity'] ?? '1') ?>">
+                    <p class="vp-help">Saved as an opening lot at the default warehouse after the product is created.</p>
+                <?php endif; ?>
+            </div>
             <div class="vp-form-row">
                 <label>Condition</label>
                 <select class="vp-select" name="condition">
@@ -87,7 +109,7 @@ $action = $is_create ? base_url('admin/products/save') : base_url('admin/product
             <div class="vp-form-row">
                 <label>Availability</label>
                 <select class="vp-select" name="availability">
-                    <?php foreach (['IN_STOCK','MADE_TO_ORDER','DISCONTINUED'] as $a): ?>
+                    <?php foreach (['IN_STOCK','OUT_OF_STOCK','MADE_TO_ORDER','DISCONTINUED'] as $a): ?>
                         <option value="<?= $a ?>" <?= ($product['availability'] ?? 'IN_STOCK') === $a ? 'selected' : '' ?>><?= str_replace('_',' ',$a) ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -98,6 +120,91 @@ $action = $is_create ? base_url('admin/products/save') : base_url('admin/product
             <input class="vp-input" name="certifications_csv" value="<?= vp_safe_html($certifications_csv) ?>" placeholder="ASME B31.3, API 610, ISO 9001">
         </div>
     </div>
+
+    <?php if (!$is_create && $inventory_available && !empty($can['inventory.manage'])): ?>
+    <div class="vp-card vp-card-pad">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+            <div>
+                <h2 class="font-bold text-lg">Multi-warehouse inventory &amp; lots</h2>
+                <p class="vp-help">Every stock change writes a movement record. Available stock excludes reserved, expired and quarantined lots.</p>
+            </div>
+            <a class="vp-btn vp-btn-secondary vp-btn-sm" href="<?= base_url('admin/inventory') ?>"><i class="ri-stack-line"></i> Inventory board</a>
+        </div>
+        <?php if ($inventory_summary): ?>
+            <div class="grid sm:grid-cols-4 gap-3 mb-5 text-sm">
+                <div class="rounded-lg bg-emerald-50 border border-emerald-100 p-3"><span class="block text-xs text-emerald-800">Available</span><b class="text-lg"><?= (int) $inventory_summary['available'] ?></b></div>
+                <div class="rounded-lg bg-blue-50 border border-blue-100 p-3"><span class="block text-xs text-blue-800">On hand</span><b class="text-lg"><?= (int) $inventory_summary['onHand'] ?></b></div>
+                <div class="rounded-lg bg-amber-50 border border-amber-100 p-3"><span class="block text-xs text-amber-800">Reserved</span><b class="text-lg"><?= (int) $inventory_summary['reserved'] ?></b></div>
+                <div class="rounded-lg bg-gray-50 border p-3"><span class="block text-xs text-gray-600">Locations</span><b class="text-lg"><?= (int) $inventory_summary['warehouseCount'] ?></b><?php if (!empty($inventory_summary['aogAvailable'])): ?><span class="block text-xs text-emerald-700 font-semibold">AOG-ready</span><?php endif; ?></div>
+            </div>
+        <?php endif; ?>
+
+        <?php if (empty($inventory_lots)): ?>
+            <p class="text-sm text-gray-500 mb-4">No lots have been received for this part yet.</p>
+        <?php else: ?>
+            <div class="overflow-x-auto mb-5">
+                <table class="vp-admin-table text-xs">
+                    <thead><tr><th>Warehouse / bin</th><th>Lot / serial</th><th>On hand</th><th>Reserved</th><th>Available</th><th>Expiry</th><th>Status</th><th></th></tr></thead>
+                    <tbody><?php foreach ($inventory_lots as $lot): [$lotLabel, $lotClass] = vp_inventory_lot_status_label($lot['status']); [$expLabel, $expClass] = vp_inventory_expiry_label($lot['expiresAt'] ?? null); ?>
+                        <tr>
+                            <td><strong><?= vp_safe_html($lot['warehouseCode'] ?? '') ?></strong><br><span class="text-gray-500"><?= vp_safe_html($lot['binLocation'] ?? '—') ?></span></td>
+                            <td><strong><?= vp_safe_html($lot['lotNumber']) ?></strong><?php if (!empty($lot['serialNumber'])): ?><br><span class="text-gray-500">S/N <?= vp_safe_html($lot['serialNumber']) ?></span><?php endif; ?></td>
+                            <td><?= (int) $lot['quantityOnHand'] ?></td><td><?= (int) $lot['quantityReserved'] ?></td><td><strong><?= (int) $lot['quantityAvailable'] ?></strong></td>
+                            <td class="<?= $expClass ?>"><?= vp_safe_html($expLabel) ?></td><td><span class="vp-pill <?= $lotClass ?>"><?= vp_safe_html($lotLabel) ?></span></td>
+                            <td class="text-right"><a href="#lot-<?= $lot['id'] ?>" class="text-brand-600 hover:underline">Manage</a></td>
+                        </tr>
+                    <?php endforeach; ?></tbody>
+                </table>
+            </div>
+            <div class="space-y-3">
+            <?php foreach ($inventory_lots as $lot): ?>
+                <details id="lot-<?= $lot['id'] ?>" class="rounded-lg border bg-gray-50 p-3">
+                    <summary class="cursor-pointer font-semibold text-sm">Manage lot <?= vp_safe_html($lot['lotNumber']) ?> · <?= vp_safe_html($lot['warehouseName'] ?? '') ?></summary>
+                    <div class="grid lg:grid-cols-2 gap-4 mt-4">
+                        <form method="post" action="<?= base_url('admin/products/' . $product['id'] . '/inventory/lots/' . $lot['id'] . '/adjust') ?>" class="space-y-2">
+                            <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
+                            <h3 class="font-semibold text-sm">Adjust stock / reservation</h3>
+                            <div class="grid grid-cols-2 gap-2"><input class="vp-input" name="quantityDelta" type="number" step="1" placeholder="On-hand delta, e.g. -1"><input class="vp-input" name="reservedDelta" type="number" step="1" placeholder="Reserved delta, e.g. +1"></div>
+                            <input class="vp-input" name="note" maxlength="500" placeholder="Reason / reference (required for audit)">
+                            <button class="vp-btn vp-btn-secondary vp-btn-sm" type="submit">Save adjustment</button>
+                        </form>
+                        <form method="post" action="<?= base_url('admin/products/' . $product['id'] . '/inventory/lots/' . $lot['id'] . '/update') ?>" class="space-y-2">
+                            <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
+                            <h3 class="font-semibold text-sm">Traceability &amp; expiry</h3>
+                            <div class="grid grid-cols-2 gap-2"><input class="vp-input" name="serialNumber" value="<?= vp_safe_html($lot['serialNumber'] ?? '') ?>" placeholder="Serial number"><input class="vp-input" name="binLocation" value="<?= vp_safe_html($lot['binLocation'] ?? '') ?>" placeholder="Bin / shelf"></div>
+                            <div class="grid grid-cols-2 gap-2"><input class="vp-input" type="date" name="receivedAt" value="<?= vp_safe_html($lot['receivedAt'] ?? '') ?>"><input class="vp-input" type="date" name="expiresAt" value="<?= vp_safe_html($lot['expiresAt'] ?? '') ?>"></div>
+                            <div class="grid grid-cols-2 gap-2"><input class="vp-input" name="certification" value="<?= vp_safe_html($lot['certification'] ?? '') ?>" placeholder="FAA 8130-3 / Form 1"><select class="vp-select" name="lotStatus"><?php foreach (['ACTIVE','QUARANTINE','EXPIRED','DEPLETED'] as $state): ?><option value="<?= $state ?>" <?= $state === $lot['status'] ? 'selected' : '' ?>><?= $state ?></option><?php endforeach; ?></select></div>
+                            <input class="vp-input" name="traceabilityRef" value="<?= vp_safe_html($lot['traceabilityRef'] ?? '') ?>" placeholder="Traceability reference">
+                            <textarea class="vp-textarea" name="lotNotes" rows="2" placeholder="Lot notes"><?= vp_safe_html($lot['notes'] ?? '') ?></textarea>
+                            <button class="vp-btn vp-btn-secondary vp-btn-sm" type="submit">Save lot details</button>
+                        </form>
+                    </div>
+                    <div class="mt-4 border-t pt-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wide text-gray-600 mb-2">Recent movement history</h4>
+                        <?php $moves = $inventory_movements[$lot['id']] ?? []; ?>
+                        <?php if (empty($moves)): ?><p class="text-xs text-gray-500">No movements recorded yet.</p><?php else: ?><ul class="text-xs divide-y"><?php foreach ($moves as $move): ?><li class="py-1 flex flex-wrap gap-x-3"><span class="font-semibold"><?= vp_safe_html($move['movementType']) ?></span><span>On hand <?= (int) $move['quantityDelta'] >= 0 ? '+' : '' ?><?= (int) $move['quantityDelta'] ?></span><span>Reserved <?= (int) $move['reservedDelta'] >= 0 ? '+' : '' ?><?= (int) $move['reservedDelta'] ?></span><span class="text-gray-500"><?= vp_time_ago($move['createdAt']) ?></span><?php if (!empty($move['notes'])): ?><span class="text-gray-600"><?= vp_safe_html($move['notes']) ?></span><?php endif; ?></li><?php endforeach; ?></ul><?php endif; ?>
+                    </div>
+                </details>
+            <?php endforeach; ?></div>
+        <?php endif; ?>
+
+        <form method="post" action="<?= base_url('admin/products/' . $product['id'] . '/inventory/lots/create') ?>" class="mt-6 border-t pt-5 space-y-3">
+            <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
+            <h3 class="font-bold">Receive a new lot</h3>
+            <?php if (empty($inventory_warehouses)): ?><p class="text-sm text-red-700">Create an active warehouse before receiving stock.</p><?php else: ?>
+                <div class="grid md:grid-cols-3 gap-3"><select class="vp-select" name="warehouseId" required><option value="">Warehouse…</option><?php foreach ($inventory_warehouses as $warehouse): ?><option value="<?= $warehouse['id'] ?>"><?= vp_safe_html($warehouse['code'] . ' — ' . $warehouse['name']) ?></option><?php endforeach; ?></select><input class="vp-input" name="lotNumber" required maxlength="100" placeholder="Lot / batch number"><input class="vp-input" name="serialNumber" maxlength="100" placeholder="Serial number (optional)"></div>
+                <div class="grid md:grid-cols-4 gap-3"><input class="vp-input" name="quantityOnHand" type="number" min="0" step="1" required placeholder="On-hand quantity"><input class="vp-input" name="quantityReserved" type="number" min="0" step="1" value="0" placeholder="Reserved"><input class="vp-input" name="binLocation" maxlength="100" placeholder="Bin / shelf"><input class="vp-input" type="date" name="expiresAt" title="Expiry date"></div>
+                <div class="grid md:grid-cols-3 gap-3"><input class="vp-input" name="certification" maxlength="255" placeholder="Certification"><input class="vp-input" name="traceabilityRef" maxlength="255" placeholder="Traceability reference"><select class="vp-select" name="lotStatus"><option value="ACTIVE">ACTIVE</option><option value="QUARANTINE">QUARANTINE</option></select></div>
+                <textarea class="vp-textarea" name="lotNotes" rows="2" placeholder="Receiving notes"></textarea>
+                <button class="vp-btn vp-btn-primary" type="submit"><i class="ri-add-circle-line"></i> Receive lot</button>
+            <?php endif; ?>
+        </form>
+    </div>
+    <?php elseif (!$is_create && !$inventory_available): ?>
+    <div class="vp-card vp-card-pad"><h2 class="font-bold text-lg">Inventory</h2><p class="text-sm text-gray-600">Import <code>database/migrations/007_multi_warehouse_inventory.sql</code> to enable lot-level inventory.</p></div>
+    <?php elseif (!$is_create): ?>
+    <div class="vp-card vp-card-pad"><h2 class="font-bold text-lg">Inventory</h2><p class="text-sm text-gray-600">You do not have permission to manage inventory lots.</p></div>
+    <?php endif; ?>
 
     <div class="vp-card vp-card-pad">
         <h2 class="font-bold text-lg mb-4">Images</h2>

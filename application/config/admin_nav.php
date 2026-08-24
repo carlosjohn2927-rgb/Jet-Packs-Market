@@ -28,6 +28,8 @@ $config['admin_nav'] = [
         'group' => 'Catalog',
         'items' => [
             ['label' => 'Products',   'url' => 'admin/products',   'icon' => 'ri-box-3-line',        'permission' => 'products.manage',   'match' => 'products'],
+            ['label' => 'Inventory',  'url' => 'admin/inventory',  'icon' => 'ri-stack-line',        'permission' => 'inventory.manage',  'match' => 'inventory'],
+            ['label' => 'Warehouses', 'url' => 'admin/warehouses', 'icon' => 'ri-building-warehouse-line', 'permission' => 'inventory.manage', 'match' => 'warehouses'],
             ['label' => 'Categories', 'url' => 'admin/categories', 'icon' => 'ri-price-tag-3-line',  'permission' => 'categories.manage', 'match' => 'categories'],
             ['label' => 'Industries', 'url' => 'admin/industries', 'icon' => 'ri-building-2-line',   'permission' => 'industries.manage', 'match' => 'industries'],
             ['label' => 'Downloads',  'url' => 'admin/downloads',  'icon' => 'ri-download-2-line',   'permission' => 'downloads.manage',  'match' => 'downloads'],
