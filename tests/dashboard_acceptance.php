@@ -555,25 +555,3 @@ if ($failures) {
     foreach ($failures as $f) echo "  • {$f}\n";
 }
 exit($fail === 0 ? 0 : 1);
-k('Per-administrator activity view works', $act['code'] === 200);
-}
-
-/* ---------- 10. Cleanup -------------------------------------------- */
-section('10. Cleanup');
-
-if ($adminId) {
-    $r = post('admin/admins/delete/' . $adminId, [], $superJar, 'admin/admins');
-    check('Super Admin can delete an Admin account',
-        $r['code'] === 200 && strpos($r['body'], $TMP_ADMIN['email']) === false);
-}
-@unlink($tmpPng);
-
-/* ------------------------------------------------------------------ */
-
-echo "\n" . str_repeat('─', 60) . "\n";
-echo "Passed: {$pass}   Failed: {$fail}\n";
-if ($failures) {
-    echo "\nFailures:\n";
-    foreach ($failures as $f) echo "  • {$f}\n";
-}
-exit($fail === 0 ? 0 : 1);

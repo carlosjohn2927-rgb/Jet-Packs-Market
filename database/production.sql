@@ -695,9 +695,9 @@ CREATE TABLE IF NOT EXISTS `notifications` (
 -- Email:    admin@jetpacksmarket.com
 -- Password: Nigeria1234@
 --
--- The password is bcrypt-hashed (cost 12). To change it, either:
---   • Log into the admin panel → Users → edit your account
---   • Or hash a new password and UPDATE this row
+-- The password is bcrypt-hashed (cost 12). This seeded account has
+-- mustChangePassword=1, so the first sign-in is forced to the password-change
+-- screen. Do not leave the documented bootstrap password in use.
 -- #############################################################################
 
 INSERT INTO `users` (`id`, `email`, `password`, `firstName`, `lastName`, `role`, `company`, `isActive`, `mustChangePassword`, `emailVerified`, `createdAt`, `updatedAt`)
@@ -710,7 +710,7 @@ VALUES (
   'SUPER_ADMIN',
   'JetPacks Market',
   1,
-  0,
+  1,
   1,
   NOW(),
   NOW()
@@ -1690,4 +1690,3 @@ INSERT IGNORE INTO `pages`
 (UUID(),'Terms of Service','terms-of-service','The terms that apply to the use of this website.',
 '<h2>Terms of Service</h2><p>By using this website you agree to the terms below. Edit this page from <strong>Dashboard → Website → Pages</strong>.</p><h3>Use of the website</h3><p>Content published here is provided for information purposes. Specifications may change without notice; a written quotation is the only binding offer.</p><h3>Intellectual property</h3><p>All trademarks, drawings and documentation remain the property of their respective owners.</p>',
 'default','Terms of Service','The terms that apply to the use of this website.','PUBLISHED','PUBLIC',NOW(),0,20,0);
-0,0);

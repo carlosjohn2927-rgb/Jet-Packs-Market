@@ -6,19 +6,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *
  * PRODUCTION SECRETS
  * ------------------
- * No production secrets are hard-coded in this repository. Resolution order:
- *   1. Environment variables (cPanel: SetEnv in .htaccess, or a .env file
- *      in the document root - see .env.example)
- *      VP_ENCRYPTION_KEY   (random 64 hex chars recommended)
- *      VP_AUTH_SECRET      (random 64 hex chars recommended)
- *   2. application/config/.secrets.php - auto-generated on first boot and
- *      kept OUT of Git (.gitignore). Shared hosting without env support
- *      works out of the box because the file is created automatically.
- *   3. Ephemeral per-request random values (development only; logs a notice).
- *
- * IMPORTANT: remember-me cookies and password-reset tokens are HMAC-signed
- * with auth_secret, so both secrets must be STABLE across requests in
- * production. Env vars or the auto-generated .secrets.php guarantee that.
+ * Portable cPanel deployments use one source of truth: the document-root
+ * `.env` file. VP_ENCRYPTION_KEY and VP_AUTH_SECRET must be stable across a
+ * migration so existing sessions, remember-me cookies and reset links retain
+ * their expected security boundary. The application deliberately does NOT
+ * create application/config/.secrets.php or any other hidden server-specific
+ * configuration file on first boot.
  */
 
 // --------------------------------------------------------------------
@@ -38,63 +31,49 @@ if (!function_exists('vp_config_env')) {
     }
 }
 
+if (!function_exists('vp_config_secret_is_valid')) {
+    /** Reject empty/template values while allowing existing non-hex legacy secrets. */
+    function vp_config_secret_is_valid($value)
+    {
+        $value = trim((string) $value);
+        if (strlen($value) < 32) return false;
+        $lower = strtolower($value);
+        foreach (['change_me', 'replace_with', 'your_', 'example', 'random_hex', 'xxxxxxxx'] as $needle) {
+            if (strpos($lower, $needle) !== false) return false;
+        }
+        return true;
+    }
+}
+
 if (!function_exists('vp_config_secrets')) {
     /**
-     * Resolve encryption_key + auth_secret.
+     * Resolve encryption_key + auth_secret strictly from `.env` / environment.
+     * Development gets ephemeral values for local experimentation only; they are
+     * never written to disk and production always fails closed with a clear
+     * File-Manager-editable configuration message.
+     *
      * @return array ['encryption_key' => string, 'auth_secret' => string]
      */
     function vp_config_secrets()
     {
         $enc  = vp_config_env('VP_ENCRYPTION_KEY');
         $auth = vp_config_env('VP_AUTH_SECRET');
-        if ($enc !== '' && $auth !== '') {
+        if (vp_config_secret_is_valid($enc) && vp_config_secret_is_valid($auth)) {
             return ['encryption_key' => $enc, 'auth_secret' => $auth];
         }
 
-        // Persisted fallback so HMAC signatures survive across requests.
-        $file = APPPATH . 'config/.secrets.php';
-        $loaded = null;
-        if (is_file($file)) {
-            $loaded = @include $file;
-        }
-        if (
-            is_array($loaded)
-            && !empty($loaded['encryption_key']) && strlen($loaded['encryption_key']) >= 32
-            && !empty($loaded['auth_secret']) && strlen($loaded['auth_secret']) >= 32
-        ) {
-            return [
-                'encryption_key' => $enc !== '' ? $enc : $loaded['encryption_key'],
-                'auth_secret'    => $auth !== '' ? $auth : $loaded['auth_secret'],
-            ];
+        if (defined('ENVIRONMENT') && ENVIRONMENT === 'production') {
+            $msg = 'JetPacks Market: VP_ENCRYPTION_KEY and VP_AUTH_SECRET must be set to stable, non-placeholder values in .env.';
+            error_log($msg);
+            if (!headers_sent()) header('HTTP/1.1 503 Service Unavailable', true, 503);
+            exit('The application is not configured: set VP_ENCRYPTION_KEY and VP_AUTH_SECRET in .env.');
         }
 
-        // Nothing configured yet: generate random secrets and persist them
-        // so that sessions/cookies stay valid between requests.
-        $secrets = [
-            'encryption_key' => bin2hex(random_bytes(32)),
-            'auth_secret'    => bin2hex(random_bytes(32)),
-        ];
-        if (is_dir(dirname($file)) && is_writable(dirname($file))) {
-            $payload = "<?php defined('BASEPATH') OR exit('No direct script access allowed');\n"
-                . "// Auto-generated secrets - do not commit to version control.\n"
-                . "return " . var_export($secrets, true) . ";\n";
-            @file_put_contents($file, $payload, LOCK_EX);
-            @chmod($file, 0600);
-            if (is_file($file)) {
-                return [
-                    'encryption_key' => $enc !== '' ? $enc : $secrets['encryption_key'],
-                    'auth_secret'    => $auth !== '' ? $auth : $secrets['auth_secret'],
-                ];
-            }
-        }
-
-        // Last resort: ephemeral (breaks remember-me across requests).
-        error_log('JetPacks Market: VP_ENCRYPTION_KEY / VP_AUTH_SECRET not set '
-            . 'and .secrets.php could not be written. Using ephemeral secrets. '
-            . 'Set the env vars in production.');
+        // Local development only. No secret file is created, so deployments
+        // can never accidentally depend on a machine-generated config file.
         return [
-            'encryption_key' => $enc !== '' ? $enc : bin2hex(random_bytes(32)),
-            'auth_secret'    => $auth !== '' ? $auth : bin2hex(random_bytes(32)),
+            'encryption_key' => vp_config_secret_is_valid($enc) ? $enc : bin2hex(random_bytes(32)),
+            'auth_secret'    => vp_config_secret_is_valid($auth) ? $auth : bin2hex(random_bytes(32)),
         ];
     }
 }

@@ -1,342 +1,214 @@
-# Jet Packs Market — cPanel Deployment Guide
+# JetPacks Market — Portable cPanel Deployment
 
-## Overview
+## The normal deployment process
 
-This guide covers **portable cPanel deployment** of the Jet Packs Market website.
+A new cPanel deployment requires **only**:
 
-**No Terminal, SSH, Composer, Node.js, or any command-line tool is required.**
-
-The complete deployment process is:
-
-```
-Upload Files → Create Database → Import SQL → Edit .env → Open Website
+```text
+File Manager upload/extract → MySQL Databases → phpMyAdmin import → edit .env → open the site
 ```
 
----
+It does **not** require SSH, cPanel Terminal, Composer, Node.js, npm, pnpm,
+Docker, a migration command, a seed command, or `php install/install.php`.
 
-## Quick Start (New cPanel Deployment)
-
-### Step 1 — Upload the Application Files
-
-1. Download the deployment package: `application-deployment.zip`
-2. Log into **cPanel**.
-3. Open **File Manager**.
-4. Navigate to the web root for your domain (typically `public_html` or `public_html/yourdomain.com`).
-5. Click **Upload** and select `application-deployment.zip`.
-6. After upload completes, right-click the ZIP file and choose **Extract**.
-7. The files will be extracted into the current directory.
-
-**No Terminal commands needed.**
+The deployment ZIP is `application-deployment.zip`. It is a ready-to-extract
+web-root package: production PHP/framework files, public assets, writable-folder
+placeholders, a root `.env` template, and the single complete database file
+`database/production.sql` are already included.
 
 ---
 
-### Step 2 — Create the Database
+## 1. Upload and extract files
 
-1. In cPanel, open **MySQL Databases**.
-2. Under **Create New Database**:
-   - Enter a database name (e.g., `jetpacks_production`).
-   - Click **Create Database**.
-3. Scroll to **Add New User**:
-   - Enter a username (e.g., `jetpacks_user`).
-   - Enter a strong password (use the **Password Generator**).
-   - Click **Create User**.
-4. Scroll to **Add User to Database**:
-   - Select your new user and database.
-   - Check **ALL PRIVILEGES**.
-   - Click **Make Changes**.
-5. Note down the **database name**, **username**, and **password**.
+1. Open **cPanel → File Manager**.
+2. Open the document root for the domain, normally `public_html/` or the
+   domain's addon/subdomain document root.
+3. Upload `application-deployment.zip`.
+4. Right-click it and choose **Extract** in that same directory.
+5. Confirm `index.php`, `.htaccess`, and `.env` now sit directly in that web
+   directory — not inside an extra nested folder.
+
+The ZIP has no Composer/vendor installation step and no Node build step.
 
 ---
 
-### Step 3 — Import the Database
+## 2. Create the MySQL database
 
-1. In cPanel, open **phpMyAdmin**.
-2. In the left sidebar, click on your new database (it will be empty).
-3. Click the **Import** tab at the top.
-4. Click **Choose File** and select:
-   ```
+In **cPanel → MySQL Databases**:
+
+1. Create a database.
+2. Create a database user with a strong password.
+3. Add that user to the database.
+4. Select **ALL PRIVILEGES** and save.
+
+cPanel often prefixes names. For example, a database entered as `jetparts` may
+become `cpaneluser_jetparts`. Use the complete displayed names in `.env`.
+
+---
+
+## 3. Import the complete database
+
+1. Open **cPanel → phpMyAdmin**.
+2. Select the new, empty database from the left side.
+3. Select **Import**.
+4. Choose the extracted file:
+
+   ```text
    database/production.sql
    ```
-   (found in the extracted files from Step 1)
-5. Ensure the format is **SQL**.
-6. Click **Go** at the bottom.
 
-Wait for the import to complete. This creates all tables, seed data, and the initial admin account.
+5. Leave format as **SQL** and click **Go**.
+
+`production.sql` is the complete fresh-install database. It contains the schema,
+indexes, foreign keys, roles, permissions, CMS/settings rows, page templates,
+reference data, catalog data, payment/inventory tables, CI session storage, and
+the initial Super Admin. Do **not** import `install/install.sql`, seed files, or
+individual migrations for a fresh deployment.
 
 ---
 
-### Step 4 — Configure `.env`
+## 4. Edit `.env` in File Manager
 
-1. In cPanel **File Manager**, locate the `.env` file in the web root (where `index.php` is).
-2. Right-click `.env` and select **Edit**.
-3. Update the following values with your new cPanel details:
+The extracted ZIP already contains a safe root `.env` template. In **File
+Manager**, right-click `.env` → **Edit**, then update at least:
 
 ```ini
-# Your domain
+CI_ENV=production
 VP_BASE_URL=https://yourdomain.com
+VP_FORCE_HTTPS=1
 
-# Database (from Step 2)
-VP_DB_NAME=your_database_name
-VP_DB_USER=your_database_user
-VP_DB_PASS=your_database_password
+VP_DB_HOST=localhost
+VP_DB_PORT=3306
+VP_DB_NAME=YOUR_FULL_CPANEL_DATABASE_NAME
+VP_DB_USER=YOUR_FULL_CPANEL_DATABASE_USER
+VP_DB_PASS=YOUR_DATABASE_PASSWORD
 
-# Keep these the same across deployments (don't change unless you know why)
-VP_ENCRYPTION_KEY=403ed09b1cdeaf1f96a98276722e4e354c2531a31564ffad7e66a11e63195e65
-VP_AUTH_SECRET=d8dba289fdb71eac60b1cf3a262be194e9bc17a539a7368ddb9724edc40fd44f
+VP_ENCRYPTION_KEY=YOUR_STABLE_ENCRYPTION_KEY
+VP_AUTH_SECRET=YOUR_STABLE_AUTH_SECRET
 ```
 
-4. Save the file (`Ctrl+S` or **Save Changes**).
+### Secrets when moving an existing site
+
+Copy `VP_ENCRYPTION_KEY` and `VP_AUTH_SECRET` **unchanged** from the old site's
+`.env`. They are deliberately environment-only and are never generated into a
+hidden application config file. Keeping them stable preserves the expected
+security behavior for encrypted values, password-reset tokens, and
+remember-me signatures after a server move.
+
+### Secrets for a brand-new site
+
+Replace the two placeholder values with two different random 64-character hex
+strings. This can be done with any browser-based random hexadecimal generator;
+no server command is required. Keep a secure copy of both values. Do not use
+`REPLACE_WITH_...` values in production.
+
+Optional mail, Resend, Stripe, site identity, session, and rate-limit variables
+are documented inline in `.env` and can be filled in through File Manager too.
 
 ---
 
-### Step 5 — Set Writable Directory Permissions
+## 5. Confirm writable folders
 
-The following directories must be writable by the web server for file uploads, logs, and caching:
+The package already contains these folders and privacy `.htaccess` files:
 
-1. In **File Manager**, navigate to the web root.
-2. For each directory below, right-click it and select **Change Permissions**:
-   - `assets/uploads/` — **755** or **777**
-   - `assets/logs/` — **755** or **777**
-   - `assets/logs/cache/` — **755** or **777**
-   - `assets/logs/ratelimit/` — **755** or **777**
+| Folder | Purpose | cPanel File Manager permission |
+|---|---|---|
+| `assets/uploads/` | media, RFQ attachments, generated quote files | `0755` first; `0775` only if needed |
+| `assets/logs/` | application logs | `0755` first; `0775` only if needed |
+| `assets/logs/cache/` | cache files | `0755` first; `0775` only if needed |
+| `assets/logs/ratelimit/` | rate-limit state | `0755` first; `0775` only if needed |
 
-Typical cPanel permissions: check **Write** for **User** and **Group** (0755).
+Use **File Manager → Change Permissions**. Do not use `chmod` or `chown` over
+SSH for the normal workflow. Do not use world-writable `0777` unless your host
+specifically requires it and you understand its security implications.
 
 ---
 
-### Step 6 — Open the Website
+## 6. Open the site and sign in
 
-Visit:
+Open:
 
-```
+```text
 https://yourdomain.com
 ```
 
-The homepage should load. Log into the admin panel at:
+Admin sign-in:
 
-```
+```text
 https://yourdomain.com/admin/login
 ```
 
-**Default admin credentials** (built into `database/production.sql`):
+Fresh `production.sql` credentials:
 
-| Field    | Value                          |
-|----------|--------------------------------|
-| Email    | `admin@jetpacksmarket.com` |
-| Password | `Nigeria1234@`                |
+| Field | Value |
+|---|---|
+| Email | `admin@jetpacksmarket.com` |
+| Password | `Nigeria1234@` |
+| Role | `SUPER_ADMIN` |
 
-**Change this password immediately** after first login via
-**Dashboard → My profile → Change password**.
-
-That account is the **Super Admin**: it owns the administration system and can
-create further administrators and decide, per account, which dashboard sections
-they may use (**Dashboard → People → Administrators**). See
-[`docs/DASHBOARD.md`](docs/DASHBOARD.md).
+Change the password immediately after the first sign-in from **Dashboard → My
+profile → Change password**. The database account is already present; no CLI
+admin-creation command is involved.
 
 ---
 
-## Upgrading an Existing Installation (dashboard / CMS release)
+## Existing-install upgrades
 
-If your database was imported **before** this release, import the applicable
-incremental files in phpMyAdmin — no CLI and no data loss:
+For an **existing** database, use phpMyAdmin to import the incremental files in
+order as needed. This is still browser-only and is not part of a fresh install:
 
-1. phpMyAdmin → your database → **Import**
-2. `database/migrations/001_cms_and_permissions.sql` → **Go**
-3. `database/migrations/002_cms_seed.sql` → **Go**
-4. `database/migrations/003_admin_full_page_editing.sql` → **Go**
-5. `database/migrations/004_black_writeup.sql` → **Go**
-6. `database/migrations/005_jet_parts_market.sql` → **Go**
-7. `database/migrations/006_stripe_card_payments.sql` → **Go** (only when enabling Stripe card payments)
-8. `database/migrations/007_multi_warehouse_inventory.sql` → **Go** (multi-warehouse inventory and lot tracking)
-
-All files are safe to import more than once (`CREATE TABLE IF NOT EXISTS`,
-`INSERT IGNORE`, `ON DUPLICATE KEY UPDATE`). The three `ALTER TABLE media …`
-statements in the first file report *"Duplicate column name"* if they were
-already applied — that message can be ignored.
-
-After the import, sign in and open **Dashboard → Website → Homepage** to start
-editing the public site.
-
----
-
-## Migration (Moving from One Server to Another)
-
-1. **Export files** — Download the entire site via cPanel File Manager → Compress as ZIP.
-2. **Export database** — In phpMyAdmin, select the database → **Export** → **Quick** → **Go**.
-3. **Upload files** to the new cPanel (Step 1 above).
-4. **Create database** on the new cPanel (Step 2).
-5. **Import** the exported SQL file (Step 3).
-6. **Edit `.env`** with new database credentials and domain (Step 4).
-7. Keep `VP_ENCRYPTION_KEY` and `VP_AUTH_SECRET` **the same** as before.
-8. **Open the website** — everything should work, including existing sessions.
-
----
-
-## What the Production SQL Includes
-
-The file `database/production.sql` contains:
-
-| Item | Details |
-|------|---------|
-| **All tables** | 25+ tables with columns, indexes, and foreign keys |
-| **Admin account** | `admin@jetpacksmarket.com` / `Nigeria1234@` (bcrypt-hashed) |
-| **Role permissions** | SUPER_ADMIN, ADMIN, SALES, ENGINEER, EDITOR roles |
-| **Categories** | 12 aircraft parts categories (Avionics, Engines & APUs, Landing Gear, Wheels & Brakes, Hydraulics, …) |
-| **Industries** | 10 aircraft platforms (Airbus, Boeing, Cessna Citation, Challenger, Dassault Falcon, Embraer, Gulfstream, Hawker, Learjet, Pilatus) |
-| **Products** | 37 sample parts with specifications |
-| **FAQs** | 8 frequently asked questions |
-| **Testimonials** | 4 customer testimonials |
-| **Partners** | 10 OEM partner logos |
-| **Settings** | 60+ application settings (identity, branding, contact, social, header/footer, SEO, chat, system) |
-| **Permissions** | Permission catalogue + role defaults for every staff role |
-| **Homepage sections** | 8 editable homepage blocks (hero, stats, categories, products, industries, testimonials, partners, CTA) |
-| **Navigation** | Header menu, two footer columns and legal links |
-| **CMS pages** | Privacy Policy and Terms of Service starter pages |
-| **Careers** | 4 job openings |
-| **News** | 3 news articles |
-| **Downloads** | 4 downloadable resources |
-| **Blog posts** | 2 sample blog articles |
-| **CI sessions** | Session table for database-backed sessions |
-
----
-
-## Writable Directories
-
-The following directories must be writable by the web server:
-
-| Directory | Purpose |
-|-----------|---------|
-| `assets/uploads/` | User-uploaded images and files |
-| `assets/logs/` | Application error logs |
-| `assets/logs/cache/` | Data cache files |
-| `assets/logs/ratelimit/` | Rate-limiter state files |
-
-These are pre-created in the deployment package. Set permissions via cPanel **File Manager → Change Permissions** to **755** (or **777** if 755 doesn't work).
-
----
-
-## Configuration via `.env` Only
-
-All server-specific configuration comes from `.env`. No CLI-generated config files are required.
-
-| Variable | Description |
-|----------|-------------|
-| `CI_ENV` | Environment mode (`production`, `development`, `testing`) |
-| `VP_BASE_URL` | Full URL to your site (with trailing slash) |
-| `VP_FORCE_HTTPS` | Set to `1` to force HTTPS cookies |
-| `VP_COOKIE_DOMAIN` | Cookie domain (e.g., `.yourdomain.com`) |
-| `VP_DB_HOST` | MySQL host |
-| `VP_DB_PORT` | MySQL port |
-| `VP_DB_NAME` | MySQL database name |
-| `VP_DB_USER` | MySQL username |
-| `VP_DB_PASS` | MySQL password |
-| `VP_ENCRYPTION_KEY` | 64-character hex encryption key |
-| `VP_AUTH_SECRET` | 64-character hex auth secret |
-| `VP_SITE_NAME` | Your company name |
-| `VP_SITE_TAGLINE` | Your company tagline |
-| `VP_CONTACT_EMAIL` | Public contact email |
-| `VP_SUPPORT_EMAIL` | Support email |
-| `VP_RFQ_EMAIL` | Quote request email |
-| `VP_PHONE` | Phone number |
-| `VP_ADDRESS` | Physical address |
-| `VP_FROM_EMAIL` | Outbound "From" email address |
-| `VP_FROM_NAME` | Outbound "From" name |
-| `VP_REPLY_TO` | Reply-to email |
-| `VP_SMTP_HOST` | SMTP server hostname |
-| `VP_SMTP_PORT` | SMTP port (465, 587, or 25) |
-| `VP_SMTP_USER` | SMTP username |
-| `VP_SMTP_PASS` | SMTP password |
-| `VP_SMTP_CRYPTO` | SMTP encryption (`ssl`, `tls`, or blank) |
-| `VP_SESSION_EXPIRATION` | Session lifetime in seconds |
-| `VP_LOG_THRESHOLD` | Logging level (0=off, 1=error, 2=debug, 3=info, 4=all) |
-| `VP_GLOBAL_RATE_LIMIT` | Requests per 15 minutes per IP |
-
----
-
-## What is NOT Required
-
-The following are **never required** for a normal deployment:
-
-- ❌ `php install/install.php` — No CLI installer needed
-- ❌ `php install/install.php --users-only` — No CLI admin creation
-- ❌ `composer install` — No Composer
-- ❌ `npm install` / `pnpm install` — No Node.js
-- ❌ `chmod` / `chown` via SSH — Use File Manager instead
-- ❌ Database migrations — All in `production.sql`
-- ❌ Database seeding — All in `production.sql`
-- ❌ Secret key generation — Already in `.env.example` or auto-generated
-
----
-
-## Troubleshooting
-
-### Homepage shows "The application is not configured"
-
-Edit `.env` and verify all `VP_DB_*` variables are correct. Check that the database was imported successfully.
-
-### "No input file specified" or 404 errors
-
-Make sure the `.htaccess` file exists in the root directory (alongside `index.php`). In cPanel, ensure the document root is set to the folder containing these files.
-
-### Admin login: "Invalid credentials"
-
-1. Verify the admin credentials: `admin@jetpacksmarket.com` / `Nigeria1234@`
-2. Check that `database/production.sql` was fully imported — run this in phpMyAdmin:
-   ```sql
-   SELECT COUNT(*) FROM users;
-   ```
-   If it returns 0, the admin account was not created. Re-import the SQL file.
-
-### Login loops back to login page
-
-The `ci_sessions` table may not exist or the session is being dropped. Run in phpMyAdmin:
-```sql
-SELECT COUNT(*) FROM ci_sessions;
+```text
+database/migrations/001_cms_and_permissions.sql
+database/migrations/002_cms_seed.sql
+database/migrations/003_admin_full_page_editing.sql
+database/migrations/004_black_writeup.sql
+database/migrations/005_jet_parts_market.sql
+database/migrations/006_stripe_card_payments.sql
+database/migrations/007_multi_warehouse_inventory.sql
 ```
-If the table doesn't exist, re-import `database/production.sql`.
 
-### Email not sending
-
-Edit `.env` and verify:
-- `VP_SMTP_HOST` and `VP_SMTP_PASS` are both set (both must be non-empty)
-- `VP_SMTP_PORT` and `VP_SMTP_CRYPTO` match your cPanel email settings
-- The email account exists in cPanel and the password is correct
-
-### File uploads fail
-
-Check permissions on `assets/uploads/` — must be writable by the web server (755 or 777).
+For a brand-new database, import **only** `database/production.sql`.
 
 ---
 
-## File Structure (Web Root)
+## Migration between cPanel accounts
 
-```
-/
-├── .env                    # Environment config (gitignored)
-├── .env.example            # Template for .env
-├── .htaccess               # Apache rewrite rules
-├── index.php               # Application front controller
-├── site.webmanifest        # PWA manifest
-├── application/            # CodeIgniter application code
-│   ├── config/
-│   ├── controllers/
-│   ├── core/
-│   ├── helpers/
-│   ├── language/
-│   ├── libraries/
-│   ├── models/
-│   └── views/
-├── assets/                 # Public assets
-│   ├── css/
-│   ├── img/
-│   ├── js/
-│   ├── uploads/            # Writable: user uploads
-│   └── logs/               # Writable: logs, cache, ratelimit
-├── system/                 # CodeIgniter 3 framework
-├── database/               # Database files
-│   ├── production.sql      # Complete production database
-│   └── migrations/         # Idempotent SQL upgrades for existing databases
-├── install/                # Optional CLI tools (not needed for deployment)
-├── docs/                   # Documentation
-└── DEPLOYMENT.md           # This file
+1. Download the deployment ZIP (or compress the existing files in File Manager).
+2. Export the existing database from phpMyAdmin, or use the supplied complete
+   `database/production.sql` for a fresh/demo database.
+3. Follow steps 1–3 above on the new cPanel account.
+4. Copy the existing `.env` values, changing only the domain and database
+   connection settings.
+5. Keep `VP_ENCRYPTION_KEY` and `VP_AUTH_SECRET` unchanged.
+6. Set writable-folder permissions through File Manager and open the site.
+
+---
+
+## Browser-only troubleshooting
+
+- **“The application is not configured”** — check the four `VP_DB_*` values,
+  including cPanel's username/database prefixes, and make sure placeholders
+  were replaced.
+- **Secret configuration error** — replace both `REPLACE_WITH_...` values in
+  `.env` with stable values; never rely on an auto-generated `.secrets.php`.
+- **404 on every route** — make sure `.htaccess` was extracted beside
+  `index.php`, and that the domain document root points at this folder.
+- **Login immediately returns to sign-in** — confirm `ci_sessions` exists in
+  phpMyAdmin (it is part of `production.sql`) and `assets/logs/` is writable.
+- **Uploads fail** — adjust `assets/uploads/` through File Manager as described
+  above.
+- **Email does not send** — configure SMTP or Resend values in `.env`; the site
+  can otherwise use the host's PHP mail fallback.
+
+## Normal deployment never requires
+
+```text
+php install/install.php
+php install/install.php --users-only
+composer install
+npm install / pnpm install
+Docker
+SSH / Terminal
+manual seed commands
+manual migration commands for a fresh database
 ```

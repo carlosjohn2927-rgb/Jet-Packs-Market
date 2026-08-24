@@ -10,6 +10,7 @@ A CodeIgniter 3 PHP application for an aircraft parts marketplace, featuring:
 - **Auth system**: Login/register, password reset, roles + per-account permissions (Super Admin, Admin, Sales, Engineer, Editor, Customer)
 - **Email**: SMTP (cPanel) or Resend API with fallback to PHP `mail()`
 - **Card payments**: Stripe-hosted Checkout for approved quotes, signed webhooks and an idempotent payment ledger
+- **Inventory**: multi-warehouse lots, expiry controls, AOG hubs, transfers and movement history
 - **Security**: CSRF, login rate limiting, session protection, bcrypt passwords, audit logging, maintenance mode
 
 See [`docs/DASHBOARD.md`](docs/DASHBOARD.md) for the complete dashboard / CMS guide.
@@ -31,7 +32,7 @@ See [`DEPLOYMENT.md`](DEPLOYMENT.md) for the complete step-by-step guide.
 1. **Upload** `application-deployment.zip` via cPanel File Manager and extract
 2. **Create** a MySQL database and user in cPanel
 3. **Import** `database/production.sql` via phpMyAdmin
-4. **Edit** `.env` with your database credentials and domain
+4. **Edit** the already-included root `.env` with your database credentials, domain, and stable secrets
 5. **Open** `https://yourdomain.com` — the application works immediately
 
 ### Default administrator

@@ -57,7 +57,7 @@ Coverage:
 | Area | Checks |
 |---|---|
 | Syntax | `php -l` on every file under `app/` |
-| Secrets | no change-me placeholders, no default passwords, no bcrypt hashes in `install/`, `.env`/`.secrets.php` gitignored |
+| Secrets | no change-me placeholders, no bcrypt hashes in `install/`, stable production keys come from `.env`, no generated `.secrets.php` dependency |
 | Public site | `/`, about, services, contact, rfq, products (+detail), industries (+detail), blog (+post), careers (+detail), faq, downloads, news (+item), login, register, forgot, search |
 | Auth | admin login/logout, invalid password, lockout after 5 failures (file-based), session persistence, session-id rotation (fixation), deactivated users signed out mid-session, forced password change for temp passwords |
 | CSRF | POST without token rejected (403), token rotation |
@@ -72,7 +72,7 @@ Coverage:
 | Email | transport failure logged as FAILED with error message (dead endpoint server) |
 | Downloads | redirect + counter |
 | Admin CRUD | category create/edit/delete + audit trail |
-| Production | homepage 200; missing DB env → fail-fast 503 with no secret leakage; `.secrets.php` auto-generation |
+| Production | homepage 200; missing DB/secrets env → fail-fast 503 with no secret leakage and no generated secret file |
 | Database | 31 tables, 16+ FKs, 100+ indexes, UUID CHAR(36), JSON round-trip, role permissions, CI3 sessions |
 | Runtime health | zero PHP warnings/deprecations/fatals across every server log |
 
