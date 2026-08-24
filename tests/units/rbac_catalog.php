@@ -17,6 +17,7 @@
  * refuse to merge.
  */
 require_once __DIR__ . '/_runner.php';
+if (!defined('BASEPATH')) define('BASEPATH', dirname(__DIR__, 2) . '/system/');
 
 // Evaluate application/config/permissions.php in isolation. It defines
 // $config['permissions'], so we just include it.
@@ -61,7 +62,8 @@ assert_true(isset($super_only['system.manage']),  'system.manage is super-only')
 // Lock the set so we never accidentally add a third super-only permission
 // (the Acl class *rejects* super_only grants to non-super roles, so a
 // mistake here would silently deny a new section to everyone).
-sort($super_only_keys = array_keys($super_only));
+$super_only_keys = array_keys($super_only);
+sort($super_only_keys);
 assert_eq(['admins.manage', 'system.manage'], $super_only_keys);
 
 section('Role default permissions');

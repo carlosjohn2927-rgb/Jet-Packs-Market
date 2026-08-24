@@ -46,6 +46,7 @@ Coverage:
 | `helpers_basic.php` | `vp_money`, `vp_condition_badge`, `vp_part_price`, `vp_slugify`, `vp_truncate`, `vp_format_bytes` |
 | `quote_state_machine.php` | `QUOTE_*` constants, `QUOTE_TRANSITIONS` forward-only + terminal contract, `vp_quote_status_label` |
 | `stripe_payments.php` | exact decimal-to-minor-unit conversion, opaque link tokens, Stripe webhook HMAC verification and hosted-Checkout URL allowlist |
+| `inventory_helpers.php` | lot-number normalization, expiry warnings and lot-status UI contract |
 | `rbac_catalog.php` | every `permissions.php` row well-formed, groups registered, `super_only` set is exactly `{admins.manage, system.manage}`, role defaults reference only existing keys and never a super-only one, every critical key reachable by at least one non-super role |
 | `product_image_resolution.php` | 6-step image URL resolution chain: uploaded > curated > category > keyword > default; null/empty inputs never throw |
 | `pdf_render.php` | pure-PHP PDF generator: `%PDF-1.4` magic + `%%EOF` trailer, required object types (Catalog / Pages / Page / Font), A4 MediaBox, content stream + /Length, full quote document round-trip, parentheses + backslash escaping, empty doc + 60-row bulk render |

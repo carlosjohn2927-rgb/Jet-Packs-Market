@@ -777,7 +777,7 @@ if (!function_exists('vp_roadmap_data')) {
                     ['title' => 'Audit log + per-admin activity timeline',           'status' => 'shipped',  'detail' => 'Filterable by actor, resource, action, IP and date.'],
                     ['title' => 'CSRF exclusion list for the chat widget',          'status' => 'shipped',  'detail' => 'Avoids 403 when a CDN strips the rotated CSRF cookie on rapid messages.'],
                     ['title' => 'Stripe / card payments',                            'status' => 'shipped',  'detail' => 'Approved quotes can be paid through Stripe-hosted Checkout, with signed webhooks, payment ledger and automatic completion.'],
-                    ['title' => 'Multi-warehouse inventory & lot tracking',         'status' => 'planned',  'detail' => 'Show stock per warehouse, batch / lot, expiry on rotables.'],
+                    ['title' => 'Multi-warehouse inventory & lot tracking',         'status' => 'shipped',  'detail' => 'Warehouse-level lots, reserved stock, expiry control, AOG hubs, movement ledger and safe public stock aggregates.'],
                     ['title' => 'Customer accounts + parts-order history',           'status' => 'planned',  'detail' => 'Signed-in customers can re-order, download prior invoices and track AOG dispatches.'],
                 ],
             ],

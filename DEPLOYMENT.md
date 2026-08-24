@@ -147,6 +147,7 @@ incremental files in phpMyAdmin — no CLI and no data loss:
 5. `database/migrations/004_black_writeup.sql` → **Go**
 6. `database/migrations/005_jet_parts_market.sql` → **Go**
 7. `database/migrations/006_stripe_card_payments.sql` → **Go** (only when enabling Stripe card payments)
+8. `database/migrations/007_multi_warehouse_inventory.sql` → **Go** (multi-warehouse inventory and lot tracking)
 
 All files are safe to import more than once (`CREATE TABLE IF NOT EXISTS`,
 `INSERT IGNORE`, `ON DUPLICATE KEY UPDATE`). The three `ALTER TABLE media …`

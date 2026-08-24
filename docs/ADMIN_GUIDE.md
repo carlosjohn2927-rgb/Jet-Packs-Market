@@ -39,6 +39,7 @@ Click any quote to see:
 - PDF generation (rendered as printable HTML, downloadable via the browser's print dialog)
 - **Card payment** panel: after a quote is **Approved**, enter the final amount and email a one-time Stripe-hosted checkout link. Paid Stripe events automatically complete the quote.
 - Delete (Super Admin only)
+- **Inventory lots**: receive traceable batches per warehouse, reserve/release stock, record adjustments, track expiry, and transfer unreserved stock between locations
 
 See [`PAYMENTS.md`](PAYMENTS.md) for Stripe credentials, webhook setup, and the payment security model.
 

@@ -9,13 +9,18 @@ class Products extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model(['Product_model', 'Category_model', 'Industry_model', 'Product_image_model', 'Specification_model', 'Product_download_model', 'Related_product_model']);
+        $this->load->model(['Product_model', 'Category_model', 'Industry_model', 'Product_image_model', 'Specification_model', 'Product_download_model', 'Related_product_model', 'Inventory_lot_model']);
+        $this->load->helper('inventory_helper');
     }
 
     public function index()
     {
         $this->page_title = 'Products';
         $this->page_description = 'Browse the JetPacks Market parts catalog: wheels & brakes, landing gear, avionics, engines & APUs, hydraulics, electrical and more.';
+
+        // Expire any lots that crossed their date and refresh only affected
+        // public product quantity caches. Exact warehouse/lot data stays private.
+        if ($this->Inventory_lot_model->schema_available()) $this->Inventory_lot_model->expire_due();
 
         $category = $this->input->get('category');
         $industry = $this->input->get('industry');
@@ -86,6 +91,14 @@ class Products extends MY_Controller
             $product['categorySlug'] = $category['slug'];
         }
 
+        // Warehouse/bin and lot identifiers remain internal. The public page
+        // gets only a safe aggregate: total available locations, AOG readiness
+        // and the nearest expiry warning.
+        $inventorySummary = $this->Inventory_lot_model->schema_available()
+            ? $this->Inventory_lot_model->product_summary($product['id'])
+            : null;
+        if ($inventorySummary !== null) $product['quantity'] = (int) $inventorySummary['available'];
+
         $this->page_title = $product['metaTitle'] ?: $product['name'];
         $this->page_description = $product['metaDescription'] ?: vp_truncate(strip_tags($product['shortDescription'] ?? $product['description']), 160);
 
@@ -104,6 +117,7 @@ class Products extends MY_Controller
             'industries'=> $this->_industries_for($product['industryIds']),
             'aircraft_names' => $aircraft_names,
             'certifications' => $product['certifications'] ? json_decode($product['certifications'], true) : [],
+            'inventory_summary' => $inventorySummary,
         ]);
     }
 

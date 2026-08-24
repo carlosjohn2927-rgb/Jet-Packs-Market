@@ -60,9 +60,10 @@ database/migrations/003_admin_full_page_editing.sql
 database/migrations/004_black_writeup.sql
 database/migrations/005_jet_parts_market.sql
 database/migrations/006_stripe_card_payments.sql
+database/migrations/007_multi_warehouse_inventory.sql
 ```
 
-See [`docs/PAYMENTS.md`](docs/PAYMENTS.md) to configure Stripe card payments and its signed webhook.
+See [`docs/PAYMENTS.md`](docs/PAYMENTS.md) to configure Stripe card payments and its signed webhook, and [`docs/INVENTORY.md`](docs/INVENTORY.md) for warehouse/lot operations.
 
 ---
 

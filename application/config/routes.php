@@ -71,6 +71,9 @@ $route['admin/products/edit/(:any)']      = 'admin/products/edit/$1';
 $route['admin/products/delete/(:any)']   = 'admin/products/delete/$1';
 $route['admin/products/(:any)/images/(:any)/delete'] = 'admin/products/image_delete/$1/$2';
 $route['admin/products/(:any)/images/(:any)/primary'] = 'admin/products/image_primary/$1/$2';
+$route['admin/products/(:any)/inventory/lots/create'] = 'admin/products/inventory_lot_create/$1';
+$route['admin/products/(:any)/inventory/lots/(:any)/adjust'] = 'admin/products/inventory_lot_adjust/$1/$2';
+$route['admin/products/(:any)/inventory/lots/(:any)/update'] = 'admin/products/inventory_lot_update/$1/$2';
 
 $route['admin/categories']                = 'admin/categories';
 $route['admin/categories/create']         = 'admin/categories/create';
@@ -88,6 +91,15 @@ $route['admin/quotes/(:any)/attachments/(:any)/delete'] = 'admin/quotes/attachme
 $route['admin/quotes/(:any)/payments/request'] = 'admin/quotes/payment_request/$1';
 $route['admin/quotes/(:any)/payments/(:any)/cancel'] = 'admin/quotes/payment_cancel/$1/$2';
 $route['admin/quotes/export/csv']         = 'admin/quotes/export_csv';
+
+/* ---------- Admin: multi-warehouse inventory ---------- */
+$route['admin/inventory']                  = 'admin/inventory';
+$route['admin/inventory/transfer/(:any)']  = 'admin/inventory/transfer/$1';
+$route['admin/warehouses']                 = 'admin/warehouses';
+$route['admin/warehouses/create']          = 'admin/warehouses/create';
+$route['admin/warehouses/edit/(:any)']     = 'admin/warehouses/edit/$1';
+$route['admin/warehouses/save']            = 'admin/warehouses/save';
+$route['admin/warehouses/delete/(:any)']   = 'admin/warehouses/delete/$1';
 
 $route['admin/users']                     = 'admin/users';
 $route['admin/users/create']              = 'admin/users/create';

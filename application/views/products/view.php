@@ -77,6 +77,10 @@ $qty = (int) ($product['quantity'] ?? 1);
                     <div class="text-xs font-bold uppercase tracking-wide text-ink-800">Available</div>
                     <div class="font-extrabold text-ink-900 text-xl"><?= $qty ?> unit<?= $qty === 1 ? '' : 's' ?></div>
                     <div class="text-xs text-ink-800"><?= vp_safe_html(str_replace('_', ' ', $product['availability'])) ?></div>
+                    <?php if (!empty($inventory_summary) && (int) $inventory_summary['warehouseCount'] > 0): ?>
+                        <div class="mt-1 text-xs text-ink-800"><i class="ri-building-warehouse-line"></i> Stock across <?= (int) $inventory_summary['warehouseCount'] ?> location<?= (int) $inventory_summary['warehouseCount'] === 1 ? '' : 's' ?></div>
+                        <?php if (!empty($inventory_summary['aogAvailable'])): ?><div class="text-xs text-emerald-700 font-semibold"><i class="ri-alarm-line"></i> AOG-ready stock</div><?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="mt-4 flex flex-wrap gap-3">
@@ -84,6 +88,9 @@ $qty = (int) ($product['quantity'] ?? 1);
                 <a href="<?= base_url('contact?subject=' . urlencode('Question about ' . $product['name'] . ' (' . $product['sku'] . ')')) ?>" class="vp-btn vp-btn-ask flex-1 min-w-[160px] justify-center text-base"><i class="ri-question-line"></i> Ask a Question</a>
             </div>
             <p class="text-xs text-ink-800 mt-3"><i class="ri-checkbox-circle-line text-emerald-600"></i> Ships with FAA 8130-3 / EASA Form 1 and full traceability · 12-month warranty · AOG dispatch 24/7</p>
+            <?php if (!empty($inventory_summary['nextExpiry'])): [$expiryLabel, $expiryClass] = vp_inventory_expiry_label($inventory_summary['nextExpiry']); ?>
+                <p class="text-xs mt-2 <?= $expiryClass ?>"><i class="ri-calendar-line"></i> Traceability lot expiry: <?= vp_safe_html($expiryLabel) ?></p>
+            <?php endif; ?>
         </div>
 
         <dl class="grid grid-cols-2 gap-x-6 gap-y-3 mt-8 text-sm">

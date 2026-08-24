@@ -1010,7 +1010,7 @@ check('log content present', $total > 0, $total . ' bytes');
 section("18. Database integrity");
 $expectedTables = ['users','role_permissions','sessions','ci_sessions','categories','products','product_images',
     'specifications','product_downloads','related_products','quotes','quote_items','quote_attachments',
-    'quote_status_history','quote_activities','payments','payment_events','email_logs','contacts','blog_posts','careers','applications',
+    'quote_status_history','quote_activities','payments','payment_events','warehouses','inventory_lots','inventory_movements','email_logs','contacts','blog_posts','careers','applications',
     'testimonials','partners','news','downloads','faqs','industries','settings','media','audit_logs',
     'notifications','password_resets'];
 $missing = [];

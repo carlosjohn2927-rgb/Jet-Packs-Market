@@ -8,17 +8,21 @@ class Products extends Admin_Controller
 {
     /** Permission enforced server-side for every action (see Admin_Controller). */
     protected $required_permission = 'products.manage';
-
+    protected $method_permissions = [
+        'inventory_lot_create' => 'inventory.manage',
+        'inventory_lot_adjust' => 'inventory.manage',
+        'inventory_lot_update' => 'inventory.manage',
+    ];
 
     public function __construct()
     {
         parent::__construct();
-        $this->load->model(['Product_model', 'Category_model', 'Industry_model', 'Product_image_model', 'Specification_model', 'Product_download_model', 'Related_product_model']);
+        $this->load->model(['Product_model', 'Category_model', 'Industry_model', 'Product_image_model', 'Specification_model', 'Product_download_model', 'Related_product_model', 'Warehouse_model', 'Inventory_lot_model']);
         // form_validation must be available to every action — save() used to
         // rely on _form() having loaded it, which silently broke creating and
         // editing products (fatal "Undefined property: $form_validation").
         $this->load->library(['jet_upload', 'form_validation']);
-        $this->load->helper(['form', 'url', 'security_helper']);
+        $this->load->helper(['form', 'url', 'security_helper', 'inventory_helper']);
     }
 
     public function index()
@@ -82,6 +86,11 @@ class Products extends Admin_Controller
             'selected_related' => [],
             'certifications_csv' => '',
             'specs_rows' => [],
+            'inventory_available' => $this->Inventory_lot_model->schema_available(),
+            'inventory_summary' => null,
+            'inventory_lots' => [],
+            'inventory_movements' => [],
+            'inventory_warehouses' => $this->Inventory_lot_model->schema_available() ? $this->Warehouse_model->active() : [],
         ]);
     }
 
@@ -98,6 +107,12 @@ class Products extends Admin_Controller
         $certs    = $p['certifications'] ? json_decode($p['certifications'], true) : [];
         $related  = $this->db->select('relatedId')->get_where('related_products', ['productId' => $p['id']])->result_array();
         $sel_rel = array_column($related, 'relatedId');
+        $inventoryAvailable = $this->Inventory_lot_model->schema_available();
+        $inventoryLots = $inventoryAvailable ? $this->Inventory_lot_model->for_product($p['id']) : [];
+        $inventoryMovements = [];
+        if ($inventoryAvailable) {
+            foreach ($inventoryLots as $lot) $inventoryMovements[$lot['id']] = $this->Inventory_lot_model->movements($lot['id'], 8);
+        }
 
         $this->render('admin/products/form', [
             'product' => $p,
@@ -108,6 +123,11 @@ class Products extends Admin_Controller
             'selected_related' => $sel_rel,
             'certifications_csv' => implode(', ', $certs),
             'specs_rows' => $specs,
+            'inventory_available' => $inventoryAvailable,
+            'inventory_summary' => $inventoryAvailable ? $this->Inventory_lot_model->product_summary($p['id']) : null,
+            'inventory_lots' => $inventoryLots,
+            'inventory_movements' => $inventoryMovements,
+            'inventory_warehouses' => $inventoryAvailable ? $this->Warehouse_model->active() : [],
         ]);
     }
 
@@ -168,6 +188,85 @@ class Products extends Admin_Controller
         redirect('admin/products/edit/' . $productId);
     }
 
+    /** Create a traceable lot from the product editor. */
+    public function inventory_lot_create($productId = null)
+    {
+        if (!$productId || $this->input->method() !== 'post') show_404();
+        $product = $this->Product_model->find($productId);
+        if (!$product) show_404();
+        $result = $this->Inventory_lot_model->create_lot([
+            'productId' => $productId,
+            'warehouseId' => $this->input->post('warehouseId'),
+            'lotNumber' => $this->input->post('lotNumber'),
+            'serialNumber' => $this->input->post('serialNumber'),
+            'binLocation' => $this->input->post('binLocation'),
+            'condition' => $this->input->post('lotCondition') ?: ($product['condition'] ?? 'NEW'),
+            'certification' => $this->input->post('certification'),
+            'traceabilityRef' => $this->input->post('traceabilityRef'),
+            'quantityOnHand' => $this->input->post('quantityOnHand'),
+            'quantityReserved' => $this->input->post('quantityReserved'),
+            'receivedAt' => $this->input->post('receivedAt'),
+            'expiresAt' => $this->input->post('expiresAt'),
+            'status' => $this->input->post('lotStatus') ?: 'ACTIVE',
+            'notes' => $this->input->post('lotNotes'),
+        ], $this->jet_auth->id());
+        if (!empty($result['ok'])) {
+            $this->audit->log(AUDIT_CREATE, 'inventory_lot', $result['lot']['id'], ['productId' => $productId, 'lotNumber' => $result['lot']['lotNumber']]);
+            $this->flash('success', 'Inventory lot received and product stock refreshed.');
+        } else {
+            $this->flash('error', $result['error'] ?? 'Could not create the inventory lot.');
+        }
+        redirect('admin/products/edit/' . $productId);
+    }
+
+    /** Adjust physical/reserved quantity; every change creates an immutable movement. */
+    public function inventory_lot_adjust($productId = null, $lotId = null)
+    {
+        if (!$productId || !$lotId || $this->input->method() !== 'post') show_404();
+        $lot = $this->Inventory_lot_model->find($lotId);
+        if (!$lot || $lot['productId'] !== $productId) show_404();
+        $result = $this->Inventory_lot_model->adjust(
+            $lotId,
+            $this->input->post('quantityDelta'),
+            $this->input->post('reservedDelta'),
+            trim((string) $this->input->post('note')),
+            $this->jet_auth->id()
+        );
+        if (!empty($result['ok'])) {
+            $this->audit->log(AUDIT_UPDATE, 'inventory_lot', $lotId, ['productId' => $productId, 'action' => 'adjust']);
+            $this->flash('success', 'Lot adjusted and product stock refreshed.');
+        } else {
+            $this->flash('error', $result['error'] ?? 'Could not adjust the lot.');
+        }
+        redirect('admin/products/edit/' . $productId);
+    }
+
+    /** Amend traceability/expiry/status details without bypassing the movement ledger. */
+    public function inventory_lot_update($productId = null, $lotId = null)
+    {
+        if (!$productId || !$lotId || $this->input->method() !== 'post') show_404();
+        $lot = $this->Inventory_lot_model->find($lotId);
+        if (!$lot || $lot['productId'] !== $productId) show_404();
+        $result = $this->Inventory_lot_model->update_details($lotId, [
+            'serialNumber' => $this->input->post('serialNumber'),
+            'binLocation' => $this->input->post('binLocation'),
+            'condition' => $this->input->post('lotCondition') ?: ($lot['condition'] ?? null),
+            'certification' => $this->input->post('certification'),
+            'traceabilityRef' => $this->input->post('traceabilityRef'),
+            'receivedAt' => $this->input->post('receivedAt'),
+            'expiresAt' => $this->input->post('expiresAt'),
+            'status' => $this->input->post('lotStatus'),
+            'notes' => $this->input->post('lotNotes'),
+        ], $this->jet_auth->id());
+        if (!empty($result['ok'])) {
+            $this->audit->log(AUDIT_UPDATE, 'inventory_lot', $lotId, ['productId' => $productId, 'action' => 'details']);
+            $this->flash('success', 'Lot traceability details updated.');
+        } else {
+            $this->flash('error', $result['error'] ?? 'Could not update the lot.');
+        }
+        redirect('admin/products/edit/' . $productId);
+    }
+
     /**
      * Normalise the $_FILES multi-upload into an array of upload results.
      * @return array  Each entry is the same shape as Upload::handle(), or ['error' => ...]
@@ -212,7 +311,8 @@ class Products extends Admin_Controller
 
         $id = $this->input->post('id');
         $is_create = empty($id);
-        if (!$is_create && !$this->Product_model->find($id)) show_404();
+        $existingProduct = !$is_create ? $this->Product_model->find($id) : null;
+        if (!$is_create && !$existingProduct) show_404();
 
         // Same rules for create and edit.
         $this->form_validation->set_data($this->input->post());
@@ -236,6 +336,8 @@ class Products extends Admin_Controller
             }
         }
 
+        $postedQuantity = $this->input->post('quantity');
+        $quantity = ($postedQuantity === null || $postedQuantity === '') ? 1 : max(0, (int) $postedQuantity);
         $data = [
             'name'             => $this->input->post('name'),
             'slug'             => $slug,
@@ -253,7 +355,7 @@ class Products extends Admin_Controller
             'dimensions'       => $this->input->post('dimensions'),
             'weight'           => $this->input->post('weight'),
             // Marketplace-specific columns
-            'quantity'         => max(0, (int) ($this->input->post('quantity') ?: 1)),
+            'quantity'         => $quantity,
             'condition'        => $this->input->post('condition') ?: 'NEW',
             'availability'     => $this->input->post('availability') ?: 'IN_STOCK',
             'featured'         => (int) $this->input->post('featured'),
@@ -261,6 +363,12 @@ class Products extends Admin_Controller
             'metaTitle'        => $this->input->post('metaTitle'),
             'metaDescription'  => $this->input->post('metaDescription'),
         ];
+        // Inventory is separately permissioned. A catalog-only account cannot
+        // smuggle a stock change through the regular product save endpoint.
+        if ($this->Inventory_lot_model->schema_available() && !$this->has_permission('inventory.manage')) {
+            $data['quantity'] = $existingProduct ? (int) $existingProduct['quantity'] : 0;
+        }
+
         $inds = (array) $this->input->post('industries');
         $data['industryIds'] = json_encode($inds);
         $certs = array_filter(array_map('trim', explode(',', (string) $this->input->post('certifications_csv'))));
@@ -276,6 +384,16 @@ class Products extends Admin_Controller
             $this->Product_model->update($id, $data);
             $this->audit->log(AUDIT_UPDATE, 'product', $id, ['name' => $data['name']]);
             $this->flash('success', 'Product updated.');
+        }
+
+        // New products and legacy rows get one opening lot in the default AOG
+        // warehouse. Once lots exist, the model overwrites products.quantity
+        // with the derived multi-warehouse available total.
+        if ($this->Inventory_lot_model->schema_available() && $this->has_permission('inventory.manage')) {
+            if (!$this->Inventory_lot_model->has_lots($id) && (int) $data['quantity'] > 0) {
+                $this->Inventory_lot_model->bootstrap_legacy_stock($id, $data['sku'], (int) $data['quantity'], $this->jet_auth->id());
+            }
+            $this->Inventory_lot_model->sync_product_stock($id);
         }
 
         // Image upload (multi-file). If the product has no images yet, the first one becomes primary.
