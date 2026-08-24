@@ -63,6 +63,8 @@ if (empty($menu)) {
             <?php if ($user): ?>
                 <?php if (!empty($is_admin)): ?>
                     <a href="<?= base_url('admin') ?>" class="text-sm font-medium text-ink-900 hover:text-brand-600"><i class="ri-dashboard-line"></i> Dashboard</a>
+                <?php else: ?>
+                    <a href="<?= base_url('account') ?>" class="text-sm font-medium text-ink-900 hover:text-brand-600"><i class="ri-user-line"></i> My account</a>
                 <?php endif; ?>
                 <a href="<?= base_url('logout') ?>" class="text-sm text-ink-800 hover:text-red-600">Sign out</a>
             <?php else: ?>
@@ -86,10 +88,13 @@ if (empty($menu)) {
 
     <div class="lg:hidden hidden border-t bg-white" id="vp-mobile-menu">
         <nav class="px-4 py-3 flex flex-col gap-2 text-sm font-semibold">
-            <?php foreach ($menu as $item): ?>
-                <a href="<?= vp_safe_html($item['href']) ?>" <?= ($item['target'] ?? '_self') === '_blank' ? 'target="_blank" rel="noopener"' : '' ?>><?= vp_safe_html($item['label']) ?></a>
-            <?php endforeach; ?>
-            <a class="text-amber-600 font-bold" href="<?= base_url('rfq') ?>"><i class="ri-quote-text"></i> Request a Quote</a>
+                <?php foreach ($menu as $item): ?>
+                    <a href="<?= vp_safe_html($item['href']) ?>" <?= ($item['target'] ?? '_self') === '_blank' ? 'target="_blank" rel="noopener"' : '' ?>><?= vp_safe_html($item['label']) ?></a>
+                <?php endforeach; ?>
+                <?php if ($user && empty($is_admin)): ?>
+                    <a href="<?= base_url('account') ?>"><i class="ri-user-line"></i> My account</a>
+                <?php endif; ?>
+                <a class="text-amber-600 font-bold" href="<?= base_url('rfq') ?>"><i class="ri-quote-text"></i> Request a Quote</a>
         </nav>
     </div>
 </header>

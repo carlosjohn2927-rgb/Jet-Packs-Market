@@ -59,6 +59,16 @@ $route['logout']               = 'auth/logout';
 $route['forgot']               = 'auth/forgot';
 $route['reset/(:any)']         = 'auth/reset/$1';
 
+/* ---------- Customer account ---------- */
+$route['account']                          = 'account';
+$route['account/quotes']                   = 'account/quotes';
+$route['account/quotes/(:any)']            = 'account/quotes_view/$1';
+$route['account/invoices']                 = 'account/invoices';
+$route['account/invoices/(:any)/download'] = 'account/invoice_download/$1';
+$route['account/dispatches']               = 'account/dispatches';
+$route['account/dispatches/(:any)']        = 'account/dispatches_view/$1';
+$route['account/profile']                  = 'account/profile';
+
 /* ---------- Admin ---------- */
 $route['admin']                = 'admin/dashboard';
 $route['admin/login']          = 'auth/admin_login';
@@ -104,7 +114,16 @@ $route['admin/warehouses/delete/(:any)']   = 'admin/warehouses/delete/$1';
 $route['admin/users']                     = 'admin/users';
 $route['admin/users/create']              = 'admin/users/create';
 $route['admin/users/edit/(:any)']         = 'admin/users/edit/$1';
-$route['admin/users/delete/(:any)']       = 'admin/users/delete/$1';
+$route['admin/users/delete/(:any)']      = 'admin/users/delete/$1';
+
+/* ---------- Admin: AOG dispatches (customer order tracking) ---------- */
+$route['admin/aog']                     = 'admin/aog';
+$route['admin/aog/create']              = 'admin/aog/create';
+$route['admin/aog/(:any)/edit']         = 'admin/aog/edit/$1';
+$route['admin/aog/(:any)/view']         = 'admin/aog/view/$1';
+$route['admin/aog/(:any)/status']       = 'admin/aog/status/$1';
+$route['admin/aog/(:any)/delete']       = 'admin/aog/delete/$1';
+$route['admin/aog/save']                = 'admin/aog/save';
 
 $route['admin/contacts']                  = 'admin/contacts';
 $route['admin/contacts/(:any)']           = 'admin/contacts/view/$1';

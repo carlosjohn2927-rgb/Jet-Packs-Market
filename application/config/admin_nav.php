@@ -63,6 +63,7 @@ $config['admin_nav'] = [
         'group' => 'People',
         'items' => [
             ['label' => 'Customers',      'url' => 'admin/users',  'icon' => 'ri-user-line',            'permission' => 'customers.manage', 'match' => 'users'],
+            ['label' => 'AOG Dispatches', 'url' => 'admin/aog',     'icon' => 'ri-truck-line',           'permission' => 'customers.manage', 'match' => 'aog'],
             ['label' => 'Administrators', 'url' => 'admin/admins', 'icon' => 'ri-shield-user-line',     'permission' => 'admins.manage',    'match' => 'admins'],
         ],
     ],
