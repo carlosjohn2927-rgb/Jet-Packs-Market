@@ -177,14 +177,25 @@ class Admin_Crud extends Admin_Controller
             return $id ? redirect($this->redirect_url . '/edit/' . $id) : redirect($this->redirect_url . '/create');
         }
 
-        if ($id) {
-            $this->M()->update($id, $data);
-            $this->audit->log(AUDIT_UPDATE, $this->model_name, $id, ['name' => $data['name'] ?? $id]);
-            $this->flash('success', 'Updated.');
-        } else {
-            $id = $this->M()->insert($data);
-            $this->audit->log(AUDIT_CREATE, $this->model_name, $id, ['name' => $data['name'] ?? $id]);
-            $this->flash('success', 'Created.');
+        try {
+            if ($id) {
+                $this->M()->update($id, $data);
+                $this->audit->log(AUDIT_UPDATE, $this->model_name, $id, ['name' => $data['name'] ?? $id]);
+                $this->flash('success', 'Updated.');
+            } else {
+                $id = $this->M()->insert($data);
+                $this->audit->log(AUDIT_CREATE, $this->model_name, $id, ['name' => $data['name'] ?? $id]);
+                $this->flash('success', 'Created.');
+            }
+        } catch (Exception $e) {
+            // Database unique indexes (nameNorm / slug / sku) are the final
+            // backstop when two concurrent saves race past the app-level check.
+            $msg = $e->getMessage();
+            if (stripos($msg, 'Duplicate') !== false || stripos($msg, 'UNIQUE') !== false) {
+                $this->flash('error', 'A record with the same name or URL already exists. Choose a unique value.');
+                return $id ? redirect($this->redirect_url . '/edit/' . $id) : redirect($this->redirect_url . '/create');
+            }
+            throw $e;
         }
         redirect($this->redirect_url . '/edit/' . $id);
     }
@@ -192,6 +203,11 @@ class Admin_Crud extends Admin_Controller
     /**
      * Check $data against the controller's $unique_fields (and the model
      * table), excluding the row $ignoreId. Returns an error string or null.
+     *
+     * Names are compared via nameNorm (case-insensitive, whitespace-collapsed)
+     * when that column exists, so "Wheels & Brakes" and " wheels  & brakes "
+     * are treated as the same value. Other fields still use a case-insensitive
+     * trim match.
      */
     protected function _duplicate_violation(array $data, $ignoreId = null)
     {
@@ -199,12 +215,24 @@ class Admin_Crud extends Admin_Controller
         $table = $this->M()->table();
         foreach ($checks as $field) {
             if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) continue;
-            $this->db->where('LOWER(' . $this->db->protect_identifiers($field) . ')', strtolower(trim((string) $data[$field])));
+
+            $raw = (string) $data[$field];
+            if ($field === 'name' && $this->db->field_exists('nameNorm', $table)) {
+                $norm = class_exists('Catalog_integrity')
+                    ? Catalog_integrity::normalize_name($raw)
+                    : strtolower(trim(preg_replace('/\s+/u', ' ', $raw)));
+                if ($norm === '') continue;
+                $this->db->where('nameNorm', $norm);
+            } else {
+                // Collapse whitespace for fair comparison on free-text keys.
+                $norm = strtolower(trim(preg_replace('/\s+/u', ' ', $raw)));
+                $this->db->where('LOWER(' . $this->db->protect_identifiers($field) . ')', $norm);
+            }
             if ($ignoreId) $this->db->where('id !=', $ignoreId);
             $exists = $this->db->count_all_results($table);
             if ($exists > 0) {
                 $label = ucfirst($field === 'slug' ? 'slug (URL)' : $field);
-                return 'A record with the same ' . $label . ' already exists: "' . $data[$field] . '". Choose a unique value.';
+                return 'A record with the same ' . $label . ' already exists: "' . trim(preg_replace('/\s+/u', ' ', $raw)) . '". Choose a unique value.';
             }
         }
         return null;
@@ -245,6 +273,11 @@ class Admin_Crud extends Admin_Controller
             if ($val !== null) {
                 $data[$col] = is_string($val) ? trim($val) : $val;
             }
+        }
+        // Collapse internal whitespace on free-text names so "Wheels  &  Brakes"
+        // is stored (and uniqueness-checked) as "Wheels & Brakes".
+        if (isset($data['name']) && is_string($data['name'])) {
+            $data['name'] = trim(preg_replace('/\s+/u', ' ', $data['name']));
         }
         // Always allow slug override, normalised.
         $slug = $this->input->post('slug');

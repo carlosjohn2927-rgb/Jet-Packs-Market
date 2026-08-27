@@ -165,7 +165,15 @@ database/migrations/004_black_writeup.sql
 database/migrations/005_jet_parts_market.sql
 database/migrations/006_stripe_card_payments.sql
 database/migrations/007_multi_warehouse_inventory.sql
+database/migrations/008_customer_accounts.sql
+database/migrations/009_halyk_petroleum_aviation_parts.sql
+database/migrations/010_catalog_data_integrity.sql
 ```
+
+Migration **010** adds `nameNorm` columns for case- and whitespace-insensitive
+category/product uniqueness. After import, the first page load merges any
+existing duplicate categories/products at the data layer (reassigning products,
+lots, images and quote items first) and seeds one unique primary image per part.
 
 For a brand-new database, import **only** `database/production.sql`.
 

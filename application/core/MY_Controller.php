@@ -27,6 +27,19 @@ class MY_Controller extends CI_Controller
     {
         parent::__construct();
 
+        // Catalog data integrity (migration 010): merge duplicate categories /
+        // products at the data layer, enforce nameNorm uniqueness, and seed
+        // one unique primary image per part. Runs once per install. Skip when
+        // the DB layer is not yet available (installers, fail-fast boot).
+        try {
+            if (isset($this->db) && $this->db->conn_id) {
+                $this->load->library('catalog_integrity');
+                $this->catalog_integrity->ensure();
+            }
+        } catch (Throwable $e) {
+            log_message('error', 'Catalog integrity: ' . $e->getMessage());
+        }
+
         // Always have the language file loaded
         $this->lang->load('app_lang');
 

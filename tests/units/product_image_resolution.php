@@ -29,26 +29,36 @@ section('Resolution order: legacy "image" column wins after imageUrl');
 $p = ['slug' => 'main-landing-gear-wheel-2612201-2', 'image' => '/uploads/legacy.jpg'];
 assert_eq('/uploads/legacy.jpg',                 vp_product_image($p), 'legacy image wins over curated artwork');
 
-section('Seeded catalog products map to their category artwork');
+section('Seeded catalog products use their own unique illustration file');
+// Data-integrity fix: every seeded part ships /assets/img/products/<slug>.jpg
+// so catalog cards no longer all share one category image. The helper prefers
+// that file over the category-artwork map when the file exists on disk.
 $seeded = [
-    'main-landing-gear-wheel-2612201-2' => 'wheels-brakes.jpg',
-    'nose-landing-gear-9001252-3'       => 'landing-gear.jpg',
-    'vhf-4000-comm-radio'               => 'avionics.jpg',
-    'gtcp36-150-apu'                    => 'engines-apus.jpg',
-    'rudder-servo-523-0771-517'         => 'flight-controls.jpg',
-    'edp-hydraulic-pump'                => 'hydraulics.jpg',
-    'bleed-air-regulating-valve'        => 'pneumatics.jpg',
-    'starter-generator'                 => 'electrical-lighting.jpg',
-    'fuel-quantity-indicator'           => 'fuel-systems.jpg',
-    'emergency-escape-slide'            => 'interior-cabin.jpg',
-    'solenoid-shutoff-valve'            => 'actuators-valves.jpg',
-    'engine-cowling-rh'                 => 'airframe.jpg',
+    'main-landing-gear-wheel-2612201-2',
+    'nose-landing-gear-9001252-3',
+    'vhf-4000-comm-radio',
+    'gtcp36-150-apu',
+    'rudder-servo-523-0771-517',
+    'edp-hydraulic-pump',
+    'bleed-air-regulating-valve',
+    'starter-generator',
+    'fuel-quantity-indicator',
+    'emergency-escape-slide',
+    'solenoid-shutoff-valve',
+    'engine-cowling-rh',
 ];
-foreach ($seeded as $slug => $expectedFilename) {
+foreach ($seeded as $slug) {
     $p = ['slug' => $slug, 'name' => 'Generic text without keywords'];
-    assert_eq($IMG . 'products/' . $expectedFilename, vp_product_image($p),
-        "seed '$slug' -> $expectedFilename");
+    $expected = $IMG . 'products/' . $slug . '.jpg';
+    assert_eq($expected, vp_product_image($p), "seed '$slug' -> unique $slug.jpg");
+    assert_true(is_file(FCPATH . 'assets/img/products/' . $slug . '.jpg'),
+        "illustration file exists for $slug");
 }
+
+section('Category artwork is used when the per-product file is missing');
+$p = ['slug' => 'no-file-no-map-slug', 'categorySlug' => 'wheels-brakes', 'name' => ''];
+assert_eq($IMG . 'products/wheels-brakes.jpg', vp_product_image($p),
+    'missing per-product file + categorySlug -> category artwork');
 
 section('Category artwork ships for the 12 marketplaces');
 $known = [

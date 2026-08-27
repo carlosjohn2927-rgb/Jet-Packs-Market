@@ -98,6 +98,29 @@ function translate_functions($stmt)
     // NOW() / CURRENT_TIMESTAMP() -> literal datetime
     $stmt = preg_replace('/\bNOW\(\)/i', "'" . date('Y-m-d H:i:s') . "'", $stmt);
 
+    // CONCAT(a, b, c) -> (a || b || c)  (SQLite has no CONCAT)
+    while (preg_match('/\bCONCAT\s*\(/i', $stmt, $cm, PREG_OFFSET_CAPTURE)) {
+        $p = $cm[0][1];
+        $start = $p + strlen($cm[0][0]);
+        $depth = 1; $i = $start; $q = null; $len = strlen($stmt);
+        for (; $i < $len && $depth > 0; $i++) {
+            $c = $stmt[$i];
+            if ($q !== null) {
+                if ($c === '\\') { $i++; continue; }
+                if ($c === $q) $q = null;
+                continue;
+            }
+            if ($c === "'" || $c === '"') { $q = $c; continue; }
+            if ($c === '(') $depth++;
+            if ($c === ')') $depth--;
+        }
+        $inner = substr($stmt, $start, $i - $start - 1);
+        $args = array_map('trim', split_args($inner));
+        $args = array_values(array_filter($args, function ($a) { return $a !== ''; }));
+        $repl = '(' . implode(' || ', $args) . ')';
+        $stmt = substr($stmt, 0, $p) . $repl . substr($stmt, $i);
+    }
+
     // JSON_ARRAY('a','b') -> '["a","b"]'
     while (($p = stripos($stmt, 'JSON_ARRAY(')) !== false) {
         $start = $p + strlen('JSON_ARRAY(');

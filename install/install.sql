@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 CREATE TABLE IF NOT EXISTS `categories` (
   `id`              CHAR(36)     NOT NULL,
   `name`            VARCHAR(190) NOT NULL,
+  `nameNorm`        VARCHAR(190) DEFAULT NULL,
   `slug`            VARCHAR(190) NOT NULL,
   `description`     TEXT         DEFAULT NULL,
   `icon`            VARCHAR(190) DEFAULT NULL,
@@ -77,6 +78,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `updatedAt`       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_categories_slug` (`slug`),
+  UNIQUE KEY `uk_categories_name_norm` (`nameNorm`),
   KEY `idx_categories_parent` (`parentId`),
   KEY `idx_categories_order` (`sortOrder`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -84,6 +86,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
 CREATE TABLE IF NOT EXISTS `products` (
   `id`               CHAR(36)     NOT NULL,
   `name`             VARCHAR(255) NOT NULL,
+  `nameNorm`         VARCHAR(255) DEFAULT NULL,
   `slug`             VARCHAR(255) NOT NULL,
   `sku`              VARCHAR(100) NOT NULL,
   `description`      TEXT         NOT NULL,
@@ -114,6 +117,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_products_slug` (`slug`),
   UNIQUE KEY `uk_products_sku` (`sku`),
+  UNIQUE KEY `uk_products_name_norm` (`nameNorm`),
   KEY `idx_products_category` (`categoryId`),
   KEY `idx_products_featured` (`featured`),
   KEY `idx_products_isActive` (`isActive`),

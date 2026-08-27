@@ -4,8 +4,42 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Product_model extends MY_Model
 {
     protected $table = 'products';
-    protected $fillable = ['name','slug','sku','description','shortDescription','price','categoryId','industryIds','aircraftType','material','pressure','temperature','voltage','dimensions','weight','certifications','quantity','condition','manufacturer','availability','featured','isActive','views','metaTitle','metaDescription','metaKeywords'];
+    protected $fillable = ['name','nameNorm','slug','sku','description','shortDescription','price','categoryId','industryIds','aircraftType','material','pressure','temperature','voltage','dimensions','weight','certifications','quantity','condition','manufacturer','availability','featured','isActive','views','metaTitle','metaDescription','metaKeywords'];
     protected $order_by = ['createdAt' => 'DESC'];
+
+    /** @inheritDoc */
+    public function insert(array $data)
+    {
+        $data = $this->_with_name_norm($data);
+        return parent::insert($data);
+    }
+
+    /** @inheritDoc */
+    public function update($id, array $data)
+    {
+        $data = $this->_with_name_norm($data);
+        return parent::update($id, $data);
+    }
+
+    /**
+     * Keep nameNorm in lock-step with name so uk_products_name_norm rejects
+     * "Main Wheel" / "main wheel" / " Main  Wheel " as the same product.
+     */
+    private function _with_name_norm(array $data)
+    {
+        if (!array_key_exists('name', $data)) return $data;
+        $display = trim(preg_replace('/\s+/u', ' ', (string) $data['name']));
+        $data['name'] = $display;
+        if (class_exists('Catalog_integrity')) {
+            $data['nameNorm'] = Catalog_integrity::normalize_name($display);
+        } else {
+            $data['nameNorm'] = function_exists('mb_strtolower')
+                ? mb_strtolower($display, 'UTF-8')
+                : strtolower($display);
+        }
+        if ($data['nameNorm'] === '') $data['nameNorm'] = null;
+        return $data;
+    }
 
     /**
      * Find a product by slug.
