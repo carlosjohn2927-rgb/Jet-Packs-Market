@@ -1,6 +1,6 @@
 <?php
 /**
- * JetPacks Market — CLI installer (run from a terminal / SSH, NEVER via HTTP).
+ * Halyk Petroleum — CLI installer (run from a terminal / SSH, NEVER via HTTP).
  *
  *   php install/install.php                 # interactive-default install
  *   php install/install.php --source=production  # force the combined database/production.sql
@@ -239,12 +239,12 @@ if (!$usersOnly) {
 /* ------------------------------------------------------------------ */
 /* 2. Initial SUPER_ADMIN account                                       */
 /* ------------------------------------------------------------------ */
-$adminEmail = strtolower(trim(vp_install_env('VP_ADMIN_EMAIL', 'admin@jetpacksmarket.com')));
+$adminEmail = strtolower(trim(vp_install_env('VP_ADMIN_EMAIL', 'admin@halykpetroleum-kz.com')));
 $adminPass  = vp_install_env('VP_ADMIN_PASSWORD', '');
 $firstName  = vp_install_env('VP_ADMIN_FIRSTNAME', 'Admin');
 $lastName   = vp_install_env('VP_ADMIN_LASTNAME', 'User');
-$company    = vp_install_env('VP_BASE_URL') ? '' : 'JetPacks Market';
-$company    = (string) vp_install_env('VP_ADMIN_COMPANY', 'JetPacks Market');
+$company    = vp_install_env('VP_BASE_URL') ? '' : 'Halyk Petroleum';
+$company    = (string) vp_install_env('VP_ADMIN_COMPANY', 'Halyk Petroleum');
 
 $generated = false;
 if ($adminPass === '') {

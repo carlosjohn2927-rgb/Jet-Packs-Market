@@ -13,7 +13,7 @@ $payable = in_array($payment['status'], [PAYMENT_PENDING, PAYMENT_OPEN], true)
             <div class="bg-ink-900 px-6 py-6 text-white sm:px-8">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs font-bold uppercase tracking-[0.18em] text-brand-200">JetPacks Market</p>
+                        <p class="text-xs font-bold uppercase tracking-[0.18em] text-brand-200">Halyk Petroleum</p>
                         <h1 class="mt-2 text-2xl font-extrabold">Secure card payment</h1>
                         <p class="mt-2 text-sm text-white/75">You will enter your card details on Stripe's secure checkout page.</p>
                     </div>
@@ -51,7 +51,7 @@ $payable = in_array($payment['status'], [PAYMENT_PENDING, PAYMENT_OPEN], true)
                             <i class="ri-lock-2-line"></i> Continue to secure card checkout
                         </button>
                         <p class="text-center text-xs text-slate-500">
-                            Payments are processed by Stripe. JetPacks Market does not see or store your card number.
+                            Payments are processed by Stripe. Halyk Petroleum does not see or store your card number.
                             <?php if (!empty($payment['expiresAt'])): ?>
                                 This link expires <?= vp_safe_html(vp_human_date($payment['expiresAt'], 'M j, Y g:i A')) ?>.
                             <?php endif; ?>

@@ -22,7 +22,7 @@ foreach ($staff as $s) $staff_by_id[$s['id']] = $s;
         <button class="vp-btn vp-btn-secondary" type="submit">Filter</button>
     </form>
     <div class="flex gap-2">
-        <a class="vp-btn vp-btn-secondary" href="<?= base_url('admin/quotes/export/csv') ?>"><i class="ri-download-line"></i> CSV</a>
+        <a class="vp-btn vp-btn-secondary" href="<?= vp_safe_html($export_url ?? base_url('admin/quotes/export/csv')) ?>"><i class="ri-download-line"></i> Export CSV</a>
     </div>
 </div>
 
@@ -34,7 +34,9 @@ foreach ($staff as $s) $staff_by_id[$s['id']] = $s;
                 <th>Company</th>
                 <th>Contact</th>
                 <th>Country</th>
+                <th>Parts</th>
                 <th>Status</th>
+                <th>Total</th>
                 <th>Assigned</th>
                 <th>Created</th>
                 <th></th>
@@ -42,7 +44,7 @@ foreach ($staff as $s) $staff_by_id[$s['id']] = $s;
         </thead>
         <tbody>
         <?php if (empty($rows)): ?>
-            <tr><td colspan="8" class="text-center text-gray-500">No quotes match your filters.</td></tr>
+            <tr><td colspan="11" class="text-center text-gray-500">No RFQs match your filters.</td></tr>
         <?php else: foreach ($rows as $q):
             $st = vp_quote_status_label($q['status']);
             $assign = $q['assignedTo'] && isset($staff_by_id[$q['assignedTo']]) ? $staff_by_id[$q['assignedTo']] : null; ?>
@@ -54,7 +56,14 @@ foreach ($staff as $s) $staff_by_id[$s['id']] = $s;
                     <div class="text-xs text-gray-500"><?= vp_safe_html($q['email']) ?></div>
                 </td>
                 <td class="text-xs text-gray-600"><?= vp_safe_html($q['country']) ?></td>
+                <td class="text-xs">
+                    <?php if (!empty($q['item_count'])): ?>
+                        <span class="vp-pill"><?= (int) $q['item_count'] ?> item(s)</span>
+                        <?php if (!empty($q['part_numbers'])): ?><div class="text-gray-500 mt-0.5 font-mono"><?= vp_safe_html(vp_truncate($q['part_numbers'], 48)) ?></div><?php endif; ?>
+                    <?php else: ?><span class="text-gray-400">—</span><?php endif; ?>
+                </td>
                 <td><span class="vp-pill <?= $st['class'] ?>"><?= $st['label'] ?></span></td>
+                <td class="text-xs font-semibold"><?= ($q['totalAmount'] !== null && $q['totalAmount'] !== '') ? vp_safe_html(vp_money($q['totalAmount'], $q['currency'] ?? 'USD')) : '<span class="text-gray-400">—</span>' ?></td>
                 <td class="text-xs"><?= $assign ? vp_safe_html(trim($assign['firstName'] . ' ' . $assign['lastName'])) : '<span class="text-gray-400">—</span>' ?></td>
                 <td class="text-xs text-gray-500"><?= vp_time_ago($q['createdAt']) ?></td>
                 <td class="text-right">

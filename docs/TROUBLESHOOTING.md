@@ -37,7 +37,7 @@ A fresh import of `database/production.sql` includes:
 
 | Field | Value |
 |---|---|
-| Email | `admin@jetpacksmarket.com` |
+| Email | `admin@halykpetroleum-kz.com` |
 | Password | `Nigeria1234@` |
 
 The first sign-in intentionally opens the password-change screen. Change the

@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — customer invoice model.
+ * Halyk Petroleum — customer invoice model.
  *
  * An invoice is minted the first time a customer downloads it, for a PAID
  * card payment that belongs to one of their quotes. This keeps the PDF

@@ -1,5 +1,5 @@
 -- =====================================================================
--- Vortex Precision - MySQL/MariaDB schema (CodeIgniter 3 conversion)
+-- Halyk Petroleum - MySQL/MariaDB schema (CodeIgniter 3 conversion)
 -- Translation rules:
 --   Prisma String @id @default(cuid())        -> CHAR(36) DEFAULT (UUID())
 --   Prisma DateTime                           -> DATETIME
@@ -262,7 +262,9 @@ CREATE TABLE IF NOT EXISTS `quotes` (
   `industry`        VARCHAR(190)  DEFAULT NULL,
   `status`          ENUM('NEW','REVIEWING','QUOTED','APPROVED','REJECTED','COMPLETED') NOT NULL DEFAULT 'NEW',
   `deadline`        DATE          DEFAULT NULL,
+  `validUntil`      DATE          DEFAULT NULL,
   `totalAmount`     DECIMAL(14,2) DEFAULT NULL,
+  `currency`        CHAR(3)       NOT NULL DEFAULT 'USD',
   `notes`           TEXT          DEFAULT NULL,
   `internalNotes`   TEXT          DEFAULT NULL,
   `pdfUrl`          VARCHAR(500)  DEFAULT NULL,
@@ -287,10 +289,18 @@ CREATE TABLE IF NOT EXISTS `quote_items` (
   `quoteId`        CHAR(36) NOT NULL,
   `productId`      CHAR(36) DEFAULT NULL,
   `productName`    VARCHAR(255) NOT NULL,
+  `partNumber`     VARCHAR(120) DEFAULT NULL,
+  `description`    TEXT DEFAULT NULL,
+  `manufacturer`   VARCHAR(190) DEFAULT NULL,
+  `condition`      VARCHAR(40)  DEFAULT NULL,
   `quantity`       INT NOT NULL DEFAULT 1,
   `specifications` TEXT DEFAULT NULL,
+  `leadTime`       VARCHAR(120) DEFAULT NULL,
+  `availability`   VARCHAR(120) DEFAULT NULL,
+  `notes`          TEXT DEFAULT NULL,
   `unitPrice`      DECIMAL(12,2) DEFAULT NULL,
   `total`          DECIMAL(14,2) DEFAULT NULL,
+  `currency`       CHAR(3) NOT NULL DEFAULT 'USD',
   PRIMARY KEY (`id`),
   KEY `idx_quote_items_quote` (`quoteId`),
   KEY `idx_quote_items_product` (`productId`),

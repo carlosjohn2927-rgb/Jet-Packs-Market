@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — CMS pages.
+ * Halyk Petroleum — CMS pages.
  *
  * Pages created here are published on the public website at /{slug} and can
  * be linked from any navigation menu.

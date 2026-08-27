@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - migration config.
+ * Halyk Petroleum - migration config.
  * Migrations are SQL files installed manually (see install/install.sql).
  * This config is kept for CI3's migrate CLI to function if invoked.
  */

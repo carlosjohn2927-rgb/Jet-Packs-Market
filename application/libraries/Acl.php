@@ -185,6 +185,16 @@ class Acl
             if ($resource === '*' && in_array('*', $actions, true)) {
                 return $this->role_cache[$role] = array_keys($this->catalog());
             }
+            // Legacy/aliased action names from the role_permissions seed data
+            // map onto the granular permission catalogue.
+            $actionMap = [
+                'read'      => ['view'],
+                'export'    => ['export'],
+                'status'    => ['update_status'],
+                'assign'    => ['assign'],
+                'pdf'       => ['generate_pdf'],
+                'attachments' => ['manage_attachments'],
+            ];
             foreach ($actions as $a) {
                 $candidates = [$resource . '.' . $a];
                 if (in_array($a, ['create', 'update', 'delete', '*'], true)) {
@@ -192,6 +202,22 @@ class Acl
                 }
                 if ($a === 'read' || $a === '*') {
                     $candidates[] = $resource . '.view';
+                }
+                if ($a === 'export') {
+                    $candidates[] = $resource . '.export';
+                }
+                if ($a === 'status') {
+                    $candidates[] = $resource . '.update_status';
+                }
+                if (isset($actionMap[$a])) {
+                    foreach ($actionMap[$a] as $mapped) $candidates[] = $resource . '.' . $mapped;
+                }
+                // A wildcard grant or the legacy aggregate "manage" implies
+                // the granular sales permissions for that resource.
+                if ($a === '*' || $a === 'manage') {
+                    foreach (['view','export','assign','update_status','generate_pdf','manage_attachments'] as $extra) {
+                        $candidates[] = $resource . '.' . $extra;
+                    }
                 }
                 foreach ($candidates as $c) {
                     if ($this->exists($c) && !$this->is_super_only($c)) $keys[$c] = true;

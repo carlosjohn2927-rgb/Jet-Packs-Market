@@ -1,4 +1,4 @@
-# Vortex Precision — test suite
+# Halyk Petroleum — test suite
 
 Run from the repository root. Requires: PHP 8.1+ (CLI with `mysqli`, `mbstring`,
 `curl`, `fileinfo`, `openssl`), an empty MySQL 5.7+ / MariaDB 10.2+ database,

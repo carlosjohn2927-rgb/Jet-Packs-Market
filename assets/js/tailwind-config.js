@@ -1,4 +1,4 @@
-// JetPacks Market - Tailwind CDN configuration.
+// Halyk Petroleum - Tailwind CDN configuration.
 // Must be loaded BEFORE https://cdn.tailwindcss.com. Lives in an external
 // file because the production CSP intentionally blocks inline scripts.
 window.tailwind = window.tailwind || {};

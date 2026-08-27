@@ -36,7 +36,7 @@ class Payments extends MY_Controller
         if (!$quote) show_404();
 
         $this->page_title = 'Secure card payment';
-        $this->page_description = 'Secure card payment for your JetPacks Market quote.';
+        $this->page_description = 'Secure card payment for your Halyk Petroleum quote.';
         $this->render('payments/show', [
             'payment' => $payment,
             'quote' => $quote,
@@ -153,7 +153,7 @@ class Payments extends MY_Controller
         }
 
         $this->page_title = $state === 'paid' ? 'Payment received' : 'Payment status';
-        $this->page_description = 'Card payment status for your JetPacks Market quote.';
+        $this->page_description = 'Card payment status for your Halyk Petroleum quote.';
         $this->render('payments/complete', [
             'payment' => $payment,
             'quote' => $quote,

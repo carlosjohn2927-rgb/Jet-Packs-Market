@@ -120,17 +120,17 @@ INSERT IGNORE INTO `settings` (`id`,`key`,`value`,`type`,`group`,`sortOrder`) VA
 -- Navigation (header, footer columns, legal)
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `menu_items` (`id`,`menu`,`label`,`type`,`url`,`target`,`sortOrder`,`isActive`) VALUES
-(UUID(),'header','Products','INTERNAL','products','_self',10,1),
+(UUID(),'header','Parts','INTERNAL','products','_self',10,1),
 (UUID(),'header','Industries','INTERNAL','industries','_self',20,1),
-(UUID(),'header','Services','INTERNAL','services','_self',30,1),
-(UUID(),'header','About','INTERNAL','about','_self',40,1),
-(UUID(),'header','Blog','INTERNAL','blog','_self',50,1),
-(UUID(),'header','Careers','INTERNAL','careers','_self',60,1),
-(UUID(),'header','FAQ','INTERNAL','faq','_self',70,1),
+(UUID(),'header','Blog','INTERNAL','blog','_self',30,1),
+(UUID(),'header','FAQ','INTERNAL','faq','_self',40,1),
+(UUID(),'header','Services','INTERNAL','services','_self',50,1),
+(UUID(),'header','About','INTERNAL','about','_self',60,1),
+(UUID(),'header','Careers','INTERNAL','careers','_self',70,1),
 (UUID(),'header','Downloads','INTERNAL','downloads','_self',80,1),
 (UUID(),'header','Contact','INTERNAL','contact','_self',90,1),
 
-(UUID(),'footer_solutions','Products','INTERNAL','products','_self',10,1),
+(UUID(),'footer_solutions','Parts','INTERNAL','products','_self',10,1),
 (UUID(),'footer_solutions','Industries','INTERNAL','industries','_self',20,1),
 (UUID(),'footer_solutions','Services','INTERNAL','services','_self',30,1),
 (UUID(),'footer_solutions','Request a Quote','INTERNAL','rfq','_self',40,1),

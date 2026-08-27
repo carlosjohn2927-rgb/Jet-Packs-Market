@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market - admin products CRUD.
+ * Halyk Petroleum - admin products CRUD.
  */
 class Products extends Admin_Controller
 {

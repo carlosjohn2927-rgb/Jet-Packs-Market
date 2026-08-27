@@ -11,7 +11,7 @@
             <h3 class="text-lg font-extrabold text-ink-900">
                 <i class="ri-rocket-2-line text-amber-500"></i> Marketplace roadmap
             </h3>
-            <p class="text-xs text-ink-800 mt-0.5">What ships next on JetPacks Market. Edits to the roadmap are mirrored on the public /roadmap page.</p>
+            <p class="text-xs text-ink-800 mt-0.5">What ships next on Halyk Petroleum. Edits to the roadmap are mirrored on the public /roadmap page.</p>
         </div>
         <a href="<?= base_url('roadmap') ?>" target="_blank" rel="noopener" class="text-sm font-semibold text-brand-600 hover:underline">
             View public page &rarr;

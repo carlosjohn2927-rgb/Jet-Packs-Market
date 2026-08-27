@@ -15,7 +15,7 @@ $legal = vp_menu('footer_legal');
 
 // Fallbacks so the footer is never empty on a fresh install.
 if (empty($columns['Solutions'])) {
-    foreach ([['Parts', 'products'], ['Aircraft', 'industries'], ['Services', 'services'], ['Request a Quote', 'rfq']] as $m) {
+    foreach ([['Parts', 'products'], ['Industries', 'industries'], ['Blog', 'blog'], ['FAQ', 'faq'], ['Request a Quote', 'rfq']] as $m) {
         $columns['Solutions'][] = ['label' => $m[0], 'href' => base_url($m[1]), 'target' => '_self'];
     }
 }

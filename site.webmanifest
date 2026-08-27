@@ -1,6 +1,7 @@
 {
-  "name": "Vortex Precision",
-  "short_name": "Vortex",
+  "name": "Halyk Petroleum — Aircraft Parts & Components",
+  "short_name": "Halyk",
+  "description": "Aircraft parts and components supply, RFQ quotations and 24/7 AOG support.",
   "icons": [
     {
       "src": "/assets/img/favicon-192.png",
@@ -13,7 +14,7 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#0b1424",
+  "theme_color": "#0b1f3f",
   "background_color": "#ffffff",
   "display": "standalone"
 }

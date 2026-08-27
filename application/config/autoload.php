@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - autoload configuration.
+ * Halyk Petroleum - autoload configuration.
  */
 $autoload['packages'] = [];
 $autoload['libraries'] = [

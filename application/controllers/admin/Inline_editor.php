@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — front-end inline page editor (AJAX endpoints).
+ * Halyk Petroleum — front-end inline page editor (AJAX endpoints).
  *
  * Backs the WordPress-style "Edit this page" mode. An Admin/Super Admin clicks
  * Edit on a section of the live page, rewrites its text and/or changes its

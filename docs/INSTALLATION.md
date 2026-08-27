@@ -1,4 +1,4 @@
-# Installation — JetPacks Market
+# Installation — Halyk Petroleum
 
 ## Production cPanel installation (the standard path)
 

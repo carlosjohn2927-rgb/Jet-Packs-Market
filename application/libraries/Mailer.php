@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - Mailer.
+ * Halyk Petroleum - Mailer.
  *
  * Sends transactional email with idempotency via email_logs.dedupe_key.
  * Transport order: dashboard/.env SMTP, Resend HTTP API, then PHP mail().
@@ -286,7 +286,7 @@ class Mailer
         $headers[] = 'Content-type: text/html; charset=utf-8';
         $headers[] = 'From: ' . sprintf('%s <%s>', $fromName, $fromEmail);
         if ($replyTo) $headers[] = 'Reply-To: ' . $replyTo;
-        $headers[] = 'X-Mailer: Vortex-Precision/CI3';
+        $headers[] = 'X-Mailer: Halyk-Petroleum/CI3';
         // Set the envelope sender (-f): without it the MTA uses the hosting
         // account address (e.g. cpaneluser@server.host), which fails SPF for
         // our domain and is commonly discarded by recipients' servers.
@@ -405,7 +405,7 @@ class Mailer
             'adminUrl' => base_url('admin/quotes/' . ($quote['id'] ?? '')),
         ];
         $html = $this->render_email('quote_submitted_admin', $vars);
-        return ['subject' => '[Vortex] New RFQ ' . $vars['quoteNumber'] . ' from ' . $vars['companyName'], 'html' => $html];
+        return ['subject' => '[Halyk] New RFQ ' . $vars['quoteNumber'] . ' from ' . $vars['companyName'], 'html' => $html];
     }
 
     public function template_quote_confirmation_customer($quote)
@@ -431,6 +431,34 @@ class Mailer
         ];
         $html = $this->render_email('quote_status_update', $vars);
         return ['subject' => 'Your RFQ ' . $vars['quoteNumber'] . ' is now ' . $newStatus, 'html' => $html];
+    }
+
+    /** Customer email: the formal quotation has been prepared and sent. */
+    public function template_quote_sent_customer($quote, $items = [], $pdfUrl = null, $accountUrl = null)
+    {
+        $contact = trim((string) ($quote['contactPerson'] ?? ''));
+        $firstName = $contact !== '' ? preg_split('/\s+/', $contact)[0] : '';
+        $lines = [];
+        foreach ($items as $it) {
+            $label = trim(($it['partNumber'] ?? '') . ' ' . ($it['productName'] ?? ''));
+            $lines[] = '• ' . $label . ' × ' . (int) ($it['quantity'] ?? 1)
+                . (isset($it['unitPrice']) && $it['unitPrice'] !== '' && $it['unitPrice'] !== null
+                    ? ' @ ' . vp_money($it['unitPrice'], $quote['currency'] ?? 'USD') : '');
+        }
+        $vars = [
+            'quoteNumber' => $quote['quoteNumber'] ?? '',
+            'firstName'   => $firstName,
+            'companyName' => $quote['companyName'] ?? '',
+            'total'       => ($quote['totalAmount'] !== null && $quote['totalAmount'] !== '')
+                                ? vp_money($quote['totalAmount'], $quote['currency'] ?? 'USD') : 'On the attached quotation',
+            'currency'    => $quote['currency'] ?? 'USD',
+            'validUntil'  => !empty($quote['validUntil']) ? date('M j, Y', strtotime($quote['validUntil'])) : null,
+            'items_html'  => nl2br(vp_safe_html(implode("\n", $lines))),
+            'pdf_url'     => $pdfUrl,
+            'account_url' => $accountUrl,
+        ];
+        $html = $this->render_email('quote_sent', $vars);
+        return ['subject' => 'Halyk Petroleum quotation ' . $vars['quoteNumber'], 'html' => $html];
     }
 
     /** Email a customer the opaque link to Stripe-hosted Checkout. */

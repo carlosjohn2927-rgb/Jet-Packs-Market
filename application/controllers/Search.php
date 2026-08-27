@@ -13,7 +13,7 @@ class Search extends MY_Controller
     {
         $q = trim((string) $this->input->get('q'));
         $this->page_title = $q ? "Search: $q" : 'Search';
-        $this->page_description = 'Search JetPacks Market parts, blog posts, downloads and FAQs.';
+        $this->page_description = 'Search Halyk Petroleum parts, blog posts, downloads and FAQs.';
 
         $products = [];
         $posts = [];

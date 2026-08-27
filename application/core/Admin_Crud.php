@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - reusable CRUD base for admin controllers.
+ * Halyk Petroleum - reusable CRUD base for admin controllers.
  *
  * Subclasses set $model, $view_prefix, $fields, $list_columns, $search_fields,
  * $order_by, $redirect_url, and override save() for any custom logic.

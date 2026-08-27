@@ -26,7 +26,14 @@ $payment_currencies = $payment_currencies ?? vp_payment_supported_currencies();
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="vp-pill <?= $st['class'] ?>"><?= $st['label'] ?></span>
+                    <?php if ($can['quotes.generate_pdf'] ?? true): ?>
                     <a class="vp-btn vp-btn-secondary vp-btn-sm" href="<?= base_url('admin/quotes/' . $quote['id'] . '/pdf') ?>" target="_blank"><i class="ri-file-pdf-line"></i> PDF</a>
+                    <form method="post" action="<?= base_url('admin/quotes/' . $quote['id'] . '/send') ?>" data-confirm="Generate the PDF quotation and email it to the customer now?">
+                        <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
+                        <input type="hidden" name="version" value="<?= (int) $quote['version'] ?>">
+                        <button class="vp-btn vp-btn-primary vp-btn-sm" type="submit"><i class="ri-mail-send-line"></i> Generate &amp; send quote</button>
+                    </form>
+                    <?php endif; ?>
                     <?php if ($this->jet_auth->has_role(ROLE_SUPER_ADMIN)): ?>
                         <form action="<?= base_url('admin/quotes/' . $quote['id'] . '/delete') ?>" method="post" data-confirm="Delete this quote? This cannot be undone.">
                             <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
@@ -38,22 +45,81 @@ $payment_currencies = $payment_currencies ?? vp_payment_supported_currencies();
         </div>
 
         <div class="vp-card">
-            <div class="vp-card-pad border-b">
-                <h2 class="font-bold">Line items</h2>
+            <div class="vp-card-pad border-b flex items-center justify-between">
+                <h2 class="font-bold">Requested parts</h2>
+                <span class="text-xs text-gray-500"><?= count($items) ?> line item(s)</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="vp-admin-table">
-                    <thead><tr><th>Product</th><th>Qty</th><th>Specifications</th></tr></thead>
+                    <thead><tr>
+                        <th>Part number</th><th>Part / description</th><th>Cond.</th><th>Qty</th>
+                        <th class="text-right">Unit price</th><th class="text-right">Line total</th><th></th>
+                    </tr></thead>
                     <tbody>
                     <?php foreach ($items as $it): ?>
                         <tr>
-                            <td><?= vp_safe_html($it['productName']) ?></td>
+                            <td class="font-mono text-xs whitespace-nowrap"><?= vp_safe_html($it['partNumber'] ?? '') ?></td>
+                            <td>
+                                <div class="font-semibold"><?= vp_safe_html($it['productName']) ?></div>
+                                <?php if (!empty($it['manufacturer'])): ?><div class="text-xs text-gray-500"><?= vp_safe_html($it['manufacturer']) ?></div><?php endif; ?>
+                                <?php if (!empty($it['specifications'])): ?><div class="text-xs text-gray-500"><?= nl2br(vp_safe_html($it['specifications'])) ?></div><?php endif; ?>
+                                <?php if (!empty($it['leadTime'])): ?><div class="text-xs text-gray-400">Lead: <?= vp_safe_html($it['leadTime']) ?></div><?php endif; ?>
+                            </td>
+                            <td class="text-xs"><?= vp_safe_html($it['condition'] ?? '') ?></td>
                             <td class="text-center"><?= (int) $it['quantity'] ?></td>
-                            <td class="text-sm text-gray-600"><?= nl2br(vp_safe_html($it['specifications'] ?? '')) ?></td>
+                            <td class="text-right text-sm"><?= ($it['unitPrice'] !== null && $it['unitPrice'] !== '') ? vp_safe_html(vp_money($it['unitPrice'], $it['currency'] ?? $quote['currency'] ?? 'USD')) : '<span class="text-gray-400">—</span>' ?></td>
+                            <td class="text-right font-semibold text-sm"><?= ($it['total'] !== null && $it['total'] !== '') ? vp_safe_html(vp_money($it['total'], $it['currency'] ?? $quote['currency'] ?? 'USD')) : '<span class="text-gray-400">—</span>' ?></td>
+                            <td class="text-right whitespace-nowrap">
+                                <form method="post" action="<?= base_url('admin/quotes/' . $quote['id'] . '/items/' . $it['id'] . '/delete') ?>" data-confirm="Remove this line item?">
+                                    <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
+                                    <button class="text-red-600 hover:underline text-xs" type="submit">Remove</button>
+                                </form>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+
+            <?php /* Quick pricing per line (admins quote unit prices) */ ?>
+            <div class="vp-card-pad border-t bg-gray-50">
+                <details class="text-sm">
+                    <summary class="cursor-pointer font-semibold"><i class="ri-price-tag-3-line"></i> Quote pricing for line items</summary>
+                    <div class="mt-3 space-y-2">
+                        <?php foreach ($items as $it): ?>
+                            <form method="post" action="<?= base_url('admin/quotes/' . $quote['id'] . '/items/' . $it['id'] . '/update') ?>" class="flex flex-wrap items-center gap-2">
+                                <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
+                                <span class="font-mono text-xs w-40 truncate"><?= vp_safe_html($it['partNumber'] ?: $it['productName']) ?></span>
+                                <input class="vp-input w-28" type="text" inputmode="decimal" name="unitPrice" placeholder="Unit price" value="<?= vp_safe_html($it['unitPrice'] ?? '') ?>">
+                                <input class="vp-input w-24" type="number" min="1" name="quantity" value="<?= (int) $it['quantity'] ?>" title="Qty">
+                                <input class="vp-input w-40" name="leadTime" placeholder="Lead time (e.g. 2 weeks)" value="<?= vp_safe_html($it['leadTime'] ?? '') ?>">
+                                <button class="vp-btn vp-btn-secondary vp-btn-sm" type="submit">Save</button>
+                            </form>
+                        <?php endforeach; ?>
+                    </div>
+                </details>
+            </div>
+
+            <?php /* Add a part to the RFQ */ ?>
+            <div class="vp-card-pad border-t">
+                <details class="text-sm">
+                    <summary class="cursor-pointer font-semibold"><i class="ri-add-line"></i> Add a requested part</summary>
+                    <form method="post" action="<?= base_url('admin/quotes/' . $quote['id'] . '/items/add') ?>" class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
+                        <input type="hidden" name="version" value="<?= (int) $quote['version'] ?>">
+                        <input class="vp-input col-span-2 md:col-span-1" name="partNumber" placeholder="Part number (e.g. 2612201-2)">
+                        <input class="vp-input col-span-2 md:col-span-2" name="productName" placeholder="Part name" required>
+                        <input class="vp-input" name="manufacturer" placeholder="Manufacturer">
+                        <select class="vp-select" name="condition">
+                            <option value="">Condition…</option>
+                            <option>NEW</option><option>OHC</option><option>SERVICEABLE</option><option>USED</option>
+                        </select>
+                        <input class="vp-input" type="number" min="1" name="quantity" value="1" title="Qty">
+                        <input class="vp-input" type="text" inputmode="decimal" name="unitPrice" placeholder="Unit price">
+                        <input class="vp-input col-span-2 md:col-span-2" name="leadTime" placeholder="Lead time / availability">
+                        <button class="vp-btn vp-btn-secondary md:col-span-4 justify-center" type="submit">Add part to RFQ</button>
+                    </form>
+                </details>
             </div>
         </div>
 
@@ -135,6 +201,31 @@ $payment_currencies = $payment_currencies ?? vp_payment_supported_currencies();
                     <?php endforeach; ?>
                 </select>
                 <button class="vp-btn vp-btn-secondary" type="submit">Assign</button>
+            </form>
+        </div>
+
+        <div class="vp-card vp-card-pad">
+            <h3 class="font-bold mb-2">Quote details</h3>
+            <form method="post" action="<?= base_url('admin/quotes/' . $quote['id'] . '/pricing') ?>" class="space-y-2 text-sm">
+                <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
+                <input type="hidden" name="version" value="<?= (int) $quote['version'] ?>">
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="vp-label">Total amount</label>
+                        <input class="vp-input" type="text" inputmode="decimal" name="totalAmount" value="<?= vp_safe_html($quote['totalAmount'] ?? '') ?>" placeholder="0.00"></div>
+                    <div><label class="vp-label">Currency</label>
+                        <select class="vp-select" name="currency">
+                            <?php foreach (['USD','EUR','GBP','KZT','AED','CHF'] as $cur): ?>
+                                <option value="<?= $cur ?>" <?= (($quote['currency'] ?? 'USD') === $cur) ? 'selected' : '' ?>><?= $cur ?></option>
+                            <?php endforeach; ?>
+                        </select></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="vp-label">Valid until</label>
+                        <input class="vp-input" type="date" name="validUntil" value="<?= vp_safe_html($quote['validUntil'] ?? '') ?>"></div>
+                    <div><label class="vp-label">Required by</label>
+                        <input class="vp-input" type="date" name="deadline" value="<?= vp_safe_html($quote['deadline'] ?? '') ?>"></div>
+                </div>
+                <button class="vp-btn vp-btn-secondary w-full justify-center" type="submit">Save details</button>
             </form>
         </div>
 

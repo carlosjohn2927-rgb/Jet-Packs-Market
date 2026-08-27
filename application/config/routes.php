@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - routes.
+ * Halyk Petroleum - routes.
  * See docs/API_MAP.md for the mapping to old NestJS endpoints.
  */
 $route['default_controller'] = 'home';
@@ -96,6 +96,11 @@ $route['admin/quotes/(:any)/status']      = 'admin/quotes/status/$1';
 $route['admin/quotes/(:any)/assign']      = 'admin/quotes/assign/$1';
 $route['admin/quotes/(:any)/note']        = 'admin/quotes/note/$1';
 $route['admin/quotes/(:any)/pdf']         = 'admin/quotes/pdf/$1';
+$route['admin/quotes/(:any)/send']        = 'admin/quotes/send/$1';
+$route['admin/quotes/(:any)/pricing']     = 'admin/quotes/pricing/$1';
+$route['admin/quotes/(:any)/items/add']      = 'admin/quotes/add_item/$1';
+$route['admin/quotes/(:any)/items/(:any)/update'] = 'admin/quotes/update_item/$1/$2';
+$route['admin/quotes/(:any)/items/(:any)/delete'] = 'admin/quotes/delete_item/$1/$2';
 $route['admin/quotes/(:any)/delete']      = 'admin/quotes/delete/$1';
 $route['admin/quotes/(:any)/attachments/(:any)/delete'] = 'admin/quotes/attachment_delete/$1/$2';
 $route['admin/quotes/(:any)/payments/request'] = 'admin/quotes/payment_request/$1';

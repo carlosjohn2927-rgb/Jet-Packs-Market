@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — Homepage / page-section builder.
+ * Halyk Petroleum — Homepage / page-section builder.
  *
  * Every block on the public homepage is a row in `page_sections`. Sections can
  * be added, edited, reordered, enabled/disabled and deleted here, and the

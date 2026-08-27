@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market - app-wide helper functions.
+ * Halyk Petroleum - app-wide helper functions.
  */
 
 if (!function_exists('vp_setting')) {
@@ -388,14 +388,17 @@ if (!function_exists('vp_product_image_tag')) {
 }
 
 if (!function_exists('vp_industry_image')) {
-    /** Resolve the supplied aircraft-platform artwork with a safe, relevant local fallback. */
+    /** Resolve industry/market artwork. Markets Halyk Petroleum serves with
+     *  parts (not aircraft for sale) get parts/supply themed artwork; legacy
+     *  per-aircraft cards fall back to the generic parts image. */
     function vp_industry_image($industry)
     {
         $industry = (array) $industry;
         if (!empty($industry['image'])) return $industry['image'];
-        $slug = vp_slugify($industry['slug'] ?? $industry['name'] ?? 'gulfstream');
-        $known = ['gulfstream', 'dassault-falcon', 'cessna-citation', 'challenger', 'hawker',
-                  'learjet', 'boeing', 'airbus', 'embraer', 'pilatus'];
+        $slug = vp_slugify($industry['slug'] ?? $industry['name'] ?? 'default');
+        $known = ['airlines-commercial', 'business-aviation', 'mro-maintenance',
+                  'cargo-logistics', 'military-government', 'helicopter-operators',
+                  'aog-emergency', 'oem-tier1'];
         if (!in_array($slug, $known, true)) $slug = 'default';
         return IMG_URL . 'industries/' . $slug . '.jpg';
     }
@@ -408,11 +411,13 @@ if (!function_exists('vp_blog_image')) {
         $post = (array) $post;
         if (!empty($post['featuredImage'])) return $post['featuredImage'];
         $slug = $post['slug'] ?? '';
-        if (strpos($slug, 'new-vs-ohc') !== false) return IMG_URL . 'products/wheels-brakes.jpg';
-        if (strpos($slug, '8130') !== false || strpos($slug, 'certificate') !== false) {
+        if (strpos($slug, 'new-vs-ohc') !== false || strpos($slug, 'new-ohc') !== false || strpos($slug, 'condition') !== false) {
+            return IMG_URL . 'products/wheels-brakes.jpg';
+        }
+        if (strpos($slug, '8130') !== false || strpos($slug, 'certificate') !== false || strpos($slug, 'easa') !== false) {
             return IMG_URL . 'products/avionics.jpg';
         }
-        return IMG_URL . 'products/default.jpg';
+        return IMG_URL . 'blog/asme-pressure-vessel.jpg';
     }
 }
 
@@ -480,7 +485,8 @@ if (!function_exists('vp_format_bytes')) {
 
 if (!function_exists('vp_quote_number')) {
     /**
-     * Generate a human-friendly quote number, e.g. VP-2026-000123.
+     * Generate a human-friendly quote/RFQ number, e.g. HP-2026-000123.
+     * HP = Halyk Petroleum. Legacy VP- numbers are renumbered by migration 009.
      */
     function vp_quote_number()
     {
@@ -488,14 +494,19 @@ if (!function_exists('vp_quote_number')) {
         $year = date('Y');
         $CI =& get_instance();
         if ($seq === null) {
+            // Count this year's quotes under either prefix so numbering never
+            // collides with legacy rows.
             $CI->db->select('COUNT(*) AS c');
             $CI->db->from('quotes');
-            $CI->db->like('quoteNumber', 'VP-' . $year, 'after');
+            $CI->db->group_start();
+            $CI->db->like('quoteNumber', 'HP-' . $year, 'after');
+            $CI->db->or_like('quoteNumber', 'VP-' . $year, 'after');
+            $CI->db->group_end();
             $row = $CI->db->get()->row_array();
             $seq = (int) ($row['c'] ?? 0);
         }
         $seq++;
-        return 'VP-' . $year . '-' . str_pad((string) $seq, 6, '0', STR_PAD_LEFT);
+        return 'HP-' . $year . '-' . str_pad((string) $seq, 6, '0', STR_PAD_LEFT);
     }
 }
 
@@ -513,9 +524,9 @@ if (!function_exists('vp_seo_config')) {
     {
         $CI   =& get_instance();
         // Dashboard-managed identity wins over the config defaults.
-        $site    = $CI->settings->get('site_name') ?: ($CI->config->item('site_name') ?: 'JetPacks Market');
+        $site    = $CI->settings->get('site_name') ?: ($CI->config->item('site_name') ?: 'Halyk Petroleum');
         $tagline = $CI->settings->get('site_description')
-                    ?: ($CI->settings->get('site_tagline') ?: ($CI->config->item('site_tagline') ?: 'Industrial Manufacturing Excellence'));
+                    ?: ($CI->settings->get('site_tagline') ?: ($CI->config->item('site_tagline') ?: 'Aircraft Parts & Components Supply'));
 
         // Fall back to $default when the stored value is missing OR empty,
         // so clearing a field in admin restores the sensible default.
@@ -629,7 +640,7 @@ if (!function_exists('vp_seo_head')) {
     {
         $CI   =& get_instance();
         $seo  = vp_seo_config();
-        $site = function_exists('vp_site') ? vp_site('name') : ($CI->config->item('site_name') ?: 'JetPacks Market');
+        $site = function_exists('vp_site') ? vp_site('name') : ($CI->config->item('site_name') ?: 'Halyk Petroleum');
 
         $title = trim((string) $page_title) !== '' ? $page_title : $seo['default_title'];
         // Do not repeat the site name when the page title already carries it.
@@ -700,7 +711,7 @@ if (!function_exists('vp_chat_config')) {
     function vp_chat_config()
     {
         $CI   =& get_instance();
-        $site = $CI->config->item('site_name') ?: 'JetPacks Market';
+        $site = $CI->config->item('site_name') ?: 'Halyk Petroleum';
 
         $quick = vp_setting('chat_quick_replies', []);
         if (is_string($quick)) {

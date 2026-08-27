@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - Password reset tokens.
+ * Halyk Petroleum - Password reset tokens.
  *
  * Tokens are random 32-byte strings, hashed (HMAC) in the DB so a leaked DB
  * cannot be used to reset passwords. Expires after 1 hour, single use.

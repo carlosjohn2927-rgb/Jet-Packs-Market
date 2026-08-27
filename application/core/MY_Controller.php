@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - base controller.
+ * Halyk Petroleum - base controller.
  * - Loads shared view data (site_name, meta, user, etc).
  * - Provides render() to wrap content in a layout.
  */

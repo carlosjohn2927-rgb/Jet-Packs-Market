@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - Authentication library.
+ * Halyk Petroleum - Authentication library.
  *
  * - Native PHP password_hash() (BCRYPT)
  * - CI3 database session (sess_driver=database)

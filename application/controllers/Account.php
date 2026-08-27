@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — customer account area.
+ * Halyk Petroleum — customer account area.
  *
  * Signed-in CUSTOMER accounts land here to manage their parts-order history:
  *   • re-order past quotes (clones the line items into a fresh RFQ)
@@ -41,7 +41,7 @@ class Account extends MY_Controller
         $uid = $this->jet_auth->id();
         $this->data['account_section'] = 'dashboard';
         $this->page_title = 'My account';
-        $this->page_description = 'Your orders, invoices and AOG dispatches at ' . ($this->config->item('site_name') ?: 'JetPacks Market') . '.';
+        $this->page_description = 'Your orders, invoices and AOG dispatches at ' . ($this->config->item('site_name') ?: 'Halyk Petroleum') . '.';
 
         $quotesTotal = (int) $this->db->where('userId', $uid)->count_all_results('quotes');
         $invoices     = $this->Invoice_model->list_for_user($uid);

@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market - public Products controller.
+ * Halyk Petroleum - public Products controller.
  */
 class Products extends MY_Controller
 {
@@ -16,7 +16,7 @@ class Products extends MY_Controller
     public function index()
     {
         $this->page_title = 'Products';
-        $this->page_description = 'Browse the JetPacks Market parts catalog: wheels & brakes, landing gear, avionics, engines & APUs, hydraulics, electrical and more.';
+        $this->page_description = 'Browse the Halyk Petroleum parts catalog: wheels & brakes, landing gear, avionics, engines & APUs, hydraulics, electrical and more.';
 
         // Expire any lots that crossed their date and refresh only affected
         // public product quantity caches. Exact warehouse/lot data stays private.

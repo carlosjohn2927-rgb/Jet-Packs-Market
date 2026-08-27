@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market - security helpers.
+ * Halyk Petroleum - security helpers.
  */
 
 if (!function_exists('vp_hmac_sign')) {

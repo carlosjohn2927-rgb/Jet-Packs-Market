@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - Audit log.
+ * Halyk Petroleum - Audit log.
  */
 class Audit
 {

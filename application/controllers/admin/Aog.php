@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — admin AOG dispatch management.
+ * Halyk Petroleum — admin AOG dispatch management.
  *
  * Staff record emergency / priority part dispatches against a customer so the
  * customer can track them from /account/dispatches. Gated by the

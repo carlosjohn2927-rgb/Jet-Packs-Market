@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - Role-Based Access Control.
+ * Halyk Petroleum - Role-Based Access Control.
  * Caches role -> {resource: [actions]} map in session for the request.
  */
 class Rbac

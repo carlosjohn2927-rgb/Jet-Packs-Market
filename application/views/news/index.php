@@ -1,7 +1,7 @@
 <?php /** @var array $rows */ ?>
 <?php $this->load->view('partials/photo_writeup_hero', [
     'hero_image'         => IMG_URL . 'news/aog-dispatch.jpg',
-    'hero_alt'           => 'JetPacks Market news and announcements',
+    'hero_alt'           => 'Halyk Petroleum news and announcements',
     'hero_title_html'    => '<h1 class="text-4xl lg:text-5xl font-extrabold">News</h1>',
     'hero_subtitle_html' => '<p class="mt-3 text-lg">Latest news and announcements.</p>',
 ]); ?>

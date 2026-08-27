@@ -1,6 +1,6 @@
 <?php
 /**
- * Vortex Precision - full acceptance suite (CLI).
+ * Halyk Petroleum - full acceptance suite (CLI).
  *
  *   php app/tests/acceptance.php            # expects an installed database
  *   php app/tests/acceptance.php --install  # also runs install/install.php first
@@ -43,7 +43,7 @@ $dbName = getenv('VP_DB_NAME') ?: 'vortex_ci';
 $dbUser = getenv('VP_DB_USER') ?: 'root';
 $dbPass = getenv('VP_DB_PASS') ?: '';
 
-$adminEmail = strtolower(getenv('VP_ADMIN_EMAIL') ?: 'admin@vortexprecision.com');
+$adminEmail = strtolower(getenv('VP_ADMIN_EMAIL') ?: 'admin@halykpetroleum-kz.com');
 $adminPass  = getenv('VP_ADMIN_PASSWORD') ?: '';
 
 $portApp    = (int) (getenv('ACCEPT_PORT_APP')    ?: 18099);
@@ -244,7 +244,7 @@ $common = [
     'VP_AUTH_SECRET'    => bin2hex(random_bytes(32)),
     'VP_LOG_THRESHOLD'  => '4',
     'VP_FROM_EMAIL'     => 'no-reply@vortex.test',
-    'VP_FROM_NAME'      => 'Vortex Precision',
+    'VP_FROM_NAME'      => 'Halyk Petroleum',
     'VP_REPLY_TO'       => 'sales@vortex.test',
 ];
 
@@ -356,7 +356,7 @@ foreach ($slugRoutes as $p => $label) {
 $r = http_req('GET', $baseApp . '/search?q=valve');
 check('GET /search?q=valve', $r['status'] === 200, 'HTTP ' . $r['status']);
 $r = http_req('GET', $baseApp . '/');
-check('homepage renders site name', stripos($r['body'], 'Vortex Precision') !== false);
+check('homepage renders site name', stripos($r['body'], 'Halyk Petroleum') !== false);
 
 /* ------------------------------------------------------------------ */
 /* 4. Admin login / logout / invalid password / lockout                */
@@ -742,7 +742,7 @@ $r = http_req('POST', $baseApp . '/rfq/submit', ['jar' => $rfqJar,
         'address' => '1 Test Way',
         'notes' => 'Please quote 10 units.',
         'deadline' => '2026-12-31',
-        'item_name[]' => 'VortexPro Ball Valve VP-150',
+        'item_name[]' => 'Honeywell Avionics LRU 7004800-921',
         'item_qty[]' => '10',
         'item_spec[]' => '316L, 150 PSI',
         'item_productId[]' => '',
@@ -780,7 +780,7 @@ http_req('POST', $baseApp . '/rfq/submit', ['jar' => $rfqJar, 'form' => [
     'csrf_token' => $csrf,
     'companyName' => 'Acceptance Testing Ltd', 'contactPerson' => 'QA Tester',
     'email' => 'rfq.accept@example.com', 'country' => 'USA',
-    'item_name[]' => 'VortexPro Ball Valve VP-150', 'item_qty[]' => '10',
+    'item_name[]' => 'Honeywell Avionics LRU 7004800-921', 'item_qty[]' => '10',
 ]]);
 check('second identical submission creates its own quote', (int) db_one("SELECT COUNT(*) FROM quotes") === $quotesBefore + 2);
 check('second quote gets its own emails (per-quote dedupe key)', mock_count() === $before + 2);
@@ -846,7 +846,7 @@ $phpBlob  = "<?php echo 'PWNED'; ?>\n";
 $dwgBlob  = "AC1015" . str_repeat("\x01", 32);
 $dxfBlob  = "0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nEOF\n";
 $stepBlob = "ISO-10303-21;\nHEADER;\nEND-ISO-10303-21;\n";
-$igesBlob = "Vortex Precision IGES test model\nsecond record\n";
+$igesBlob = "Halyk Petroleum IGES test model\nsecond record\n";
 $ole2Blob = "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1" . str_repeat("\x00", 512);
 $binBlob  = str_repeat("\x00", 64) . "not a text file";
 

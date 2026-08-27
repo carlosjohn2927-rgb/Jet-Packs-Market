@@ -1,6 +1,6 @@
 <?php
 /**
- * JetPacks Market - public layout.
+ * Halyk Petroleum - public layout.
  * Receives: $content, $page_title, $page_description, $site_name, $site_tagline,
  *           $contact, $social, $current_user, $is_admin, $flash, $csrf_token_name,
  *           $csrf_token, $jet_settings, $unread_notifications

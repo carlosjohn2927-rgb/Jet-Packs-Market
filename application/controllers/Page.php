@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — public CMS pages.
+ * Halyk Petroleum — public CMS pages.
  *
  * Renders pages created in Dashboard → Website → Pages. Reachable both at
  * /page/{slug} and directly at /{slug} (via the 404 fallback in Errors).

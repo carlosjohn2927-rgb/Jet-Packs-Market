@@ -21,7 +21,7 @@ class Services extends MY_Controller
         }
 
         $this->page_title = 'Services';
-        $this->page_description = 'Aircraft parts supply, AOG dispatch, parts sourcing, exchange programs and certification support from JetPacks Market.';
+        $this->page_description = 'Aircraft parts supply, AOG dispatch, parts sourcing, exchange programs and certification support from Halyk Petroleum.';
 
         $services = [
             ['icon' => 'ri-flight-takeoff-line', 'title' => 'Parts Supply', 'desc' => 'New, OHC, USED and SERVICEABLE parts for business and commercial jets — wheels, brakes, avionics, hydraulics, engines and more.'],

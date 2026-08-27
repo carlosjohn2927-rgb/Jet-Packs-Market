@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - Upload helper wrapping CI3's file upload library.
+ * Halyk Petroleum - Upload helper wrapping CI3's file upload library.
  *
  * Hardening beyond CI3's extension check:
  *  - uploaded files get random (encrypted) names, so the original

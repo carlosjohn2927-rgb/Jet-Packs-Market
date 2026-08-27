@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - MySQL/MariaDB database config (cPanel-friendly).
+ * Halyk Petroleum - MySQL/MariaDB database config (cPanel-friendly).
  *
  * Environment-based configuration. No production credentials are committed
  * to the repository. Supported sources (first match wins):
@@ -45,8 +45,8 @@ if (!function_exists('vp_db_placeholder')) {
 }
 
 $db_host = vp_db_env('host', 'localhost');
-$db_name = vp_db_env('name', 'vortex_precision');
-$db_user = vp_db_env('user', 'vortex_user');
+$db_name = vp_db_env('name', 'halyk_petroleum');
+$db_user = vp_db_env('user', 'halyk_user');
 $db_pass = vp_db_env('pass', '');
 
 /**
@@ -67,7 +67,7 @@ if (!$is_sqlite && defined('ENVIRONMENT') && ENVIRONMENT === 'production') {
     if (vp_db_placeholder(vp_db_env('pass'))) $missing[] = 'VP_DB_PASS';
     if (!empty($missing)) {
         $missing = array_unique($missing);
-        $msg = 'Vortex Precision: production database configuration is missing. '
+        $msg = 'Halyk Petroleum: production database configuration is missing. '
             . 'Set the following environment variables (via app/.env or SetEnv in .htaccess): '
             . implode(', ', $missing)
             . '. See .env.example and docs/INSTALLATION.md.';

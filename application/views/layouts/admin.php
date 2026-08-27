@@ -1,6 +1,6 @@
 <?php
 /**
- * JetPacks Market — admin layout.
+ * Halyk Petroleum — admin layout.
  * Receives: same as public, plus $current_user, $is_admin, $is_super_admin,
  *           $admin_nav, $can, $unread_notifications.
  * Everything branded here (title, favicon, logo) comes from the dashboard.
