@@ -102,6 +102,11 @@ class Admin_Crud extends Admin_Controller
         if (!$id) show_404();
         $row = $this->M()->find($id);
         if (!$row) show_404();
+        // Let a subclass expose JSON columns as form-friendly text, e.g.
+        // ["a","b"] -> "a, b".
+        if (method_exists($this, '_form_row')) {
+            $row = $this->_form_row($row);
+        }
         $this->page_title = $this->_title('edit', $row);
         $this->_form();
         $this->render('admin/_crud_form', [
@@ -110,6 +115,12 @@ class Admin_Crud extends Admin_Controller
             'fields' => $this->_form_fields(),
             'form_url' => base_url($this->redirect_url . '/save'),
         ]);
+    }
+
+    /** Override in a subclass to prepare a DB row for the edit form. */
+    protected function _form_row(array $row)
+    {
+        return $row;
     }
 
     /**
