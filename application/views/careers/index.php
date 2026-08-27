@@ -1,7 +1,7 @@
 <?php /** @var array $rows */ ?>
 <?php $this->load->view('partials/photo_writeup_hero', [
     'hero_image'         => IMG_URL . 'careers-team.jpg',
-    'hero_alt'           => 'The JetPacks Market team working in the hangar',
+    'hero_alt'           => 'The Halyk Petroleum team working in the hangar',
     'hero_eyebrow'       => 'Join the team',
     'hero_title_html'    => vp_inline_text('careers_hero_title', 'Careers', 'h1', 'text-4xl lg:text-5xl font-extrabold mt-3'),
     'hero_subtitle_html' => vp_inline_text('careers_hero_subtitle', 'Join the team that keeps the world\'s aircraft flying.', 'p', 'mt-3 max-w-2xl text-lg'),

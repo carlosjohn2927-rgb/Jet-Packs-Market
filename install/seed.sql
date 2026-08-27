@@ -1,5 +1,5 @@
 -- =====================================================================
--- Vortex Precision - seed data (content only - NO user accounts)
+-- Halyk Petroleum - seed data (content only - NO user accounts)
 -- Run AFTER install.sql.
 --
 -- SECURITY: this file intentionally contains NO user accounts and NO
@@ -45,31 +45,31 @@ ON DUPLICATE KEY UPDATE `actions`=VALUES(`actions`);
 
 -- ----- Categories -----
 INSERT INTO `categories` (`id`,`name`,`slug`,`description`,`icon`,`sortOrder`,`isActive`,`metaTitle`) VALUES
-(UUID(),'Wheels & Brakes','wheels-brakes','Wheels, tires, brake assemblies and anti-skid systems for business and commercial jets.','wheel',1,1,'Aircraft Wheels & Brakes - JetPacks Market'),
-(UUID(),'Landing Gear','landing-gear','Complete landing gear assemblies, actuators, struts and steering components.','gear',2,1,'Aircraft Landing Gear - JetPacks Market'),
-(UUID(),'Avionics','avionics','Radios, radars, displays, flight instruments, recorders and navigation systems.','radar',3,1,'Avionics & Instruments - JetPacks Market'),
-(UUID(),'Engines & APUs','engines-apus','Turbofan engines, auxiliary power units and engine components.','engine',4,1,'Engines & APUs - JetPacks Market'),
-(UUID(),'Flight Controls','flight-controls','Servos, actuators, power control units and trim systems.','servo',5,1,'Flight Controls - JetPacks Market'),
-(UUID(),'Hydraulics','hydraulics','Hydraulic pumps, valves, reservoirs and accumulators.','hydraulic',6,1,'Hydraulic Systems - JetPacks Market'),
-(UUID(),'Pneumatics & Bleed Air','pneumatics','Bleed air valves, pressure controllers and pneumatic components.','air',7,1,'Pneumatics & Bleed Air - JetPacks Market'),
-(UUID(),'Electrical & Lighting','electrical-lighting','Generators, batteries, lights, relays and power distribution.','bolt',8,1,'Electrical & Lighting - JetPacks Market'),
-(UUID(),'Interior & Cabin','interior-cabin','Escape slides, oxygen systems, galleys and cabin equipment.','seat',9,1,'Interior & Cabin - JetPacks Market'),
-(UUID(),'Actuators & Valves','actuators-valves','Linear and rotary actuators, control valves and solenoids.','valve',10,1,'Actuators & Valves - JetPacks Market'),
-(UUID(),'Fuel Systems','fuel-systems','Fuel pumps, indicators, valves and fuel system components.','fuel',11,1,'Fuel Systems - JetPacks Market'),
-(UUID(),'Airframe & Structures','airframe','Structural components, cowlings, fairings and airframe parts.','plane',12,1,'Airframe & Structures - JetPacks Market');
+(UUID(),'Wheels & Brakes','wheels-brakes','Wheels, tires, brake assemblies and anti-skid systems for business and commercial jets.','wheel',1,1,'Aircraft Wheels & Brakes - Halyk Petroleum'),
+(UUID(),'Landing Gear','landing-gear','Complete landing gear assemblies, actuators, struts and steering components.','gear',2,1,'Aircraft Landing Gear - Halyk Petroleum'),
+(UUID(),'Avionics','avionics','Radios, radars, displays, flight instruments, recorders and navigation systems.','radar',3,1,'Avionics & Instruments - Halyk Petroleum'),
+(UUID(),'Engines & APUs','engines-apus','Turbofan engines, auxiliary power units and engine components.','engine',4,1,'Engines & APUs - Halyk Petroleum'),
+(UUID(),'Flight Controls','flight-controls','Servos, actuators, power control units and trim systems.','servo',5,1,'Flight Controls - Halyk Petroleum'),
+(UUID(),'Hydraulics','hydraulics','Hydraulic pumps, valves, reservoirs and accumulators.','hydraulic',6,1,'Hydraulic Systems - Halyk Petroleum'),
+(UUID(),'Pneumatics & Bleed Air','pneumatics','Bleed air valves, pressure controllers and pneumatic components.','air',7,1,'Pneumatics & Bleed Air - Halyk Petroleum'),
+(UUID(),'Electrical & Lighting','electrical-lighting','Generators, batteries, lights, relays and power distribution.','bolt',8,1,'Electrical & Lighting - Halyk Petroleum'),
+(UUID(),'Interior & Cabin','interior-cabin','Escape slides, oxygen systems, galleys and cabin equipment.','seat',9,1,'Interior & Cabin - Halyk Petroleum'),
+(UUID(),'Actuators & Valves','actuators-valves','Linear and rotary actuators, control valves and solenoids.','valve',10,1,'Actuators & Valves - Halyk Petroleum'),
+(UUID(),'Fuel Systems','fuel-systems','Fuel pumps, indicators, valves and fuel system components.','fuel',11,1,'Fuel Systems - Halyk Petroleum'),
+(UUID(),'Airframe & Structures','airframe','Structural components, cowlings, fairings and airframe parts.','plane',12,1,'Airframe & Structures - Halyk Petroleum');
 
 
 INSERT INTO `industries` (`id`,`name`,`slug`,`description`,`icon`,`sortOrder`,`isActive`,`metaTitle`,`capabilities`) VALUES
-(UUID(),'Gulfstream','gulfstream','New, overhauled and used parts for Gulfstream GII through G700 business jets.','plane',1,1,'Gulfstream Parts - JetPacks Market', JSON_ARRAY('GII','GIII','GIV','GV','G450','G550','G650','G700')),
-(UUID(),'Dassault Falcon','dassault-falcon','Rotables, consumables and airframe parts for Falcon 10, 20, 50, 900 and 2000.','plane',2,1,'Dassault Falcon Parts - JetPacks Market', JSON_ARRAY('Falcon 10','Falcon 20','Falcon 50','Falcon 900','Falcon 2000','Falcon 7X')),
-(UUID(),'Cessna Citation','cessna-citation','Parts for Citation I, II, III, V, X, Excel, Sovereign and Latitude.','plane',3,1,'Cessna Citation Parts - JetPacks Market', JSON_ARRAY('Citation I','Citation II','Citation III','Citation V','Citation X','Sovereign')),
-(UUID(),'Bombardier Challenger','challenger','Support for Challenger 300, 600, 601, 604, 605 and 650 families.','plane',4,1,'Challenger Parts - JetPacks Market', JSON_ARRAY('Challenger 300','Challenger 600','Challenger 601','Challenger 604','Challenger 650')),
-(UUID(),'Hawker','hawker','Hawker 700, 800, 800XP, 850XP and 900XP parts and components.','plane',5,1,'Hawker Parts - JetPacks Market', JSON_ARRAY('Hawker 700','Hawker 800','Hawker 800XP','Hawker 850XP','Hawker 900XP')),
-(UUID(),'Learjet','learjet','Parts for Learjet 31, 35, 40, 45, 55, 60 and 75.','plane',6,1,'Learjet Parts - JetPacks Market', JSON_ARRAY('Learjet 35','Learjet 40','Learjet 45','Learjet 55','Learjet 60','Learjet 75')),
-(UUID(),'Boeing','boeing','Commercial aircraft parts for the 737, 747, 757, 767, 777 and 787 fleets.','plane',7,1,'Boeing Parts - JetPacks Market', JSON_ARRAY('Boeing 737','Boeing 747','Boeing 757','Boeing 767','Boeing 777','Boeing 787')),
-(UUID(),'Airbus','airbus','Commercial aircraft parts for the A318, A319, A320, A321, A330 and A350 families.','plane',8,1,'Airbus Parts - JetPacks Market', JSON_ARRAY('A318','A319','A320','A321','A330','A350')),
-(UUID(),'Embraer','embraer','Parts for Embraer ERJ, E-Jet and Praetor business jet families.','plane',9,1,'Embraer Parts - JetPacks Market', JSON_ARRAY('ERJ 135','ERJ 145','E175','E190','Phenom 300','Praetor 600')),
-(UUID(),'Pilatus','pilatus','Support for the Pilatus PC-12 turboprop and PC-24 jet.','plane',10,1,'Pilatus Parts - JetPacks Market', JSON_ARRAY('PC-12','PC-24'));
+(UUID(),'Gulfstream','gulfstream','New, overhauled and used parts for Gulfstream GII through G700 business jets.','plane',1,1,'Gulfstream Parts - Halyk Petroleum', JSON_ARRAY('GII','GIII','GIV','GV','G450','G550','G650','G700')),
+(UUID(),'Dassault Falcon','dassault-falcon','Rotables, consumables and airframe parts for Falcon 10, 20, 50, 900 and 2000.','plane',2,1,'Dassault Falcon Parts - Halyk Petroleum', JSON_ARRAY('Falcon 10','Falcon 20','Falcon 50','Falcon 900','Falcon 2000','Falcon 7X')),
+(UUID(),'Cessna Citation','cessna-citation','Parts for Citation I, II, III, V, X, Excel, Sovereign and Latitude.','plane',3,1,'Cessna Citation Parts - Halyk Petroleum', JSON_ARRAY('Citation I','Citation II','Citation III','Citation V','Citation X','Sovereign')),
+(UUID(),'Bombardier Challenger','challenger','Support for Challenger 300, 600, 601, 604, 605 and 650 families.','plane',4,1,'Challenger Parts - Halyk Petroleum', JSON_ARRAY('Challenger 300','Challenger 600','Challenger 601','Challenger 604','Challenger 650')),
+(UUID(),'Hawker','hawker','Hawker 700, 800, 800XP, 850XP and 900XP parts and components.','plane',5,1,'Hawker Parts - Halyk Petroleum', JSON_ARRAY('Hawker 700','Hawker 800','Hawker 800XP','Hawker 850XP','Hawker 900XP')),
+(UUID(),'Learjet','learjet','Parts for Learjet 31, 35, 40, 45, 55, 60 and 75.','plane',6,1,'Learjet Parts - Halyk Petroleum', JSON_ARRAY('Learjet 35','Learjet 40','Learjet 45','Learjet 55','Learjet 60','Learjet 75')),
+(UUID(),'Boeing','boeing','Commercial aircraft parts for the 737, 747, 757, 767, 777 and 787 fleets.','plane',7,1,'Boeing Parts - Halyk Petroleum', JSON_ARRAY('Boeing 737','Boeing 747','Boeing 757','Boeing 767','Boeing 777','Boeing 787')),
+(UUID(),'Airbus','airbus','Commercial aircraft parts for the A318, A319, A320, A321, A330 and A350 families.','plane',8,1,'Airbus Parts - Halyk Petroleum', JSON_ARRAY('A318','A319','A320','A321','A330','A350')),
+(UUID(),'Embraer','embraer','Parts for Embraer ERJ, E-Jet and Praetor business jet families.','plane',9,1,'Embraer Parts - Halyk Petroleum', JSON_ARRAY('ERJ 135','ERJ 145','E175','E190','Phenom 300','Praetor 600')),
+(UUID(),'Pilatus','pilatus','Support for the Pilatus PC-12 turboprop and PC-24 jet.','plane',10,1,'Pilatus Parts - Halyk Petroleum', JSON_ARRAY('PC-12','PC-24'));
 
 
 INSERT INTO `products`
@@ -478,7 +478,7 @@ INSERT INTO `faqs` (`id`,`question`,`answer`,`category`,`sortOrder`,`isActive`) 
 (UUID(),'What is your typical lead time?','Stock parts ship the same or next business day. AOG (Aircraft on Ground) requests are prioritized and dispatched within hours, 24/7.','Lead Times',1,1),
 (UUID(),'What do NEW, OHC, USED and SERVICEABLE mean?','NEW is unused manufacturer-new stock. OHC means Overhauled — disassembled, repaired to manufacturer limits with a bench test report. USED parts are removed serviceable with traceable history. SERVICEABLE parts are inspected and ready to install.','Part Conditions',2,1),
 (UUID(),'Do parts come with certification?','Yes. Every part ships with FAA Form 8130-3 and/or EASA Form 1, full traceability to the last operator, and our own inspection certificate. Copies of logbook pages are provided on request.','Certification',3,1),
-(UUID(),'Do you buy or trade surplus parts?','We buy outright and trade surplus rotables, engines, APUs and airframe parts. Email your inventory list to sales@jetpacksmarket.com — we typically respond within 24 hours with an offer.','Selling Parts',4,1),
+(UUID(),'Do you buy or trade surplus parts?','We buy outright and trade surplus rotables, engines, APUs and airframe parts. Email your inventory list to sales@halykpetroleum-kz.com — we typically respond within 24 hours with an offer.','Selling Parts',4,1),
 (UUID(),'What is the warranty on parts?','All parts carry a 12-month warranty from shipment against defects in material and workmanship. Overhauled units carry an extended warranty as stated on the quotation.','Warranty',5,1),
 (UUID(),'Do you ship internationally?','We ship worldwide with full export documentation, certificates of origin and ATA Carnet support. Choose FOB, CIF or DDP — we manage customs paperwork for you.','Logistics',6,1),
 (UUID(),'How fast do I get a quote?','Standard RFQs are answered within 24 business hours. Urgent and AOG requests are answered within 2 hours during business hours, 24/7 for AOG.','Quoting',7,1),
@@ -486,8 +486,8 @@ INSERT INTO `faqs` (`id`,`question`,`answer`,`category`,`sortOrder`,`isActive`) 
 
 
 INSERT INTO `testimonials` (`id`,`name`,`title`,`company`,`content`,`rating`,`avatar`,`industry`,`isActive`,`featured`) VALUES
-(UUID(),'Mark Hendricks','Director of Maintenance','Aerovista Charter Group','JetPacks Market sourced a complete set of wheels and brakes for our Gulfstream fleet at 30% below OEM pricing — all with full 8130-3 paperwork. Our AOG team has their number on speed dial.',5,'/assets/img/reviews/mark-hendricks.jpg','Gulfstream',1,1),
-(UUID(),'Sofia Marchetti','Procurement Manager','Meridian Air Lines','We have standardized our Falcon 2000 consumables on JetPacks Market. Consistent quality, predictable lead times, and every part arrives with traceable certification.',5,'/assets/img/reviews/sofia-marchetti.jpg','Dassault Falcon',1,1),
+(UUID(),'Mark Hendricks','Director of Maintenance','Aerovista Charter Group','Halyk Petroleum sourced a complete set of wheels and brakes for our Gulfstream fleet at 30% below OEM pricing — all with full 8130-3 paperwork. Our AOG team has their number on speed dial.',5,'/assets/img/reviews/mark-hendricks.jpg','Gulfstream',1,1),
+(UUID(),'Sofia Marchetti','Procurement Manager','Meridian Air Lines','We have standardized our Falcon 2000 consumables on Halyk Petroleum. Consistent quality, predictable lead times, and every part arrives with traceable certification.',5,'/assets/img/reviews/sofia-marchetti.jpg','Dassault Falcon',1,1),
 (UUID(),'David Okafor','Chief Pilot','TransContinental Air','Their APU desk found us a low-cycle GTCP36-150 in three days during an AOG. The unit was better than described and the logbook review was impeccable.',5,'/assets/img/reviews/david-okafor.jpg','Gulfstream',1,1),
 (UUID(),'Elena Kovač','Operations Director','Skyline Business Jets','From RFQ to delivery in four days on a Challenger 604 rudder servo. The exchange program is excellent — they shipped first and took our core in return.',5,'/assets/img/reviews/elena-kovac.jpg','Challenger',1,0);
 
@@ -506,26 +506,26 @@ INSERT INTO `partners` (`id`,`name`,`logo`,`website`,`category`,`sortOrder`,`isA
 
 
 INSERT INTO `settings` (`id`,`key`,`value`,`type`,`group`,`sortOrder`) VALUES
-(UUID(),'site_name','JetPacks Market','STRING','GENERAL',1),
+(UUID(),'site_name','Halyk Petroleum','STRING','GENERAL',1),
 (UUID(),'site_tagline','Aircraft Parts Marketplace','STRING','GENERAL',2),
 (UUID(),'hero_title','Find the Right Jet Part. Fast.','STRING','HERO',1),
 (UUID(),'hero_subtitle','Search thousands of new, overhauled and used aircraft parts for Gulfstream, Falcon, Citation, Challenger, Hawker, Learjet, Boeing and Airbus. Every part certified and traceable.','STRING','HERO',2),
 (UUID(),'hero_cta_primary','Request a Quote','STRING','HERO',3),
 (UUID(),'hero_cta_secondary','Browse Parts','STRING','HERO',4),
-(UUID(),'about_intro','JetPacks Market is a global marketplace for new, overhauled and used aircraft parts. From our facility at Dallas Executive Airport, we supply rotables, consumables, engines, APUs and airframe parts to flight departments, airlines, MROs and brokers in over 120 countries — every part shipped with full FAA/EASA certification and traceability.','TEXT','ABOUT',1),
+(UUID(),'about_intro','Halyk Petroleum is a global marketplace for new, overhauled and used aircraft parts. From our facility at Dallas Executive Airport, we supply rotables, consumables, engines, APUs and airframe parts to flight departments, airlines, MROs and brokers in over 120 countries — every part shipped with full FAA/EASA certification and traceability.','TEXT','ABOUT',1),
 (UUID(),'stats_parts','34000','INT','STATS',1),
 (UUID(),'stats_aircraft','150','INT','STATS',2),
 (UUID(),'stats_countries','120','INT','STATS',3),
 (UUID(),'stats_aog','24','INT','STATS',4),
-(UUID(),'contact_email','sales@jetpacksmarket.com','STRING','CONTACT',1),
-(UUID(),'support_email','support@jetpacksmarket.com','STRING','CONTACT',2),
-(UUID(),'rfq_email','rfq@jetpacksmarket.com','STRING','CONTACT',3),
+(UUID(),'contact_email','sales@halykpetroleum-kz.com','STRING','CONTACT',1),
+(UUID(),'support_email','support@halykpetroleum-kz.com','STRING','CONTACT',2),
+(UUID(),'rfq_email','rfq@halykpetroleum-kz.com','STRING','CONTACT',3),
 (UUID(),'phone','+1 (214) 350-0107','STRING','CONTACT',4),
 (UUID(),'address','Hangar 4, Dallas Executive Airport, Dallas, TX 75209, USA','STRING','CONTACT',5),
-(UUID(),'social','{"linkedin":"https://linkedin.com/company/jetpacksmarket","twitter":"https://twitter.com/jetpacksmarket","facebook":"https://facebook.com/jetpacksmarket","youtube":"https://youtube.com/@jetpacksmarket"}','JSON','CONTACT',6),
+(UUID(),'social','{"linkedin":"https://linkedin.com/company/halykpetroleum","twitter":"https://twitter.com/halykpetroleum","facebook":"https://facebook.com/halykpetroleum","youtube":"https://youtube.com/@halykpetroleum"}','JSON','CONTACT',6),
 (UUID(),'rfq_enabled','1','BOOL','RFQ',1),
 (UUID(),'rfq_rate_limit_per_hour','5','INT','RFQ',2),
-(UUID(),'rfq_admin_email','admin@jetpacksmarket.com','STRING','RFQ',3),
+(UUID(),'rfq_admin_email','admin@halykpetroleum-kz.com','STRING','RFQ',3),
 
 -- ----- Stripe card payments -----
 (UUID(),'stripe_payments_enabled','0','BOOL','PAYMENTS',1),
@@ -533,20 +533,20 @@ INSERT INTO `settings` (`id`,`key`,`value`,`type`,`group`,`sortOrder`) VALUES
 (UUID(),'stripe_checkout_ttl_hours','24','INT','PAYMENTS',3),
 
 -- ----- SEO -----
-(UUID(),'seo_default_title','JetPacks Market — Aircraft Parts Marketplace','STRING','SEO',1),
-(UUID(),'seo_default_description','JetPacks Market sells new, overhauled and used aircraft parts for Gulfstream, Falcon, Citation, Challenger, Hawker, Learjet, Boeing and Airbus. FAA 8130-3 certified parts, 24/7 AOG support, worldwide shipping.','TEXT','SEO',2),
+(UUID(),'seo_default_title','Halyk Petroleum — Aircraft Parts Marketplace','STRING','SEO',1),
+(UUID(),'seo_default_description','Halyk Petroleum sells new, overhauled and used aircraft parts for Gulfstream, Falcon, Citation, Challenger, Hawker, Learjet, Boeing and Airbus. FAA 8130-3 certified parts, 24/7 AOG support, worldwide shipping.','TEXT','SEO',2),
 (UUID(),'seo_keywords','aircraft parts, jet parts, aviation parts, airplane parts, aircraft marketplace, AOG parts, Gulfstream parts, Falcon parts, Citation parts, rotables, wheels and brakes, aircraft engines','STRING','SEO',3),
 (UUID(),'seo_robots','index, follow','STRING','SEO',4),
 (UUID(),'seo_og_image','/assets/img/hero-jet.jpg','STRING','SEO',5),
 (UUID(),'seo_enable_jsonld','1','BOOL','SEO',6),
 (UUID(),'seo_schema_type','Organization','STRING','SEO',7),
-(UUID(),'seo_schema_name','JetPacks Market','STRING','SEO',8),
+(UUID(),'seo_schema_name','Halyk Petroleum','STRING','SEO',8),
 (UUID(),'seo_schema_logo','/assets/img/logo-header.png','STRING','SEO',9),
 
 -- ----- AI Chat -----
 (UUID(),'chat_enabled','1','BOOL','CHAT',1),
-(UUID(),'chat_title','JetPacks Assistant','STRING','CHAT',2),
-(UUID(),'chat_bot_name','JetPacks','STRING','CHAT',3),
+(UUID(),'chat_title','Halyk Parts Assistant','STRING','CHAT',2),
+(UUID(),'chat_bot_name','Halyk','STRING','CHAT',3),
 (UUID(),'chat_avatar','/assets/img/chat-bot-avatar.png','STRING','CHAT',8),
 (UUID(),'chat_welcome','Hi there! 👋 I can help you find parts, check prices, request a quote or answer questions about certification and shipping. What part number are you looking for?','TEXT','CHAT',4),
 (UUID(),'chat_ai_provider','local','STRING','CHAT',5),
@@ -564,16 +564,16 @@ INSERT INTO `careers` (`id`,`title`,`slug`,`department`,`location`,`type`,`exper
 
 -- ----- News (3 sample) -----
 INSERT INTO `news` (`id`,`title`,`slug`,`summary`,`content`,`publishedAt`,`isActive`) VALUES
-(UUID(),'Vortex Precision completes delivery of 18 skidded heat exchanger packages to Gulf Coast chemical plant','skid-delivery-gulf-coast','A milestone order demonstrating our ability to deliver turnkey process skids to tight schedules.','Vortex Precision has successfully delivered 18 custom-engineered heat exchanger skids to a major Gulf Coast chemical complex. The packages, which include plate heat exchangers, instrumentation and structural steel, were delivered on a 14-week accelerated schedule and are now in commissioning.','2026-07-12 09:00:00',1),
-(UUID(),'New EHEDG-certified sanitary pump line launched','sanitary-pump-launch','Our new PD pump line brings hygienic fluid handling to dairy, brewing and pharmaceutical customers.','Vortex Precision has launched a new line of rotary lobe positive-displacement pumps for sanitary service. The line is EHEDG-certified, available in 316L stainless with EHEDG-compliant elastomers.','2026-05-30 09:00:00',1),
-(UUID(),'Vortex achieves ISO 9001:2015 recertification','iso-9001-recert','Quality system recertification reflects our continued commitment to customer satisfaction.','We are pleased to announce the successful completion of our ISO 9001:2015 surveillance audit, with zero non-conformances raised by the lead auditor.','2026-03-04 09:00:00',1);
+(UUID(),'Halyk Petroleum expands rotable pool for Airbus A320 and Boeing 737 fleets','rotable-pool-expansion','New exchange stock covers wheels, brakes and leading-edge rotables for narrowbody operators.','Halyk Petroleum has expanded its certified rotable exchange pool to support A320 family and Boeing 737 operators, adding wheels, carbon brakes, hydraulic units and leading-edge rotables. All units are stocked with FAA 8130-3 / EASA Form 1 traceability and are available on exchange or outright sale.','2026-07-12 09:00:00',1),
+(UUID(),'24/7 AOG desk now hand-carries parts to 40+ countries','aog-handcarry-network','Urgent parts dispatch with on-board-courier logistics across Europe, Asia and the Americas.','Our AOG team now coordinates on-board-courier and next-flight-out delivery to over 40 countries, cutting AOG resolution time. The desk quotes urgent requests within two hours, around the clock, with customs paperwork prepared in advance.','2026-05-30 09:00:00',1),
+(UUID(),'Halyk Petroleum achieves ISO 9001:2015 recertification for parts distribution','iso-9001-recert','Our quality management system for aircraft parts sourcing and distribution passed surveillance with zero non-conformances.','We are pleased to announce successful ISO 9001:2015 surveillance recertification for our aircraft parts distribution operations, with zero non-conformances. The audit covered traceability, incoming inspection, supplier qualification and records management.','2026-03-04 09:00:00',1);
 
 -- ----- Downloads -----
 INSERT INTO `downloads` (`id`,`title`,`description`,`fileUrl`,`type`,`category`,`fileSize`,`downloads`,`isActive`) VALUES
-(UUID(),'Company Brochure 2026','Full-line overview of Vortex Precision capabilities and reference projects.','/assets/files/vortex-brochure-2026.pdf','PDF','General','3.2 MB',0,1),
-(UUID(),'Valve Selection Guide','Engineering guide for selecting the right Vortex valve for your service.','/assets/files/valve-selection-guide.pdf','PDF','Valves','1.4 MB',0,1),
-(UUID(),'Pump Selection Guide','Engineering guide for Vortex centrifugal and positive-displacement pumps.','/assets/files/pump-selection-guide.pdf','PDF','Pumps','1.8 MB',0,1),
-(UUID(),'Heat Exchanger Sizing Worksheet','Excel worksheet to size plate or shell-and-tube exchangers.','/assets/files/hx-sizing.xlsx','XLSX','Heat Exchangers','85 KB',0,1);
+(UUID(),'Halyk Petroleum Capabilities Brochure 2026','Overview of our aircraft parts supply, sourcing and AOG capabilities.','/assets/files/halyk-petroleum-capabilities-2026.pdf','PDF','Company','2.1 MB',0,1),
+(UUID(),'RFQ Submission Guide','How to prepare a request for quotation with part numbers, conditions and required certifications.','/assets/files/rfq-submission-guide.pdf','PDF','Quoting','980 KB',0,1),
+(UUID(),'Certification & Traceability Sheet','Explanation of FAA 8130-3, EASA Form 1, conditions (NEW/OHC/SV) and traceability records.','/assets/files/certification-traceability.pdf','PDF','Quality','1.2 MB',0,1),
+(UUID(),'AOG Emergency Contact Card','24/7 AOG hotline, required information and shipping options for grounded aircraft.','/assets/files/aog-contact-card.pdf','PDF','AOG','420 KB',0,1);
 
 -- ----- Blog posts (2 sample) -----
 -- Only inserted when at least one author account exists. install/install.php
@@ -591,7 +591,7 @@ SELECT UUID(),
  'PUBLISHED',
  '2026-06-15 09:00:00',
  412,
- 'Choosing the right ball valve - Vortex Precision'
+ 'Choosing the right ball valve - Halyk Petroleum'
 WHERE EXISTS (SELECT 1 FROM `users`)
 UNION ALL SELECT UUID(),
  'Understanding ASME Section VIII pressure vessel design',
@@ -604,7 +604,7 @@ UNION ALL SELECT UUID(),
  'PUBLISHED',
  '2026-04-22 09:00:00',
  289,
- 'Understanding ASME Section VIII - Vortex Precision'
+ 'Understanding ASME Section VIII - Halyk Petroleum'
 WHERE EXISTS (SELECT 1 FROM `users`);
 
 -- =====================================================================

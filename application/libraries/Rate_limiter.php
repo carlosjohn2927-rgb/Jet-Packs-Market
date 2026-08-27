@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - File-based rate limiter.
+ * Halyk Petroleum - File-based rate limiter.
  *
  * One JSON file per (key, window-bucket) lives under assets/logs/ratelimit/.
  * Suitable for shared hosting with low traffic.

@@ -1,6 +1,6 @@
 <?php
 /**
- * Vortex Precision - PHP built-in server router (development/testing only).
+ * Halyk Petroleum - PHP built-in server router (development/testing only).
  *
  * Usage:  php -S 127.0.0.1:8099 -t app app/tests/router.php
  *

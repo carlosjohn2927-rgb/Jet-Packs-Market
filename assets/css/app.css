@@ -1,4 +1,4 @@
-/* JetPacks Market - public site CSS */
+/* Halyk Petroleum - public site CSS */
 :root {
     --vp-bg: #ffffff;
     --vp-writeup: #000000;
@@ -321,7 +321,7 @@ form .vp-input::placeholder, form .vp-textarea::placeholder { color: #6b7280; fo
 }
 
 /* ==========================================================================
-   JetPacks Market — marketplace components
+   Halyk Petroleum — marketplace components
    ========================================================================== */
 
 /* --- Marketplace top strip (moving marquee) --------------------------- */

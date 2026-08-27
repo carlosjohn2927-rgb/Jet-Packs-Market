@@ -14,7 +14,7 @@ class Contact extends MY_Controller
     public function index()
     {
         $this->page_title = 'Contact us';
-        $this->page_description = 'Get in touch with JetPacks Market - parts sales, AOG support, sourcing and general enquiries.';
+        $this->page_description = 'Get in touch with Halyk Petroleum - parts sales, AOG support, sourcing and general enquiries.';
 
         // Support "Ask a question" deep links: ?subject=Question about … prefills
         // the contact form subject (used by the Ask buttons on part cards).
@@ -73,7 +73,7 @@ class Contact extends MY_Controller
         // every message after the first).
         $this->mailer->send(
             $this->config->item('contact_email'),
-            '[JetPacks] New contact: ' . $subject,
+            '[Halyk] New contact: ' . $subject,
             '<p><strong>' . vp_safe_html($name) . '</strong> sent a new contact message:</p><p>' . nl2br(vp_safe_html($this->input->post('message'))) . '</p>',
             'contact_received',
             'contact_received:' . $id,

@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - base model.
+ * Halyk Petroleum - base model.
  * Provides:
  *  - find / find_one / save / update / delete
  *  - paginate helper

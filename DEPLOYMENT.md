@@ -1,4 +1,4 @@
-# JetPacks Market — Portable cPanel Deployment
+# Halyk Petroleum — Portable cPanel Deployment
 
 ## The normal deployment process
 
@@ -142,7 +142,7 @@ Fresh `production.sql` credentials:
 
 | Field | Value |
 |---|---|
-| Email | `admin@jetpacksmarket.com` |
+| Email | `admin@halykpetroleum-kz.com` |
 | Password | `Nigeria1234@` |
 | Role | `SUPER_ADMIN` |
 

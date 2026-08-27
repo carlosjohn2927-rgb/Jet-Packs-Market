@@ -12,7 +12,7 @@ class Industries extends MY_Controller
     public function index()
     {
         $this->page_title = 'Industries we serve';
-        $this->page_description = 'JetPacks Market supplies aircraft parts for Gulfstream, Dassault Falcon, Cessna Citation, Bombardier Challenger, Hawker, Learjet, Boeing, Airbus, Embraer and Pilatus.';
+        $this->page_description = 'Halyk Petroleum supplies aircraft parts and components to airlines, business aviation, MRO facilities, cargo operators, military and government, helicopter operators and AOG desks worldwide.';
         $this->render('industries/index', [
             'industries' => $this->Industry_model->find_all(['isActive' => 1], ['sortOrder' => 'ASC'], 50),
         ]);

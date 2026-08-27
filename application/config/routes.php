@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - routes.
+ * Halyk Petroleum - routes.
  * See docs/API_MAP.md for the mapping to old NestJS endpoints.
  */
 $route['default_controller'] = 'home';
@@ -61,8 +61,11 @@ $route['reset/(:any)']         = 'auth/reset/$1';
 
 /* ---------- Customer account ---------- */
 $route['account']                          = 'account';
-$route['account/quotes']                   = 'account/quotes';
-$route['account/quotes/(:any)']            = 'account/quotes_view/$1';
+$route['account/quotes']                          = 'account/quotes';
+$route['account/quotes/(:any)/approve']           = 'account/quotes_approve/$1';
+$route['account/quotes/(:any)/reject']            = 'account/quotes_reject/$1';
+$route['account/quotes/(:any)/download-pdf']      = 'account/quotes_pdf/$1';
+$route['account/quotes/(:any)']                   = 'account/quotes_view/$1';
 $route['account/invoices']                 = 'account/invoices';
 $route['account/invoices/(:any)/download'] = 'account/invoice_download/$1';
 $route['account/dispatches']               = 'account/dispatches';
@@ -96,6 +99,11 @@ $route['admin/quotes/(:any)/status']      = 'admin/quotes/status/$1';
 $route['admin/quotes/(:any)/assign']      = 'admin/quotes/assign/$1';
 $route['admin/quotes/(:any)/note']        = 'admin/quotes/note/$1';
 $route['admin/quotes/(:any)/pdf']         = 'admin/quotes/pdf/$1';
+$route['admin/quotes/(:any)/send']        = 'admin/quotes/send/$1';
+$route['admin/quotes/(:any)/pricing']     = 'admin/quotes/pricing/$1';
+$route['admin/quotes/(:any)/items/add']      = 'admin/quotes/add_item/$1';
+$route['admin/quotes/(:any)/items/(:any)/update'] = 'admin/quotes/update_item/$1/$2';
+$route['admin/quotes/(:any)/items/(:any)/delete'] = 'admin/quotes/delete_item/$1/$2';
 $route['admin/quotes/(:any)/delete']      = 'admin/quotes/delete/$1';
 $route['admin/quotes/(:any)/attachments/(:any)/delete'] = 'admin/quotes/attachment_delete/$1/$2';
 $route['admin/quotes/(:any)/payments/request'] = 'admin/quotes/payment_request/$1';

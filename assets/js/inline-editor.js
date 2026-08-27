@@ -1,4 +1,4 @@
-// Vortex Precision — front-end inline page editor.
+// Halyk Petroleum — front-end inline page editor.
 // Runs only when the inline-editor markup (config block + panels) is present,
 // i.e. an Admin/Super Admin has turned live editing on for the current page.
 (function () {

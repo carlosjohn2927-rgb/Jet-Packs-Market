@@ -4,7 +4,7 @@
     'hero_alt'           => 'Aircraft parts warehouse with shelves of certified parts',
     'hero_eyebrow'       => 'Parts & support services',
     'hero_title_html'    => vp_inline_text('services_hero_title', 'Services', 'h1', 'text-4xl lg:text-5xl font-extrabold mt-3'),
-    'hero_subtitle_html' => vp_inline_text('services_hero_subtitle', 'From a single part to a full fleet program, ' . ($site_name ?? 'JetPacks Market') . ' keeps your aircraft flying.', 'p', 'mt-3 text-lg'),
+    'hero_subtitle_html' => vp_inline_text('services_hero_subtitle', 'From a single part to a full fleet program, ' . ($site_name ?? 'Halyk Petroleum') . ' keeps your aircraft flying.', 'p', 'mt-3 text-lg'),
     'hero_min'           => '400px',
 ]); ?>
 <section class="container mx-auto px-4 py-12">

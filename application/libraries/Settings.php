@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - Settings (key-value store) with in-request cache.
+ * Halyk Petroleum - Settings (key-value store) with in-request cache.
  */
 class Settings
 {

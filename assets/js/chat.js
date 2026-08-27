@@ -1,4 +1,4 @@
-// Vortex Precision — AI chat widget (public site).
+// Halyk Petroleum — AI chat widget (public site).
 // External file only: the production CSP blocks inline scripts.
 (function () {
     'use strict';

@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — dashboard home.
+ * Halyk Petroleum — dashboard home.
  *
  * Shows only the panels the signed-in account is allowed to see, plus quick
  * links into the sections it may actually use. The Super Admin additionally

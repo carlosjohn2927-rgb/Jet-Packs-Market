@@ -46,6 +46,8 @@
                 <h2 class="font-bold text-lg mb-4">Parts required</h2>
                 <p class="text-sm text-ink-800 mb-3">Add one row per part — part number, quantity and any notes (condition preferred, certificate required).</p>
                 <div id="vp-items" class="space-y-3">
+                    <?php /* JS-added rows use the grid below; the static rows
+                             * keep the same fields for no-JS fallback. */ ?>
                     <?php
                     $initial_items = [];
                     if (!empty($prefill_items)) {
@@ -71,14 +73,26 @@
                     ?>
                     <?php foreach ($initial_items as $ii): ?>
                     <div class="vp-item-row grid grid-cols-12 gap-2">
-                        <input class="vp-input col-span-6" name="item_name[]" placeholder="Part name / part number" value="<?= vp_safe_html($ii['name']) ?>" required>
-                        <input class="vp-input col-span-2" name="item_qty[]"  type="number" min="1" value="<?= (int) ($ii['qty'] ?? 1) ?>" required>
-                        <input class="vp-input col-span-4" name="item_spec[]" placeholder="Condition / certs (NEW, OHC, 8130-3…)" value="<?= vp_safe_html($ii['spec'] ?? '') ?>">
+                        <input class="vp-input col-span-6" name="item_name[]" placeholder="Part number and/or part name (e.g. 2612201-2 MLG wheel)" value="<?= vp_safe_html($ii['name']) ?>" required>
+                        <input class="vp-input col-span-2" name="item_qty[]"  type="number" min="1" value="<?= (int) ($ii['qty'] ?? 1) ?>" required title="Quantity">
+                        <input class="vp-input col-span-4" name="item_spec[]" placeholder="Condition / certs (NEW, OHC, SV, 8130-3…)" value="<?= vp_safe_html($ii['spec'] ?? '') ?>">
                         <?php if (!empty($ii['productId'])): ?><input type="hidden" name="item_productId[]" value="<?= vp_safe_html($ii['productId']) ?>"><?php endif; ?>
                     </div>
                     <?php endforeach; ?>
                 </div>
                 <button type="button" id="vp-item-add" class="vp-btn vp-btn-secondary mt-3 vp-btn-sm">+ Add line item</button>
+            </div>
+
+            <div class="vp-card vp-card-pad">
+                <h2 class="font-bold text-lg mb-4">Quotation preferences</h2>
+                <div class="vp-form-row">
+                    <label>Preferred currency</label>
+                    <select class="vp-select" name="currency">
+                        <?php foreach (['USD' => 'US Dollar (USD)', 'EUR' => 'Euro (EUR)', 'GBP' => 'Pound Sterling (GBP)', 'KZT' => 'Kazakhstani Tenge (KZT)', 'AED' => 'UAE Dirham (AED)'] as $code => $label): ?>
+                            <option value="<?= $code ?>"><?= vp_safe_html($label) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
 
             <div class="vp-card vp-card-pad">

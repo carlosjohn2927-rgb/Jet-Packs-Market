@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — customer account area.
+ * Halyk Petroleum — customer account area.
  *
  * Signed-in CUSTOMER accounts land here to manage their parts-order history:
  *   • re-order past quotes (clones the line items into a fresh RFQ)
@@ -41,7 +41,7 @@ class Account extends MY_Controller
         $uid = $this->jet_auth->id();
         $this->data['account_section'] = 'dashboard';
         $this->page_title = 'My account';
-        $this->page_description = 'Your orders, invoices and AOG dispatches at ' . ($this->config->item('site_name') ?: 'JetPacks Market') . '.';
+        $this->page_description = 'Your orders, invoices and AOG dispatches at ' . ($this->config->item('site_name') ?: 'Halyk Petroleum') . '.';
 
         $quotesTotal = (int) $this->db->where('userId', $uid)->count_all_results('quotes');
         $invoices     = $this->Invoice_model->list_for_user($uid);
@@ -85,13 +85,91 @@ class Account extends MY_Controller
         $items   = $this->Quote_model->get_items($id);
         $paid    = $this->db->get_where('payments', ['quoteId' => $id, 'status' => PAYMENT_PAID])->row_array();
         $invoice = $paid ? $this->Invoice_model->find_or_create_for_payment($paid) : null;
+        $pdfUrl  = !empty($quote['pdfUrl']) ? $quote['pdfUrl'] : null;
 
         $this->render('account/quote_view', [
             'quote'   => $quote,
             'items'   => $items,
             'invoice' => $invoice,
+            'pdf_url' => $pdfUrl,
             'status'  => vp_quote_status_label($quote['status']),
         ]);
+    }
+
+    /** Customer approves a quoted RFQ (QUOTED -> APPROVED). */
+    public function quotes_approve($id = null)
+    {
+        $this->_customer_transition($id, QUOTE_APPROVED, 'Customer approved the quotation online.');
+    }
+
+    /** Customer declines a quoted RFQ (QUOTED -> REJECTED). */
+    public function quotes_reject($id = null)
+    {
+        $note = trim((string) $this->input->post('note'));
+        $this->_customer_transition($id, QUOTE_REJECTED, 'Customer declined the quotation online.' . ($note !== '' ? ' Note: ' . $note : ''));
+    }
+
+    /**
+     * Apply a customer-driven status transition for a quote they own.
+     * Uses the same optimistic-locked, forward-only state machine as the
+     * admin side, so customers cannot reach states that are not allowed.
+     */
+    private function _customer_transition($id, $toStatus, $note)
+    {
+        if (!$id || $this->input->method() !== 'post') show_404();
+        $uid = $this->jet_auth->id();
+        $quote = $this->Quote_model->find($id);
+        if (!$quote || $quote['userId'] !== $uid) show_404();
+
+        $res = $this->Quote_model->transition_status(
+            $id, $toStatus, $uid, $quote['assignedTo'], $note,
+            (int) $this->input->post('version')
+        );
+
+        if (!$res['ok']) {
+            $this->flash('error', $res['error'] ?? 'This quotation cannot be updated in its current state.');
+            return redirect('account/quotes/' . $id);
+        }
+
+        // Notify staff.
+        $this->load->library('mailer');
+        $this->load->model('User_model');
+        if (method_exists($this, 'notify')) {
+            $this->notify(
+                'rfq_customer_' . strtolower($toStatus),
+                'Quote ' . $res['quote']['quoteNumber'] . ' ' . strtolower($toStatus) . ' by customer',
+                $res['quote']['companyName'] . ' has ' . strtolower($toStatus) . ' quotation ' . $res['quote']['quoteNumber'] . '.',
+                ['quoteId' => $id, 'quoteNumber' => $res['quote']['quoteNumber']],
+                !empty($res['quote']['assignedTo']) ? $res['quote']['assignedTo'] : null
+            );
+        }
+        $this->flash('success', $toStatus === QUOTE_APPROVED
+            ? 'Quotation ' . $res['quote']['quoteNumber'] . ' approved — our sales desk will confirm the order shortly.'
+            : 'Quotation ' . $res['quote']['quoteNumber'] . ' declined. We will follow up shortly.');
+        redirect('account/quotes/' . $id);
+    }
+
+    /** Download the generated PDF quotation for a quote the customer owns. */
+    public function quotes_pdf($id = null)
+    {
+        if (!$id) show_404();
+        $uid = $this->jet_auth->id();
+        $quote = $this->Quote_model->find($id);
+        if (!$quote || $quote['userId'] !== $uid) show_404();
+        if (empty($quote['pdfUrl'])) {
+            $this->flash('error', 'The PDF quotation has not been generated yet. Our sales team will issue it shortly.');
+            return redirect('account/quotes/' . $id);
+        }
+        $path = FCPATH . ltrim($quote['pdfUrl'], '/');
+        if (!is_file($path)) {
+            $this->flash('error', 'The PDF file is not available.');
+            return redirect('account/quotes/' . $id);
+        }
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/pdf')
+            ->set_header('Content-Disposition: inline; filename="' . $quote['quoteNumber'] . '.pdf"')
+            ->set_output(file_get_contents($path));
     }
 
     /** Prior invoices, with download links. */

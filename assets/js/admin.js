@@ -1,4 +1,4 @@
-// Vortex Precision - admin JS
+// Halyk Petroleum - admin JS
 (function () {
     'use strict';
     document.addEventListener('DOMContentLoaded', function () {

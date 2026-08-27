@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — the signed-in administrator's own profile.
+ * Halyk Petroleum — the signed-in administrator's own profile.
  *
  * Available to every staff account (no extra permission needed) and is also
  * the page a temporary password must be changed on.

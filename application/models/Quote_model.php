@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - Quote (RFQ) model with hardened state machine.
+ * Halyk Petroleum - Quote (RFQ) model with hardened state machine.
  *
  * Ported from the NestJS implementation:
  *   - Forward-only transitions per QUOTE_TRANSITIONS
@@ -16,10 +16,17 @@ class Quote_model extends MY_Model
     protected $table = 'quotes';
     protected $fillable = [
         'quoteNumber','userId','companyName','contactPerson','email','phone','country',
-        'address','industry','status','deadline','totalAmount','notes','internalNotes',
-        'pdfUrl','assignedTo','statusUpdatedAt','lastNotifiedAt','version',
+        'address','industry','status','deadline','validUntil','totalAmount','currency',
+        'notes','internalNotes','pdfUrl','assignedTo','statusUpdatedAt','lastNotifiedAt','version',
     ];
     protected $order_by = ['createdAt' => 'DESC'];
+
+    /** Item fields an administrator may persist. */
+    public $item_fillable = [
+        'productId','productName','partNumber','description','manufacturer',
+        'condition','quantity','specifications','leadTime','availability','notes',
+        'unitPrice','total','currency',
+    ];
 
     /**
      * Insert a new quote and items in a transaction.
@@ -34,8 +41,11 @@ class Quote_model extends MY_Model
         $quoteData['statusUpdatedAt'] = date('Y-m-d H:i:s');
         $id = $this->insert($quoteData);
         foreach ($items as $it) {
-            $it['quoteId'] = $id;
-            $this->db->insert('quote_items', $it + ['id' => MY_Model::uuid()]);
+            $row = array_intersect_key($it, array_flip(array_merge($this->item_fillable, ['quoteId'])));
+            $row['quoteId'] = $id;
+            $row['id'] = $it['id'] ?? MY_Model::uuid();
+            $row['currency'] = $row['currency'] ?? ($quoteData['currency'] ?? 'USD');
+            $this->db->insert('quote_items', $row);
         }
         // history
         $this->db->insert('quote_status_history', [
@@ -163,6 +173,48 @@ class Quote_model extends MY_Model
         return $this->paginate($where, $perPage, $page, $orderBy, $search, $searchFields);
     }
 
+    /**
+     * Paginate quotes with explicit WHERE conditions plus an optional callback
+     * that applies extra query-builder constraints (used for the cross-table
+     * RFQ search that spans quotes + quote_items).
+     */
+    public function list_rfqs(array $where = [], $perPage = 25, $page = 1, callable $scope = null, $orderBy = ['createdAt' => 'DESC'])
+    {
+        $page = max(1, (int) $page);
+
+        $build = function () use ($where, $scope) {
+            if (!empty($where)) $this->db->where($where);
+            if ($scope) $scope();
+        };
+
+        $build();
+        $total = $this->db->count_all_results($this->table);
+
+        $build();
+        foreach ($orderBy ?: $this->order_by as $col => $dir) {
+            $this->db->order_by($this->db->protect_identifiers($col), $dir);
+        }
+        $this->db->limit($perPage, ($page - 1) * $perPage);
+        $rows = $this->db->get($this->table)->result_array();
+
+        // Attach item counts + part numbers for the list view.
+        foreach ($rows as &$r) {
+            $items = $this->db->select('partNumber, productName, quantity')
+                ->get_where('quote_items', ['quoteId' => $r['id']])->result_array();
+            $r['item_count'] = count($items);
+            $r['part_numbers'] = implode(', ', array_filter(array_column($items, 'partNumber')));
+        }
+        unset($r);
+
+        return [
+            'rows'        => $rows,
+            'total'       => (int) $total,
+            'per_page'    => $perPage,
+            'page'        => $page,
+            'total_pages' => $perPage > 0 ? (int) ceil($total / $perPage) : 1,
+        ];
+    }
+
     public function get_items($quoteId)
     {
         return $this->db->get_where('quote_items', ['quoteId' => $quoteId])->result_array();
@@ -187,6 +239,102 @@ class Quote_model extends MY_Model
     {
         $this->db->where('id', $quoteId)->update('quotes', ['pdfUrl' => $url]);
         $this->_log_activity($quoteId, $actorId, QA_PDF, "PDF generated: {$url}", null);
+    }
+
+    /** Recompute totalAmount from line items (unit price * qty). */
+    public function recalc_total($quoteId)
+    {
+        $total = 0.0;
+        foreach ($this->get_items($quoteId) as $it) {
+            if ($it['total'] !== null && $it['total'] !== '') {
+                $total += (float) $it['total'];
+            } elseif ($it['unitPrice'] !== null && $it['unitPrice'] !== '') {
+                $total += (float) $it['unitPrice'] * (int) $it['quantity'];
+            }
+        }
+        $this->db->where('id', $quoteId)->update('quotes', ['totalAmount' => round($total, 2)]);
+        return round($total, 2);
+    }
+
+    /** Add a requested part / line item (admin pricing). */
+    public function add_item($quoteId, array $data, $actorId)
+    {
+        $row = array_intersect_key($data, array_flip($this->item_fillable));
+        if (empty($row['productName'])) {
+            return ['ok' => false, 'error' => 'Part name is required.'];
+        }
+        $row += [
+            'id'       => MY_Model::uuid(),
+            'quoteId'  => $quoteId,
+            'quantity' => max(1, (int) ($row['quantity'] ?? 1)),
+        ];
+        $q = $this->find($quoteId);
+        $row['currency'] = $row['currency'] ?? ($q['currency'] ?? 'USD');
+        $row['total'] = isset($row['unitPrice']) && $row['unitPrice'] !== ''
+            ? round((float) $row['unitPrice'] * (int) $row['quantity'], 2)
+            : ($row['total'] ?? null);
+        $this->db->insert('quote_items', $row);
+        $this->recalc_total($quoteId);
+        $this->bump_version($quoteId);
+        $this->_log_activity($quoteId, $actorId, QA_UPDATED,
+            'Line item added: ' . $row['productName'] . ($row['partNumber'] ? ' (' . $row['partNumber'] . ')' : ''), null);
+        return ['ok' => true, 'id' => $row['id']];
+    }
+
+    /** Update pricing/details of a line item. */
+    public function update_item($quoteId, $itemId, array $data, $actorId)
+    {
+        $item = $this->db->get_where('quote_items', ['id' => $itemId, 'quoteId' => $quoteId])->row_array();
+        if (!$item) return ['ok' => false, 'error' => 'Line item not found.'];
+        $row = array_intersect_key($data, array_flip($this->item_fillable));
+        if (isset($row['quantity'])) $row['quantity'] = max(1, (int) $row['quantity']);
+        if (array_key_exists('unitPrice', $row) && $row['unitPrice'] !== '' && $row['unitPrice'] !== null) {
+            $row['total'] = round((float) $row['unitPrice'] * (int) ($row['quantity'] ?? $item['quantity']), 2);
+        }
+        $this->db->where('id', $itemId)->update('quote_items', $row);
+        $this->recalc_total($quoteId);
+        $this->bump_version($quoteId);
+        $this->_log_activity($quoteId, $actorId, QA_UPDATED, 'Line item updated: ' . ($item['partNumber'] ?: $item['productName']), null);
+        return ['ok' => true];
+    }
+
+    public function delete_item($quoteId, $itemId, $actorId)
+    {
+        $item = $this->db->get_where('quote_items', ['id' => $itemId, 'quoteId' => $quoteId])->row_array();
+        if (!$item) return ['ok' => false, 'error' => 'Line item not found.'];
+        $this->db->delete('quote_items', ['id' => $itemId]);
+        $this->recalc_total($quoteId);
+        $this->bump_version($quoteId);
+        $this->_log_activity($quoteId, $actorId, QA_UPDATED, 'Line item removed: ' . ($item['partNumber'] ?: $item['productName']), null);
+        return ['ok' => true];
+    }
+
+    /** Update quote header details (validity, currency, deadline, totals). */
+    public function update_details($quoteId, array $data, $actorId)
+    {
+        $allowed = array_intersect_key($data, array_flip(['deadline','validUntil','currency','totalAmount','internalNotes','industry']));
+        if (!empty($allowed)) {
+            foreach (['deadline','validUntil'] as $d) {
+                if (array_key_exists($d, $allowed) && $allowed[$d] === '') $allowed[$d] = null;
+            }
+            $this->db->where('id', $quoteId)->update('quotes', $allowed);
+            $this->bump_version($quoteId);
+            $this->_log_activity($quoteId, $actorId, QA_UPDATED, 'Quote details updated: ' . implode(', ', array_keys($allowed)), null);
+        }
+        return ['ok' => true];
+    }
+
+    /** Record that the quotation was emailed to the customer. */
+    public function log_email_sent($quoteId, $actorId, $to, $status)
+    {
+        $this->db->where('id', $quoteId)->update('quotes', ['lastNotifiedAt' => date('Y-m-d H:i:s')]);
+        $this->_log_activity($quoteId, $actorId, QA_EMAIL_SENT,
+            'Quotation emailed to ' . $to . ' (' . $status . ')', ['to' => $to, 'status' => $status]);
+    }
+
+    private function bump_version($quoteId)
+    {
+        $this->db->set('version', 'version+1', false)->where('id', $quoteId)->update('quotes');
     }
 
     private function _log_activity($quoteId, $actorId, $action, $description, $metadata)

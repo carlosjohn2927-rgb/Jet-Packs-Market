@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market - admin Quotes controller.
+ * Halyk Petroleum - admin Quotes controller.
  *
  * - List with filters + search + CSV export
  * - View single quote (items + history + activity)
@@ -13,8 +13,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Quotes extends Admin_Controller
 {
-    /** Permission enforced server-side for every action (see Admin_Controller). */
-    protected $required_permission = 'quotes.manage';
+    /** Baseline permission for the controller. Method overrides below grant
+     *  least-privilege access to the individual RFQ actions. */
+    protected $required_permission = 'quotes.view';
+
+    /** Per-action permission map (enforced server-side by Admin_Controller). */
+    protected $method_permissions = [
+        'index'             => 'quotes.view',
+        'view'              => 'quotes.view',
+        'status'            => 'quotes.update_status',
+        'assign'            => 'quotes.assign',
+        'note'              => 'quotes.manage',
+        'pdf'               => 'quotes.generate_pdf',
+        'send'              => 'quotes.generate_pdf',
+        'export_csv'        => 'quotes.export',
+        'delete'            => 'quotes.manage',
+        'attachment_delete' => 'quotes.manage_attachments',
+        'payment_request'   => 'quotes.manage',
+        'payment_cancel'    => 'quotes.manage',
+        'note'              => 'quotes.manage',
+        'delete'            => 'quotes.manage',
+        'add_item'          => 'quotes.manage',
+        'update_item'       => 'quotes.manage',
+        'delete_item'       => 'quotes.manage',
+        'pricing'           => 'quotes.manage',
+    ];
 
 
     public function __construct()
@@ -27,11 +50,11 @@ class Quotes extends Admin_Controller
 
     public function index()
     {
-        $this->page_title = 'Quotes';
+        $this->page_title = 'Quotes / RFQs';
 
         $status = $this->input->get('status');
         $assignee = $this->input->get('assignedTo');
-        $search = $this->input->get('q');
+        $search = trim((string) $this->input->get('q'));
         $page = max(1, (int) $this->input->get('page'));
         $per = 25;
 
@@ -39,12 +62,52 @@ class Quotes extends Admin_Controller
         if ($status)    $where['status'] = $status;
         if ($assignee)  $where['assignedTo'] = $assignee;
 
-        $result = $this->Quote_model->list_with_filters(
-            $where, $per, $page, $search,
-            ['quoteNumber','companyName','contactPerson','email','phone','notes'],
+        // Full-text search across quote headers AND line items:
+        // RFQ number, company, contact, email, phone, notes + part number /
+        // part name / specification on requested parts.
+        if ($search !== '') {
+            $headerIds = $this->db->distinct()->select('id')
+                ->group_start()
+                    ->like('quoteNumber', $search)
+                    ->or_like('companyName', $search)
+                    ->or_like('contactPerson', $search)
+                    ->or_like('email', $search)
+                    ->or_like('phone', $search)
+                    ->or_like('notes', $search)
+                    ->or_like('internalNotes', $search)
+                ->group_end()
+                ->get('quotes')->result_array();
+            $itemIds = $this->db->distinct()->select('quoteId')
+                ->group_start()
+                    ->like('productName', $search)
+                    ->or_like('partNumber', $search)
+                    ->or_like('specifications', $search)
+                ->group_end()
+                ->get('quote_items')->result_array();
+            $idList = array_values(array_unique(array_merge(
+                array_column($headerIds, 'id'),
+                array_column($itemIds, 'quoteId')
+            )));
+            // Restrict the list (and its count) to the matched ids. The
+            // where_in is applied by the model through the shared query
+            // builder; an impossible sentinel id yields an empty result.
+            if (empty($idList)) $idList = ['__no_match__'];
+        }
+
+        // Search filter is injected via a closure: Quote_model::list_rfqs()
+        // builds its own query builder twice (count + list), so the where_in
+        // must be (re)applied for each.
+        $idList = isset($idList) ? $idList : [];
+        $applySearch = $search !== '' ? function () use ($idList) {
+            $this->db->where_in('id', $idList);
+        } : null;
+
+        $result = $this->Quote_model->list_rfqs(
+            $where, $per, $page, $applySearch,
             ['createdAt' => 'DESC']
         );
 
+        $queryString = http_build_query(array_filter(['status' => $status, 'assignedTo' => $assignee, 'q' => $search]));
         $this->render('admin/quotes/index', [
             'rows' => $result['rows'],
             'total' => $result['total'],
@@ -54,7 +117,8 @@ class Quotes extends Admin_Controller
             'status' => $status,
             'assignee' => $assignee,
             'staff' => $this->User_model->staff(),
-            'base_url' => base_url('admin/quotes') . '?' . http_build_query(array_filter(['status' => $status, 'assignedTo' => $assignee, 'q' => $search])) . '&page={page}',
+            'base_url' => base_url('admin/quotes') . '?' . ($queryString ? $queryString . '&' : '') . 'page={page}',
+            'export_url' => base_url('admin/quotes/export/csv') . ($queryString ? '?' . $queryString : ''),
         ]);
     }
 
@@ -329,62 +393,108 @@ class Quotes extends Admin_Controller
     public function pdf($id = null)
     {
         if (!$id) show_404();
+        $this->require_permission('quotes.generate_pdf');
         $q = $this->Quote_model->find($id);
         if (!$q) show_404();
         $items = $this->Quote_model->get_items($id);
         $customer = $q['userId'] ? $this->User_model->find($q['userId']) : null;
 
-        $site = $this->config->item('site_name');
+        $site = vp_site('name', 'Halyk Petroleum');
+        $tagline = vp_site('tagline', 'Aircraft Parts & Components Supply');
         $contact = [
-            'email'   => $this->config->item('contact_email'),
-            'phone'   => $this->config->item('phone'),
-            'address' => $this->config->item('address'),
+            'email'   => vp_site('email', $this->config->item('contact_email')),
+            'phone'   => vp_site('phone', $this->config->item('phone')),
+            'address' => vp_site('address', $this->config->item('address')),
         ];
+        $currency = $q['currency'] ?? 'USD';
 
         $this->load->library('pdf');
 
-        // Build columns and rows for the PDF
+        // Columns: requested part, qty, condition/spec, unit price, line total.
         $columns = [
-            ['label' => 'Item',           'width' => 5, 'align' => 'L'],
-            ['label' => 'Qty',            'width' => 1, 'align' => 'C'],
-            ['label' => 'Specifications', 'width' => 6, 'align' => 'L'],
+            ['label' => 'Requested Part',                 'width' => 4.6, 'align' => 'L'],
+            ['label' => 'Qty',                             'width' => 0.8, 'align' => 'C'],
+            ['label' => 'Condition / Specification',       'width' => 2.8, 'align' => 'L'],
+            ['label' => 'Unit Price',                      'width' => 1.4, 'align' => 'R'],
+            ['label' => 'Amount',                          'width' => 1.4, 'align' => 'R'],
         ];
         $rows = [];
+        $computedTotal = 0.0;
         foreach ($items as $it) {
+            $qty = (int) ($it['quantity'] ?? 1);
+            $unit = $it['unitPrice'] !== null && $it['unitPrice'] !== '' ? (float) $it['unitPrice'] : null;
+            $line = $it['total'] !== null && $it['total'] !== '' ? (float) $it['total'] : ($unit !== null ? $unit * $qty : null);
+            if ($line !== null) $computedTotal += $line;
+
+            $desc = $it['productName'] ?? 'Part';
+            $pn = $it['partNumber'] ?? null;
+            if ($pn) $desc = $pn . ' — ' . $desc;
+
+            $spec = trim(($it['condition'] ?? '') . ' ' . ($it['specifications'] ?? ''));
+            if ($spec === '') $spec = $it['manufacturer'] ?? '';
+
             $rows[] = [
-                $it['productName'],
-                (string) (int) $it['quantity'],
-                $it['specifications'] ?? '',
+                $desc,
+                (string) $qty,
+                $spec,
+                $unit !== null ? vp_money($unit, $currency) : 'On quote',
+                $line !== null ? vp_money($line, $currency) : '—',
             ];
         }
 
+        $total = ($q['totalAmount'] !== null && $q['totalAmount'] !== '' && (float) $q['totalAmount'] > 0)
+            ? (float) $q['totalAmount'] : $computedTotal;
+
         $st = vp_quote_status_label($q['status']);
-        $metaL = [
-            $site,
-            'Industrial manufacturing',
-        ];
         $metaR = [
             'QUOTATION  ' . $q['quoteNumber'],
             'Date: ' . date('Y-m-d', strtotime($q['createdAt'])),
             'Status: ' . $st['label'],
         ];
+        if (!empty($q['deadline'])) {
+            $metaR[] = 'Valid until: ' . date('Y-m-d', strtotime($q['deadline']));
+        }
+        $metaL = [
+            $site . ' — ' . $tagline,
+            $contact['address'],
+            $contact['phone'] . '  ·  ' . $contact['email'],
+        ];
 
-        $bill = 'Bill to:  ' . $q['companyName']
-              . '  /  ' . $q['contactPerson']
-              . '  /  ' . $q['email']
-              . ($q['phone'] ? '  /  ' . $q['phone'] : '')
-              . '  /  ' . $q['country']
-              . ($q['address'] ? "\n         " . str_replace("\n", "\n         ", $q['address']) : '');
+        $billLines = array_filter([
+            $q['companyName'],
+            $q['contactPerson'],
+            $q['email'],
+            $q['phone'],
+            $q['country'],
+            $q['address'],
+        ]);
+
+        $notesBlocks = [];
+        if (!empty($q['notes'])) {
+            $notesBlocks[] = ['heading' => 'Customer notes', 'text' => $q['notes']];
+        }
+        $notesBlocks[] = ['heading' => 'Terms & notes', 'text' =>
+            "Prices are in {$currency}, EXW Halyk Petroleum unless otherwise stated, and valid until the date shown. "
+            . "Parts ship with FAA Form 8130-3 and/or EASA Form 1 release documentation and full traceability where applicable. "
+            . "Lead times are confirmed on order placement; AOG requests are prioritised 24/7. "
+            . "This quotation is for the aircraft parts and components listed above — Halyk Petroleum supplies parts, not complete aircraft."];
 
         $doc = [
-            'title'      => 'Quotation',
-            'subtitle'   => $site,
-            'meta_left'  => $metaL,
-            'meta_right' => $metaR,
-            'columns'    => $columns,
-            'rows'       => $rows,
-            'notes'      => !empty($q['notes']) ? "Customer notes:\n" . $q['notes'] : '',
-            'footer'     => $site . '  ·  ' . $contact['address'] . '  ·  ' . $contact['phone'] . '  ·  ' . $contact['email'],
+            'company'      => $site,
+            'tagline'      => $tagline,
+            'company_info' => [$contact['address'], $contact['phone'], $contact['email']],
+            'title'        => 'Quotation / RFQ',
+            'meta_left'    => $metaL,
+            'meta_right'   => $metaR,
+            'bill_to'      => implode("\n", $billLines),
+            'columns'      => $columns,
+            'rows'         => $rows,
+            'totals'       => [
+                ['label' => 'Subtotal',          'value' => vp_money($total, $currency), 'bold' => false],
+                ['label' => 'Total (' . $currency . ')', 'value' => vp_money($total, $currency), 'bold' => true],
+            ],
+            'notes_blocks' => $notesBlocks,
+            'footer'       => $site . '  ·  ' . $contact['address'] . '  ·  ' . $contact['phone'] . '  ·  ' . $contact['email'],
         ];
 
         $binary = $this->pdf->build($doc);
@@ -417,11 +527,41 @@ class Quotes extends Admin_Controller
 
     public function export_csv()
     {
-        $rows = $this->Quote_model->find_all([], ['createdAt' => 'DESC'], 5000);
-        $filename = 'vortex-quotes-' . date('Y-m-d') . '.csv';
+        // Honor the current list filters (status, assignee, search) so admins
+        // export exactly what they see.
+        $where = [];
+        if ($this->input->get('status'))   $where['status'] = $this->input->get('status');
+        if ($this->input->get('assignedTo')) $where['assignedTo'] = $this->input->get('assignedTo');
+        $search = trim((string) $this->input->get('q'));
+
+        $scope = null;
+        if ($search !== '') {
+            $headerIds = $this->db->distinct()->select('id')
+                ->group_start()
+                    ->like('quoteNumber', $search)->or_like('companyName', $search)
+                    ->or_like('contactPerson', $search)->or_like('email', $search)
+                    ->or_like('phone', $search)->or_like('notes', $search)
+                    ->or_like('internalNotes', $search)
+                ->group_end()->get('quotes')->result_array();
+            $itemIds = $this->db->distinct()->select('quoteId')
+                ->group_start()
+                    ->like('productName', $search)->or_like('partNumber', $search)->or_like('specifications', $search)
+                ->group_end()->get('quote_items')->result_array();
+            $idList = array_values(array_unique(array_merge(
+                array_column($headerIds, 'id'), array_column($itemIds, 'quoteId'))));
+            if (empty($idList)) $idList = ['__no_match__'];
+            $scope = function () use ($idList) { $this->db->where_in('id', $idList); };
+        }
+
+        $result = $this->Quote_model->list_rfqs($where, 10000, 1, $scope, ['createdAt' => 'DESC']);
+        $rows = $result['rows'];
+
+        $filename = 'halyk-rfqs-' . date('Y-m-d') . '.csv';
         $this->load->helper('download');
         $fh = fopen('php://temp', 'r+');
-        fputcsv($fh, ['Quote #', 'Company', 'Contact', 'Email', 'Phone', 'Country', 'Industry', 'Status', 'Assigned To', 'Total', 'Created', 'Updated']);
+        fputcsv($fh, ['Quote #', 'Company', 'Contact', 'Email', 'Phone', 'Country',
+                      'Industry', 'Status', 'Line Items', 'Part Numbers', 'Total', 'Currency',
+                      'Assigned To', 'Valid Until', 'Created', 'Updated']);
         $assignees = [];
         foreach ($rows as $r) {
             $assigned = $r['assignedTo'];
@@ -431,14 +571,254 @@ class Quotes extends Admin_Controller
             }
             fputcsv($fh, [
                 $r['quoteNumber'], $r['companyName'], $r['contactPerson'], $r['email'], $r['phone'],
-                $r['country'], $r['industry'], $r['status'], $assigned ? $assignees[$assigned] : '',
-                $r['totalAmount'], $r['createdAt'], $r['updatedAt'],
+                $r['country'], $r['industry'], $r['status'],
+                $r['item_count'] ?? '', $r['part_numbers'] ?? '',
+                $r['totalAmount'], $r['currency'] ?? 'USD',
+                $assigned ? $assignees[$assigned] : '',
+                $r['validUntil'] ?? '', $r['createdAt'], $r['updatedAt'],
             ]);
         }
         rewind($fh);
         $data = stream_get_contents($fh);
         fclose($fh);
-        $this->audit->log(AUDIT_EXPORT, 'quote', null, ['count' => count($rows)]);
+        $this->audit->log(AUDIT_EXPORT, 'quote', null, ['count' => count($rows), 'filters' => $where, 'q' => $search]);
         force_download($filename, $data, 'text/csv');
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Line items + pricing (admin)                                        */
+    /* ------------------------------------------------------------------ */
+
+    /** Add a requested part line to the RFQ. */
+    public function add_item($id = null)
+    {
+        if (!$id || $this->input->method() !== 'post') show_404();
+        $q = $this->Quote_model->find($id);
+        if (!$q) show_404();
+        $expectedVersion = (int) $this->input->post('version');
+        if ((int) $q['version'] !== $expectedVersion) {
+            $this->flash('error', 'This RFQ was modified by someone else. Please refresh and try again.');
+            return redirect('admin/quotes/' . $id);
+        }
+        $data = [
+            'productName'    => $this->input->post('productName'),
+            'partNumber'     => $this->input->post('partNumber'),
+            'description'    => $this->input->post('description'),
+            'manufacturer'   => $this->input->post('manufacturer'),
+            'condition'      => $this->input->post('condition'),
+            'quantity'       => (int) $this->input->post('quantity') ?: 1,
+            'specifications' => $this->input->post('specifications'),
+            'leadTime'       => $this->input->post('leadTime'),
+            'availability'   => $this->input->post('availability'),
+            'notes'          => $this->input->post('item_notes'),
+            'unitPrice'      => $this->input->post('unitPrice') !== '' ? (float) $this->input->post('unitPrice') : null,
+            'currency'       => $q['currency'] ?? 'USD',
+        ];
+        $res = $this->Quote_model->add_item($id, $data, $this->jet_auth->id());
+        $this->flash($res['ok'] ? 'success' : 'error', $res['ok'] ? 'Part added to the RFQ.' : $res['error']);
+        redirect('admin/quotes/' . $id);
+    }
+
+    /** Update pricing / details of one line item. */
+    public function update_item($id = null, $itemId = null)
+    {
+        if (!$id || !$itemId || $this->input->method() !== 'post') show_404();
+        if (!$this->Quote_model->find($id)) show_404();
+        $data = array_filter([
+            'productName'    => $this->input->post('productName'),
+            'partNumber'     => $this->input->post('partNumber'),
+            'manufacturer'   => $this->input->post('manufacturer'),
+            'condition'      => $this->input->post('condition'),
+            'quantity'       => $this->input->post('quantity') ? (int) $this->input->post('quantity') : null,
+            'specifications' => $this->input->post('specifications'),
+            'leadTime'       => $this->input->post('leadTime'),
+            'availability'   => $this->input->post('availability'),
+            'unitPrice'      => ($this->input->post('unitPrice') !== null && $this->input->post('unitPrice') !== '') ? (float) $this->input->post('unitPrice') : null,
+        ], function ($v) { return $v !== null; });
+        $res = $this->Quote_model->update_item($id, $itemId, $data, $this->jet_auth->id());
+        $this->flash($res['ok'] ? 'success' : 'error', $res['ok'] ? 'Line item updated.' : $res['error']);
+        redirect('admin/quotes/' . $id);
+    }
+
+    public function delete_item($id = null, $itemId = null)
+    {
+        if (!$id || !$itemId || $this->input->method() !== 'post') show_404();
+        if (!$this->Quote_model->find($id)) show_404();
+        $res = $this->Quote_model->delete_item($id, $itemId, $this->jet_auth->id());
+        $this->flash($res['ok'] ? 'success' : 'error', $res['ok'] ? 'Line item removed.' : $res['error']);
+        redirect('admin/quotes/' . $id);
+    }
+
+    /** Update quote header details: validity, currency, total. */
+    public function pricing($id = null)
+    {
+        if (!$id || $this->input->method() !== 'post') show_404();
+        $q = $this->Quote_model->find($id);
+        if (!$q) show_404();
+        $expectedVersion = (int) $this->input->post('version');
+        if ((int) $q['version'] !== $expectedVersion) {
+            $this->flash('error', 'This RFQ was modified by someone else. Please refresh and try again.');
+            return redirect('admin/quotes/' . $id);
+        }
+        $res = $this->Quote_model->update_details($id, [
+            'validUntil'  => $this->input->post('validUntil'),
+            'deadline'    => $this->input->post('deadline'),
+            'currency'    => strtoupper((string) $this->input->post('currency')) ?: 'USD',
+            'totalAmount' => $this->input->post('totalAmount') !== '' ? (float) $this->input->post('totalAmount') : null,
+            'internalNotes' => $this->input->post('internalNotes'),
+        ], $this->jet_auth->id());
+        $this->flash($res['ok'] ? 'success' : 'error', $res['ok'] ? 'Quote details updated.' : $res['error']);
+        redirect('admin/quotes/' . $id);
+    }
+
+    /**
+     * Send the quotation to the customer: generate the PDF, store it, log the
+     * activity and email the customer (PDF attached / linked). Also moves the
+     * RFQ to QUOTED when it is still NEW/REVIEWING.
+     */
+    public function send($id = null)
+    {
+        if (!$id) show_404();
+        $this->require_permission('quotes.generate_pdf');
+        $q = $this->Quote_model->find($id);
+        if (!$q) show_404();
+
+        // Generate (or regenerate) the PDF first so the email can reference it.
+        $items    = $this->Quote_model->get_items($id);
+        $currency = $q['currency'] ?? 'USD';
+        $site     = vp_site('name', 'Halyk Petroleum');
+
+        // Advance the state machine toward QUOTED, one valid step at a time
+        // (NEW → REVIEWING → QUOTED). The machine forbids arbitrary jumps.
+        $path = ['NEW' => QUOTE_REVIEWING, QUOTE_REVIEWING => QUOTE_QUOTED];
+        while (in_array($q['status'], [QUOTE_NEW, QUOTE_REVIEWING], true)) {
+            $next = $path[$q['status']];
+            $assignee = $q['assignedTo'] ?: $this->jet_auth->id();
+            $res = $this->Quote_model->transition_status(
+                $id, $next, $this->jet_auth->id(), $assignee,
+                $next === QUOTE_QUOTED ? 'Quotation issued to customer' : 'Under review (auto via Send quote)',
+                (int) $q['version']
+            );
+            if (!$res['ok']) {
+                $this->flash('error', 'Could not move RFQ to ' . $next . ': ' . $res['error']);
+                return redirect('admin/quotes/' . $id);
+            }
+            $this->audit->log(AUDIT_STATUS, 'quote', $id, ['from' => $res['from'], 'to' => $res['to']]);
+            $q = $this->Quote_model->find($id);
+        }
+
+        // Build the PDF (mirror the pdf() action via a shared method).
+        $binary = $this->_build_pdf_binary($q, $items);
+
+        $dir = VP_UPLOAD_PATH . 'quotes/';
+        if (!is_dir($dir)) @mkdir($dir, 0755, true);
+        $pdfPath = $dir . $q['quoteNumber'] . '.pdf';
+        @file_put_contents($pdfPath, $binary);
+        $url = VP_UPLOAD_URL . 'quotes/' . $q['quoteNumber'] . '.pdf';
+        $this->Quote_model->set_pdf_url($id, $url, $this->jet_auth->id());
+
+        // Email the customer, with the generated PDF attached.
+        $customerLink = base_url('account/quotes/' . $id);
+        $tpl = $this->mailer->template_quote_sent_customer($q, $items, $url, $customerLink);
+        $dedupeKey = 'quote_sent:' . $id . ':' . md5($url . $binary);
+        $this->mailer->attach($pdfPath, $q['quoteNumber'] . '.pdf', 'application/pdf');
+        $email = $this->mailer->send($q['email'], $tpl['subject'], $tpl['html'], 'quote_sent', $dedupeKey, ['quoteId' => $id]);
+
+        $this->Quote_model->log_email_sent($id, $this->jet_auth->id(), $q['email'], $email['status'] ?? 'FAILED');
+        $this->audit->log(AUDIT_PDF, 'quote', $id, ['url' => $url, 'sent_to' => $q['email'], 'email_status' => $email['status'] ?? null]);
+
+        $this->notify(
+            'rfq_sent',
+            'Quote ' . $q['quoteNumber'] . ' sent to customer',
+            $q['companyName'] . ' was emailed quotation ' . $q['quoteNumber'] . ' (PDF attached).',
+            ['quoteId' => $id, 'quoteNumber' => $q['quoteNumber']],
+            $q['assignedTo'] ?: null
+        );
+
+        $msg = 'Quotation ' . $q['quoteNumber'] . ' generated and sent to ' . $q['email'] . '.';
+        if (($email['status'] ?? '') !== EMAIL_SENT && ($email['status'] ?? '') !== 'DUPLICATE') {
+            $msg .= ' The PDF was saved, but the email could not be delivered; check mail settings and resend.';
+        }
+        $this->flash($email['status'] === EMAIL_SENT || $email['status'] === 'DUPLICATE' ? 'success' : 'error', $msg);
+        redirect('admin/quotes/' . $id);
+    }
+
+    /** Shared: build the branded quote PDF binary for a quote + items. */
+    private function _build_pdf_binary(array $q, array $items)
+    {
+        $site    = vp_site('name', 'Halyk Petroleum');
+        $tagline = vp_site('tagline', 'Aircraft Parts & Components Supply');
+        $contact = [
+            'email'   => vp_site('email'),
+            'phone'   => vp_site('phone'),
+            'address' => vp_site('address'),
+        ];
+        $currency = $q['currency'] ?? 'USD';
+        $this->load->library('pdf');
+
+        $columns = [
+            ['label' => 'Requested Part',           'width' => 4.6, 'align' => 'L'],
+            ['label' => 'Qty',                       'width' => 0.8, 'align' => 'C'],
+            ['label' => 'Condition / Specification', 'width' => 2.8, 'align' => 'L'],
+            ['label' => 'Unit Price',                'width' => 1.4, 'align' => 'R'],
+            ['label' => 'Amount',                    'width' => 1.4, 'align' => 'R'],
+        ];
+        $rows = [];
+        $computed = 0.0;
+        foreach ($items as $it) {
+            $qty  = (int) ($it['quantity'] ?? 1);
+            $unit = ($it['unitPrice'] !== null && $it['unitPrice'] !== '') ? (float) $it['unitPrice'] : null;
+            $line = ($it['total'] !== null && $it['total'] !== '') ? (float) $it['total'] : ($unit !== null ? $unit * $qty : null);
+            if ($line !== null) $computed += $line;
+            $desc = $it['productName'] ?? 'Part';
+            if (!empty($it['partNumber'])) $desc = $it['partNumber'] . ' — ' . $desc;
+            $spec = trim(($it['condition'] ?? '') . ' ' . ($it['specifications'] ?? ''));
+            if ($spec === '') $spec = $it['manufacturer'] ?? '';
+            $rows[] = [
+                $desc,
+                (string) $qty,
+                $spec,
+                $unit !== null ? vp_money($unit, $currency) : 'On quote',
+                $line !== null ? vp_money($line, $currency) : '—',
+            ];
+        }
+        $total = ($q['totalAmount'] !== null && $q['totalAmount'] !== '' && (float) $q['totalAmount'] > 0)
+            ? (float) $q['totalAmount'] : $computed;
+
+        $st = vp_quote_status_label($q['status']);
+        $metaR = [
+            'QUOTATION  ' . $q['quoteNumber'],
+            'Date: ' . date('Y-m-d', strtotime($q['createdAt'])),
+            'Status: ' . $st['label'],
+        ];
+        if (!empty($q['validUntil'])) $metaR[] = 'Valid until: ' . date('Y-m-d', strtotime($q['validUntil']));
+        elseif (!empty($q['deadline'])) $metaR[] = 'Required by: ' . date('Y-m-d', strtotime($q['deadline']));
+
+        $billLines = array_filter([$q['companyName'], $q['contactPerson'], $q['email'], $q['phone'], $q['country'], $q['address']]);
+        $notesBlocks = [];
+        if (!empty($q['notes'])) $notesBlocks[] = ['heading' => 'Customer notes', 'text' => $q['notes']];
+        $notesBlocks[] = ['heading' => 'Terms & notes', 'text' =>
+            "Prices are in {$currency}, EXW Halyk Petroleum unless otherwise stated, and valid until the date shown. "
+            . "Parts ship with FAA Form 8130-3 and/or EASA Form 1 release documentation and full traceability where applicable. "
+            . "Lead times are confirmed on order placement; AOG requests are prioritised 24/7. "
+            . "This quotation covers the aircraft parts and components listed above — Halyk Petroleum supplies parts, not complete aircraft."];
+
+        return $this->pdf->build([
+            'company'      => $site,
+            'tagline'      => $tagline,
+            'company_info' => [$contact['address'], $contact['phone'], $contact['email']],
+            'title'        => 'Quotation / RFQ',
+            'meta_left'    => [$site . ' — ' . $tagline, $contact['address'], $contact['phone'] . '  ·  ' . $contact['email']],
+            'meta_right'   => $metaR,
+            'bill_to'      => implode("\n", $billLines),
+            'columns'      => $columns,
+            'rows'         => $rows,
+            'totals'       => [
+                ['label' => 'Subtotal', 'value' => vp_money($total, $currency), 'bold' => false],
+                ['label' => 'Total (' . $currency . ')', 'value' => vp_money($total, $currency), 'bold' => true],
+            ],
+            'notes_blocks' => $notesBlocks,
+            'footer'       => $site . '  ·  ' . $contact['address'] . '  ·  ' . $contact['phone'] . '  ·  ' . $contact['email'],
+        ]);
     }
 }

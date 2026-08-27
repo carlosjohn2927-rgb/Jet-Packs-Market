@@ -1,5 +1,5 @@
 -- =============================================================================
--- JetPacks Market — Migration 006: Stripe-hosted card payments
+-- Halyk Petroleum — Migration 006: Stripe-hosted card payments
 -- =============================================================================
 -- Import this file in phpMyAdmin for an existing installation. It creates the
 -- payment ledger and webhook idempotency table, then extends the quote activity

@@ -1,6 +1,6 @@
 <?php
 /**
- * CodeIgniter 3 - Vortex Precision
+ * CodeIgniter 3 - Halyk Petroleum
  * Front controller.
  */
 
@@ -47,7 +47,7 @@ vp_load_env_file(__DIR__ . '/.env');
 if (!is_file(__DIR__ . '/.env')) {
     // Give the server error log a hint when the .env file is missing, so
     // "The application is not configured" is not a dead end on cPanel.
-    error_log('Vortex Precision: .env file not found at ' . __DIR__ . '/.env — ' . __FILE__);
+    error_log('Halyk Petroleum: .env file not found at ' . __DIR__ . '/.env — ' . __FILE__);
 }
 if (dirname(__DIR__) . '/.env' !== __DIR__ . '/.env') {
     vp_load_env_file(dirname(__DIR__) . '/.env');
@@ -134,7 +134,7 @@ if (!isset($view_folder[0]) && is_dir(APPPATH.'views')) {
 
 define('VIEWPATH', $view_folder.DIRECTORY_SEPARATOR);
 
-// Vortex Precision app constants
+// Halyk Petroleum app constants
 define('VP_BASE_URL', rtrim((function () {
     $env = getenv('VP_BASE_URL');
     if ($env !== false && $env !== '') return $env;

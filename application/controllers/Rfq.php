@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market - public RFQ (Request for Quote) controller.
+ * Halyk Petroleum - public RFQ (Request for Quote) controller.
  */
 class Rfq extends MY_Controller
 {
@@ -17,7 +17,7 @@ class Rfq extends MY_Controller
     public function index()
     {
         $this->page_title = 'Request a quote';
-        $this->page_description = 'Submit a Request for Quote (RFQ) to JetPacks Market — standard quotes return within 24 business hours, AOG requests within 2 hours.';
+        $this->page_description = 'Submit a Request for Quote (RFQ) to Halyk Petroleum — standard quotes return within 24 business hours, AOG requests within 2 hours.';
 
         $productSlug = $this->input->get('product');
         $prefill = null;
@@ -88,6 +88,8 @@ class Rfq extends MY_Controller
         }
 
         $userId = $this->jet_auth->id() ?: null;
+        $currency = strtoupper(trim((string) $this->input->post('currency'))) ?: 'USD';
+        if (!preg_match('/^[A-Z]{3}$/', $currency)) $currency = 'USD';
         $quoteData = [
             'userId'         => $userId,
             'companyName'    => $this->input->post('companyName'),
@@ -99,6 +101,7 @@ class Rfq extends MY_Controller
             'industry'       => $this->input->post('industry'),
             'notes'          => $this->input->post('notes'),
             'deadline'       => $this->input->post('deadline') ?: null,
+            'currency'       => $currency,
         ];
         $itemsDb = [];
         foreach ($items as $it) {
@@ -106,8 +109,11 @@ class Rfq extends MY_Controller
                 'id'             => MY_Model::uuid(),
                 'productId'      => $it['productId'] ?: null,
                 'productName'    => $it['productName'],
+                'partNumber'     => $it['partNumber'] ?? null,
+                'condition'      => $it['condition'] ?? null,
                 'quantity'       => max(1, (int) $it['quantity']),
                 'specifications' => $it['specifications'],
+                'currency'       => $currency,
             ];
         }
 
@@ -151,11 +157,35 @@ class Rfq extends MY_Controller
         foreach ($names as $i => $n) {
             $n = trim((string) $n);
             if ($n === '') continue;
+            $spec = trim((string) ($specs[$i] ?? ''));
+
+            // Customers often type "P/N 2612201-2 — Wheel assembly" or just a
+            // bare part number. Split a leading part-number token so the RFQ
+            // stores a searchable partNumber alongside the part name.
+            $partNumber = null;
+            $partName   = $n;
+            if (preg_match('/^\s*(?:p\/?n|part\s*(?:no|number))?\s*[:#]?\s*([A-Z0-9][A-Z0-9.\-\/]{2,30})\s*[-,\x{2013}\x{2014}]?\s*(.*)$/iu', $n, $pm)) {
+                $candidate = strtoupper($pm[1]);
+                // Only treat as a part number when it contains a digit.
+                if (preg_match('/\d/', $candidate)) {
+                    $partNumber = $candidate;
+                    $partName   = trim($pm[2]) !== '' ? trim($pm[2]) : ('Aircraft part ' . $candidate);
+                }
+            }
+
+            // Condition may be supplied inside the spec field ("NEW — 8130-3").
+            $condition = null;
+            if ($spec !== '' && preg_match('/\b(NEW|OHC|OVERHAULED|USED|SERVICEABLE|SV|AR|NE)\b/i', $spec, $cm)) {
+                $condition = strtoupper($cm[1]);
+            }
+
             $out[] = [
-                'productName'    => $n,
+                'productName'    => $partName,
+                'partNumber'     => $partNumber,
+                'quantity'       => max(1, (int) ($qtys[$i] ?? 1)),
+                'condition'      => $condition,
+                'specifications' => $spec ?: null,
                 'productId'      => $pids[$i] ?? null,
-                'quantity'       => (int) ($qtys[$i] ?? 1),
-                'specifications' => trim((string) ($specs[$i] ?? '')) ?: null,
             ];
         }
         return $out;
@@ -166,12 +196,12 @@ class Rfq extends MY_Controller
         $q = $this->db->get_where('quotes', ['id' => $quoteId])->row_array();
         if (!$q) return;
 
-        $admin = $this->User_model->find_by_email(vp_setting('rfq_admin_email', 'admin@vortexprecision.com'));
+        $admin = $this->User_model->find_by_email(vp_setting('rfq_admin_email', 'admin@halykpetroleum-kz.com'));
 
         // 1) Admin notification
         $tpl = $this->mailer->template_quote_submitted_admin($q);
         $this->mailer->send(
-            $admin['email'] ?? 'admin@vortexprecision.com',
+            $admin['email'] ?? 'admin@halykpetroleum-kz.com',
             $tpl['subject'],
             $tpl['html'],
             'quote_submitted_admin',

@@ -1,6 +1,6 @@
 <?php
 /**
- * Vortex Precision - mock Resend API endpoint (testing only).
+ * Halyk Petroleum - mock Resend API endpoint (testing only).
  *
  * Boot:  MOCK_RESEND_LOG=/tmp/mock_resend.log php -S 127.0.0.1:8098 app/tests/mock_resend.php
  *

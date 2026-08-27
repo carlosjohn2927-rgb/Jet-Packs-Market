@@ -14,7 +14,7 @@ class Careers extends MY_Controller
     public function index()
     {
         $this->page_title = 'Careers';
-        $this->page_description = 'Join the JetPacks Market team - AOG dispatch, parts sourcing, quality and sales roles.';
+        $this->page_description = 'Join the Halyk Petroleum team - AOG dispatch, parts sourcing, quality and sales roles.';
         $rows = $this->Career_model->find_all(['isActive' => 1], ['postedAt' => 'DESC'], 50);
         $this->render('careers/index', ['rows' => $rows]);
     }
@@ -84,7 +84,7 @@ class Careers extends MY_Controller
         $this->load->library('mailer');
         $this->mailer->send(
             $this->config->item('contact_email'),
-            '[JetPacks] New application: ' . $job['title'],
+            '[Halyk] New application: ' . $job['title'],
             '<p><strong>' . vp_safe_html($this->input->post('name')) . '</strong> applied for <strong>' . vp_safe_html($job['title']) . '</strong>.</p><p>Resume: <a href="' . base_url($resume['url']) . '">View</a></p>',
             'career_application',
             'career_application:' . $id,

@@ -11,7 +11,7 @@ class News extends MY_Controller
     public function index()
     {
         $this->page_title = 'News';
-        $this->page_description = 'Latest news and announcements from JetPacks Market.';
+        $this->page_description = 'Latest news and announcements from Halyk Petroleum.';
         $page = max(1, (int) $this->input->get('page'));
         $per = 9;
         $rows = $this->db->where('isActive', 1)->order_by('publishedAt', 'DESC')

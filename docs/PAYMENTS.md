@@ -1,6 +1,6 @@
 # Stripe Card Payments
 
-JetPacks Market can collect an **approved quote** by card using Stripe-hosted
+Halyk Petroleum can collect an **approved quote** by card using Stripe-hosted
 Checkout. The application creates the amount and customer-specific payment link,
 but Stripe collects the card data. No card number, CVC, or cardholder data is
 sent to or stored by this application.

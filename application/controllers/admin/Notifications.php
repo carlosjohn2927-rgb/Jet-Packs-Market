@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — personal notification inbox.
+ * Halyk Petroleum — personal notification inbox.
  *
  * Every staff account can read (and clear) its own notifications; the rows are
  * always scoped to the signed-in user id, so no permission is required and no

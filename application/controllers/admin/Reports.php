@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — reports.
+ * Halyk Petroleum — reports.
  *
  * Real aggregate queries over the live tables (no mock data): quote volume,
  * conversion, catalogue health, traffic-driving content and website content

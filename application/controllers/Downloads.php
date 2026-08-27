@@ -12,7 +12,7 @@ class Downloads extends MY_Controller
     public function index()
     {
         $this->page_title = 'Downloads';
-        $this->page_description = 'Aircraft parts catalogs, cross-reference guides, datasheets and service tools from JetPacks Market.';
+        $this->page_description = 'Aircraft parts catalogs, cross-reference guides, datasheets and service tools from Halyk Petroleum.';
         $rows = $this->db->where('isActive', 1)->order_by('category', 'ASC')->order_by('createdAt', 'DESC')->get('downloads')->result_array();
         $grouped = [];
         foreach ($rows as $r) $grouped[$r['category'] ?: 'General'][] = $r;

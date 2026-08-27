@@ -30,7 +30,13 @@ $config['permissions'] = [
     'dashboard.view'      => ['View dashboard',                          'Overview', false],
     'reports.view'        => ['View reports and analytics',              'Overview', false],
 
-    'quotes.manage'       => ['Manage quote requests (RFQ)',             'Sales',    false],
+    'quotes.view'             => ['View quote requests (RFQ)',              'Sales',    false],
+    'quotes.manage'           => ['Manage quote requests (RFQ)',            'Sales',    false],
+    'quotes.export'           => ['Export RFQs to CSV',                     'Sales',    false],
+    'quotes.assign'           => ['Assign RFQs to team members',            'Sales',    false],
+    'quotes.update_status'    => ['Change RFQ status',                      'Sales',    false],
+    'quotes.generate_pdf'     => ['Generate / send PDF quotes',             'Sales',    false],
+    'quotes.manage_attachments' => ['Manage RFQ attachments',               'Sales',    false],
     'contacts.manage'     => ['Manage contact messages',                 'Sales',    false],
 
     'products.manage'     => ['Manage products',                         'Catalog',  false],
@@ -79,7 +85,10 @@ $config['role_default_permissions'] = [
         'media.manage', 'seo.manage', 'settings.manage',
     ],
     'SALES' => [
-        'dashboard.view', 'quotes.manage', 'contacts.manage',
+        'dashboard.view',
+        'quotes.view', 'quotes.manage', 'quotes.export', 'quotes.assign',
+        'quotes.update_status', 'quotes.generate_pdf', 'quotes.manage_attachments',
+        'contacts.manage',
     ],
     'ENGINEER' => [
         'dashboard.view', 'products.manage', 'inventory.manage', 'downloads.manage',

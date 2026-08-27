@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — public AI chat endpoint.
+ * Halyk Petroleum — public AI chat endpoint.
  *
  * Serves the floating chat widget available to every site visitor. Replies are
  * produced by the Jet_assistant library (local knowledge base by default, or an

@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market - SEO endpoints (robots.txt + sitemap.xml).
+ * Halyk Petroleum - SEO endpoints (robots.txt + sitemap.xml).
  * Routed via config/routes.php so no physical files are required.
  */
 class Seo extends MY_Controller

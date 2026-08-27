@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — CMS helper.
+ * Halyk Petroleum — CMS helper.
  *
  * Every piece of website chrome the dashboard can edit (site identity, logo,
  * favicon, colours, navigation, header, footer, homepage sections, pages) is read
@@ -49,7 +49,7 @@ if (!function_exists('vp_site')) {
         static $cache = null;
         if ($cache === null) {
             $CI =& get_instance();
-            $name = vp_cms_setting('site_name', 'JetPacks Market', 'site_name');
+            $name = vp_cms_setting('site_name', 'Halyk Petroleum', 'site_name');
             $cache = [
                 'name'        => $name,
                 'tagline'     => vp_cms_setting('site_tagline', '', 'site_tagline'),

@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — AOG (Aircraft On Ground) dispatch tracking.
+ * Halyk Petroleum — AOG (Aircraft On Ground) dispatch tracking.
  *
  * Staff create dispatches against a customer (and optionally a quote). The
  * customer tracks them from their account area (/account/dispatches).

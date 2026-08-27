@@ -1,6 +1,6 @@
 # Admin Guide — Jet Packs Market
 
-Sign in at `/admin/login` with your staff account. A fresh cPanel deployment imported from `database/production.sql` includes `admin@jetpacksmarket.com` with the bootstrap password documented in [`DEPLOYMENT.md`](../DEPLOYMENT.md). The account is flagged with `mustChangePassword=1`, so its first sign-in is redirected to the password-change screen before any dashboard area can be used. No CLI installer or terminal-created administrator is required.
+Sign in at `/admin/login` with your staff account. A fresh cPanel deployment imported from `database/production.sql` includes `admin@halykpetroleum-kz.com` with the bootstrap password documented in [`DEPLOYMENT.md`](../DEPLOYMENT.md). The account is flagged with `mustChangePassword=1`, so its first sign-in is redirected to the password-change screen before any dashboard area can be used. No CLI installer or terminal-created administrator is required.
 
 > **Super Admin / Admin dashboards, roles and permissions, and the whole CMS
 > (homepage, pages, navigation, logo, header/footer, settings) are documented in

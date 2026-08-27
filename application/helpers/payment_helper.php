@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — small, dependency-free payment helpers.
+ * Halyk Petroleum — small, dependency-free payment helpers.
  *
  * Stripe accepts an integer number of minor currency units. Keeping the
  * conversion here (rather than using floating-point arithmetic at checkout)

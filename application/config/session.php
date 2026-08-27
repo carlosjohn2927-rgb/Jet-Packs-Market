@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - Session config.
+ * Halyk Petroleum - Session config.
  *
  * Keep the `database` driver for central session management and
  * high-concurrency safety. The `ci_sessions` table is created by

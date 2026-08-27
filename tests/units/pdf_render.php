@@ -63,8 +63,8 @@ assert_true(strpos($out, "\nendstream")    !== false, 'endstream marker');
 section('Full quote document round-trip');
 $out = $pdf->build([
     'title'      => 'Quote VP-2026-000123',
-    'subtitle'   => 'JetPacks Market',
-    'meta_left'  => ['South side', 'support@jetpacksmarket.com'],
+    'subtitle'   => 'Halyk Petroleum',
+    'meta_left'  => ['South side', 'support@halykpetroleum-kz.com'],
     'meta_right' => ['Quote # VP-2026-000123', '21 Aug 2026'],
     'columns'    => [
         ['label' => 'Part',  'width' => 3, 'align' => 'L'],
@@ -76,9 +76,9 @@ $out = $pdf->build([
         ['CFE738-1-1B',  '1', '$450,000.00'],
     ],
     'notes'      => 'Lead time 4 weeks · FAA 8130-3 cert · 12-mo warranty.',
-    'footer'     => 'JetPacks Market · Dallas, TX · +1 (214) 350-0107',
+    'footer'     => 'Halyk Petroleum · Dallas, TX · +1 (214) 350-0107',
 ]);
-foreach (['Quote VP-2026-000123', 'JetPacks Market', 'support@jetpacksmarket.com',
+foreach (['Quote VP-2026-000123', 'Halyk Petroleum', 'support@halykpetroleum-kz.com',
           '21 Aug 2026', '2612201-2', 'CFE738-1-1B', '$14,850.00', '$450,000.00',
           'Lead time', 'FAA 8130-3', 'Dallas, TX', '(214) 350-0107'] as $needle) {
     assert_true(strpos($out, $needle) !== false, "round-trip preserves '$needle'");

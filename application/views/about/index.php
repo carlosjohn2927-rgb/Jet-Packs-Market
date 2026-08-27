@@ -1,10 +1,10 @@
 <?php /** @var array $intro */ /** @var array $testimonials */ /** @var array $partners */ ?>
 <?php $this->load->view('partials/photo_writeup_hero', [
     'hero_image'         => IMG_URL . 'about-hangar.jpg',
-    'hero_alt'           => 'JetPacks Market parts warehouse inside an aviation hangar',
+    'hero_alt'           => 'Halyk Petroleum parts warehouse inside an aviation hangar',
     'hero_eyebrow'       => 'About us',
     'hero_title_html'    => vp_inline_text('about_hero_title', 'Every part. Certified. Traceable. Delivered.', 'h1', 'text-4xl lg:text-5xl font-extrabold mt-3'),
-    'hero_subtitle_html' => vp_inline_text('about_hero_subtitle', ($site_name ?? 'JetPacks Market') . ' is a global marketplace for new, overhauled and used aircraft parts, trusted by flight departments, airlines and MROs in over 120 countries.', 'p', 'mt-3 max-w-2xl text-lg'),
+    'hero_subtitle_html' => vp_inline_text('about_hero_subtitle', ($site_name ?? 'Halyk Petroleum') . ' is a global marketplace for new, overhauled and used aircraft parts, trusted by flight departments, airlines and MROs in over 120 countries.', 'p', 'mt-3 max-w-2xl text-lg'),
     'hero_min'           => '420px',
 ]); ?>
 
@@ -14,7 +14,7 @@
             <p class="text-xl font-semibold text-ink-900">Confidence you can fly with.</p>
             <?= nl2br(vp_safe_html($intro)) ?>
         </div>
-        <img src="<?= IMG_URL ?>about-hangar.jpg" alt="JetPacks Market parts warehouse inside an aviation hangar" class="w-full aspect-[4/3] object-cover rounded-2xl shadow-lg" loading="eager" decoding="async">
+        <img src="<?= IMG_URL ?>about-hangar.jpg" alt="Halyk Petroleum parts warehouse inside an aviation hangar" class="w-full aspect-[4/3] object-cover rounded-2xl shadow-lg" loading="eager" decoding="async">
     </div>
     <div class="grid lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 grid sm:grid-cols-3 gap-4">

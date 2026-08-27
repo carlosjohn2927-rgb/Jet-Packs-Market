@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision — AI chat assistant.
+ * Halyk Petroleum — AI chat assistant.
  *
  * Answers visitor questions about the business. Two modes:
  *

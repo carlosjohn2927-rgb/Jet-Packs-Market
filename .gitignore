@@ -41,3 +41,6 @@ app/
 # Local development SQLite database (production uses MySQL/MariaDB)
 database/*.sqlite
 database/*.sqlite-journal
+
+# Local php-wasm dev server + SQLite data (regenerable tooling)
+.devtools/

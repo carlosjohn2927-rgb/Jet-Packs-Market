@@ -1,34 +1,78 @@
 <?php
-/** @var array|null $row */
-/** @var array $columns */
-/** @var string $form_url */
+/**
+ * Generic create/edit form driven by a normalised field list.
+ *
+ * @var array|null $row
+ * @var array      $columns  legacy list columns (used when $fields is absent)
+ * @var array      $fields   [field => ['label','type','options','required','help']]
+ * @var string     $form_url
+ */
 $is_create = empty($row);
+$fields = isset($fields) && $fields ? $fields : [];
+if (empty($fields)) {
+    // Backwards-compatible fallback: build fields from list columns.
+    foreach (($columns ?? []) as $label => $col) {
+        $fields[$col] = ['field' => $col, 'label' => $label];
+    }
+}
 ?>
 <form method="post" action="<?= vp_safe_html($form_url) ?>" class="space-y-4 max-w-3xl">
     <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
-    <?php if (!$is_create): ?><input type="hidden" name="id" value="<?= $row['id'] ?>"><?php endif; ?>
+    <?php if (!$is_create): ?><input type="hidden" name="id" value="<?= vp_safe_html($row['id'] ?? '') ?>"><?php endif; ?>
 
-    <?php foreach ($columns as $label => $col):
-        $val = $row[$col] ?? '';
-        $type = 'text';
-        $skip = in_array($col, ['id', 'createdAt', 'updatedAt', 'views', 'lastLoginAt', 'lastNotifiedAt', 'statusUpdatedAt', 'version'], true);
+    <?php foreach ($fields as $col => $cfg):
+        $cfg  = is_array($cfg) ? $cfg : ['field' => $cfg, 'label' => ucfirst($cfg)];
+        $type = $cfg['type'] ?? 'text';
+        $val  = $row[$col] ?? ($cfg['default'] ?? '');
+        $req  = !empty($cfg['required']);
+        $skip = in_array($col, ['id', 'createdAt', 'updatedAt'], true);
         if ($skip) continue;
-        if ($col === 'isActive' || $col === 'active')     $type = 'checkbox';
-        elseif ($col === 'password' || $col === 'Password') $type = 'password';
-        elseif (in_array($col, ['description','answer','content','message','requirements','benefits','summary','notes','internalNotes','coverLetter','shortDescription'], true)) $type = 'textarea';
-        elseif ($col === 'slug' || $col === 'sku' || $col === 'name' || $col === 'title' || $col === 'email') $type = 'text';
-        elseif (in_array($col, ['isActive','active','featured'], true)) $type = 'checkbox';
+        if ($type === 'auto') $type = 'text';
     ?>
         <div class="vp-form-row">
-            <label><?= vp_safe_html($label) ?><?php if ($type !== 'checkbox' && in_array($col, ['name','title','sku','email','question','description','content','answer','message','requirements','slug'], true)): ?> *<?php endif; ?></label>
+            <label for="f_<?= vp_safe_html($col) ?>">
+                <?= vp_safe_html($cfg['label'] ?? ucfirst($col)) ?>
+                <?php if ($req && $type !== 'checkbox'): ?> *<?php endif; ?>
+            </label>
+
             <?php if ($type === 'textarea'): ?>
-                <textarea class="vp-textarea" name="<?= $col ?>" rows="6"><?= vp_safe_html($val) ?></textarea>
+                <textarea class="vp-textarea" id="f_<?= vp_safe_html($col) ?>" name="<?= vp_safe_html($col) ?>" rows="<?= (int) ($cfg['rows'] ?? 5) ?>" <?= $req ? 'required' : '' ?>><?= vp_safe_html($val) ?></textarea>
+
             <?php elseif ($type === 'checkbox'): ?>
-                <label class="inline-flex items-center gap-2"><input type="hidden" name="<?= $col ?>" value="0"><input type="checkbox" name="<?= $col ?>" value="1" <?= (int)$val ? 'checked' : '' ?>></label>
-            <?php elseif ($col === 'email'): ?>
-                <input class="vp-input" type="email" name="<?= $col ?>" value="<?= vp_safe_html($val) ?>" <?= $is_create ? 'required' : '' ?>>
+                <label class="inline-flex items-center gap-2">
+                    <input type="hidden" name="<?= vp_safe_html($col) ?>" value="0">
+                    <input type="checkbox" id="f_<?= vp_safe_html($col) ?>" name="<?= vp_safe_html($col) ?>" value="1" <?= (int) $val ? 'checked' : '' ?>>
+                    <?= vp_safe_html($cfg['check_label'] ?? 'Enabled') ?>
+                </label>
+
+            <?php elseif ($type === 'select'): ?>
+                <select class="vp-select" id="f_<?= vp_safe_html($col) ?>" name="<?= vp_safe_html($col) ?>" <?= $req ? 'required' : '' ?>>
+                    <?php foreach (($cfg['options'] ?? []) as $optVal => $optLabel): ?>
+                        <option value="<?= vp_safe_html($optVal) ?>" <?= ((string) $val === (string) $optVal) ? 'selected' : '' ?>><?= vp_safe_html($optLabel) ?></option>
+                    <?php endforeach; ?>
+                </select>
+
+            <?php elseif ($type === 'number'): ?>
+                <input class="vp-input" type="number" step="<?= vp_safe_html($cfg['step'] ?? 'any') ?>" id="f_<?= vp_safe_html($col) ?>" name="<?= vp_safe_html($col) ?>" value="<?= vp_safe_html($val) ?>" <?= $req ? 'required' : '' ?>>
+
+            <?php elseif ($type === 'image'): ?>
+                <?php if (!empty($val)): ?>
+                    <div class="mb-2 flex items-center gap-3">
+                        <img src="<?= vp_safe_html($val) ?>" alt="" class="h-16 w-16 rounded border object-cover" loading="lazy">
+                        <span class="text-xs text-gray-500 break-all"><?= vp_safe_html($val) ?></span>
+                    </div>
+                <?php endif; ?>
+                <input class="vp-input" type="text" id="f_<?= vp_safe_html($col) ?>" name="<?= vp_safe_html($col) ?>" value="<?= vp_safe_html($val) ?>" placeholder="/assets/img/... or uploaded URL">
+
+            <?php elseif ($type === 'email'): ?>
+                <input class="vp-input" type="email" id="f_<?= vp_safe_html($col) ?>" name="<?= vp_safe_html($col) ?>" value="<?= vp_safe_html($val) ?>" <?= $req ? 'required' : '' ?>>
+
             <?php else: ?>
-                <input class="vp-input" type="<?= $type ?>" name="<?= $col ?>" value="<?= vp_safe_html($val) ?>" <?= $is_create && in_array($col, ['name','title','sku','email','question','description','content','answer','message','requirements','slug'], true) ? 'required' : '' ?>>
+                <input class="vp-input" type="text" id="f_<?= vp_safe_html($col) ?>" name="<?= vp_safe_html($col) ?>" value="<?= vp_safe_html($val) ?>" <?= $req ? 'required' : '' ?>>
+            <?php endif; ?>
+
+            <?php if (!empty($cfg['help'])): ?>
+                <p class="vp-help"><?= vp_safe_html($cfg['help']) ?></p>
             <?php endif; ?>
         </div>
     <?php endforeach; ?>

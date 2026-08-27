@@ -24,7 +24,7 @@ class About extends MY_Controller
         }
 
         $this->page_title = 'About ' . vp_site('name');
-        $this->page_description = vp_site('description', 'Industrial manufacturing excellence.');
+        $this->page_description = vp_site('description', 'Aircraft parts & components supply.');
 
         $data = [
             'intro'       => $this->settings->get('about_intro', ''),

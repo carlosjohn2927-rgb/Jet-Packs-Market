@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market - Auth controller.
+ * Halyk Petroleum - Auth controller.
  * Handles public login, registration, logout, password reset, and admin login.
  */
 class Auth extends MY_Controller
@@ -22,7 +22,7 @@ class Auth extends MY_Controller
             return $this->_redirect_after_login($this->jet_auth->user());
         }
         $this->page_title = 'Sign in';
-        $this->page_description = 'Sign in to your ' . ($this->config->item('site_name') ?: 'JetPacks Market') . ' account.';
+        $this->page_description = 'Sign in to your ' . ($this->config->item('site_name') ?: 'Halyk Petroleum') . ' account.';
 
         // Heal the session store so a missing ci_sessions table cannot
         // silently swallow the login.
@@ -61,7 +61,7 @@ class Auth extends MY_Controller
     {
         if ($this->jet_auth->check()) redirect('');
         $this->page_title = 'Create account';
-        $this->page_description = 'Create a ' . ($this->config->item('site_name') ?: 'JetPacks Market') . ' account to manage quotes and downloads.';
+        $this->page_description = 'Create a ' . ($this->config->item('site_name') ?: 'Halyk Petroleum') . ' account to manage quotes and downloads.';
 
         if ($this->input->method() === 'post') {
             $this->form_validation->set_rules('firstName', 'First name', 'required|max_length[100]');
@@ -120,7 +120,7 @@ class Auth extends MY_Controller
                     $resetUrl = base_url('reset/' . $token);
                     $this->mailer->send(
                         $user['email'],
-                        'Reset your ' . ($this->config->item('site_name') ?: 'JetPacks Market') . ' password',
+                        'Reset your ' . ($this->config->item('site_name') ?: 'Halyk Petroleum') . ' password',
                         $this->load->view('emails/password_reset', [
                             'firstName' => $user['firstName'],
                             'resetUrl'  => $resetUrl,
@@ -144,7 +144,7 @@ class Auth extends MY_Controller
         $this->load->model('Password_reset_model');
         $this->load->model('User_model');
         $this->page_title = 'Reset password';
-        $this->page_description = 'Choose a new password for your ' . ($this->config->item('site_name') ?: 'JetPacks Market') . ' account.';
+        $this->page_description = 'Choose a new password for your ' . ($this->config->item('site_name') ?: 'Halyk Petroleum') . ' account.';
 
         $valid = $token ? $this->Password_reset_model->find_valid($token) : null;
         if (!$valid) {

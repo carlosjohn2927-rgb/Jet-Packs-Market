@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — minimal Stripe Checkout gateway (no Composer required).
+ * Halyk Petroleum — minimal Stripe Checkout gateway (no Composer required).
  *
  * Customers are redirected to Stripe-hosted Checkout; this application never
  * receives, stores, or logs card numbers, CVCs, or cardholder data. The class
@@ -103,7 +103,7 @@ class Stripe_gateway
 
         $quoteNumber = trim((string) ($quote['quoteNumber'] ?? ''));
         $productName = 'Quote ' . ($quoteNumber !== '' ? $quoteNumber : $paymentId);
-        $description = 'Card payment for ' . ($quote['companyName'] ?? 'JetPacks Market customer');
+        $description = 'Card payment for ' . ($quote['companyName'] ?? 'Halyk Petroleum customer');
         $paymentUrl = base_url('pay/' . rawurlencode($token));
         $successUrl = base_url('pay/' . rawurlencode($token) . '/complete')
             . '?session_id={CHECKOUT_SESSION_ID}';
@@ -230,7 +230,7 @@ class Stripe_gateway
         $headers = [
             'Authorization: Bearer ' . $key,
             'Accept: application/json',
-            'User-Agent: JetPacksMarket-StripeCheckout/1.0',
+            'User-Agent: HalykPetroleum-StripeCheckout/1.0',
         ];
         if ($idempotencyKey !== null) $headers[] = 'Idempotency-Key: ' . $idempotencyKey;
 

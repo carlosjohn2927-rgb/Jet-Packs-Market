@@ -1,9 +1,9 @@
 <?php /** @var array $rows */ ?>
 <?php $this->load->view('partials/photo_writeup_hero', [
     'hero_image'         => IMG_URL . 'blog/asme-pressure-vessel.jpg',
-    'hero_alt'           => 'Welded ASME pressure vessel in the fabrication shop',
+    'hero_alt'           => 'Aircraft component inspection and certification bench at an MRO facility',
     'hero_title_html'    => vp_inline_text('blog_hero_title', 'Blog & insights', 'h1', 'text-4xl lg:text-5xl font-extrabold'),
-    'hero_subtitle_html' => vp_inline_text('blog_hero_subtitle', 'Engineering articles, selection guides and industry insights from our team.', 'p', 'mt-3 max-w-2xl text-lg'),
+    'hero_subtitle_html' => vp_inline_text('blog_hero_subtitle', 'Aircraft parts sourcing, certification, MRO and supply-chain insights from the Halyk Petroleum team.', 'p', 'mt-3 max-w-2xl text-lg'),
 ]); ?>
 <section class="container mx-auto px-4 py-12">
     <?php if (empty($rows)): ?>

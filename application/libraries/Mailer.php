@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Vortex Precision - Mailer.
+ * Halyk Petroleum - Mailer.
  *
  * Sends transactional email with idempotency via email_logs.dedupe_key.
  * Transport order: dashboard/.env SMTP, Resend HTTP API, then PHP mail().
@@ -10,12 +10,39 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Mailer
 {
     protected $CI;
+
+    /**
+     * Attachments queued for the next send():
+     * [['path' => '/abs/file.pdf', 'name' => 'Quote.pdf', 'mime' => 'application/pdf'], ...]
+     * Cleared after every dispatch.
+     */
+    protected $attachments = [];
+
     public function __construct()
     {
         $this->CI =& get_instance();
         $this->CI->load->database();
         
         $this->CI->load->helper(['security_helper', 'payment_helper']);
+    }
+
+    /**
+     * Queue a file to attach to the next email that is sent.
+     *
+     * @param string $path  Absolute path to the file.
+     * @param string $name  Suggested filename for the recipient.
+     * @param string $mime  MIME type (defaults to application/pdf).
+     */
+    public function attach($path, $name = null, $mime = 'application/pdf')
+    {
+        if ($path && is_file($path)) {
+            $this->attachments[] = [
+                'path' => $path,
+                'name' => $name ?: basename($path),
+                'mime' => $mime ?: 'application/octet-stream',
+            ];
+        }
+        return $this;
     }
 
     /**
@@ -75,6 +102,8 @@ class Mailer
         }
 
         try {
+            // PHP mail() supports our multipart attachments. SMTP/Resend
+            // transports include a download link in the HTML instead.
             $ok = $this->dispatch($to, $subject, $html, $providerId, $errorMessage);
         } catch (Exception $e) {
             $ok = false;
@@ -82,6 +111,7 @@ class Mailer
             $errorMessage = get_class($e) . ': ' . $e->getMessage();
             log_message('error', 'Mailer dispatch exception: ' . $errorMessage);
         }
+        $this->attachments = [];
         $status = $ok ? EMAIL_SENT : EMAIL_FAILED;
         $this->CI->db->update('email_logs', [
             'status'       => $status,
@@ -283,10 +313,41 @@ class Mailer
         $replyTo   = $this->sender('reply_to');
         $headers   = [];
         $headers[] = 'MIME-Version: 1.0';
-        $headers[] = 'Content-type: text/html; charset=utf-8';
         $headers[] = 'From: ' . sprintf('%s <%s>', $fromName, $fromEmail);
         if ($replyTo) $headers[] = 'Reply-To: ' . $replyTo;
-        $headers[] = 'X-Mailer: Vortex-Precision/CI3';
+        $headers[] = 'X-Mailer: Halyk-Petroleum/CI3';
+
+        $body = $html;
+        if (!empty($this->attachments)) {
+            // Multipart/mixed so the HTML body carries the file attachment.
+            $boundary = 'hp_mix_' . bin2hex(random_bytes(12));
+            $altBoundary = 'hp_alt_' . bin2hex(random_bytes(12));
+            $headers[] = 'Content-Type: multipart/mixed; boundary="' . $boundary . '"';
+
+            $out = "--{$boundary}\r\n";
+            $out .= "Content-Type: multipart/alternative; boundary=\"{$altBoundary}\"\r\n\r\n";
+            $out .= "--{$altBoundary}\r\n";
+            $out .= "Content-Type: text/html; charset=utf-8\r\n";
+            $out .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+            $out .= $html . "\r\n\r\n";
+            $out .= "--{$altBoundary}--\r\n\r\n";
+
+            foreach ($this->attachments as $att) {
+                $data = @file_get_contents($att['path']);
+                if ($data === false) continue;
+                $out .= "--{$boundary}\r\n";
+                $out .= 'Content-Type: ' . ($att['mime'] ?: 'application/octet-stream')
+                      . '; name="' . basename($att['name']) . "\"\r\n";
+                $out .= "Content-Transfer-Encoding: base64\r\n";
+                $out .= 'Content-Disposition: attachment; filename="' . basename($att['name']) . "\"\r\n\r\n";
+                $out .= chunk_split(base64_encode($data)) . "\r\n";
+            }
+            $out .= "--{$boundary}--\r\n";
+            $body = $out;
+        } else {
+            $headers[] = 'Content-type: text/html; charset=utf-8';
+        }
+
         // Set the envelope sender (-f): without it the MTA uses the hosting
         // account address (e.g. cpaneluser@server.host), which fails SPF for
         // our domain and is commonly discarded by recipients' servers.
@@ -295,8 +356,8 @@ class Mailer
             ? '-f' . $fromEmail
             : null;
         $ok = $envelope !== null
-            ? @mail($to, $subject, $html, implode("\r\n", $headers), $envelope)
-            : @mail($to, $subject, $html, implode("\r\n", $headers));
+            ? @mail($to, $subject, $body, implode("\r\n", $headers), $envelope)
+            : @mail($to, $subject, $body, implode("\r\n", $headers));
         if (!$ok) {
             $errorMessage = 'PHP mail() returned false (sendmail_path may be unset/disabled)';
             log_message('error', 'Mailer: ' . $errorMessage . ' - to=' . $to);
@@ -405,7 +466,7 @@ class Mailer
             'adminUrl' => base_url('admin/quotes/' . ($quote['id'] ?? '')),
         ];
         $html = $this->render_email('quote_submitted_admin', $vars);
-        return ['subject' => '[Vortex] New RFQ ' . $vars['quoteNumber'] . ' from ' . $vars['companyName'], 'html' => $html];
+        return ['subject' => '[Halyk] New RFQ ' . $vars['quoteNumber'] . ' from ' . $vars['companyName'], 'html' => $html];
     }
 
     public function template_quote_confirmation_customer($quote)
@@ -431,6 +492,34 @@ class Mailer
         ];
         $html = $this->render_email('quote_status_update', $vars);
         return ['subject' => 'Your RFQ ' . $vars['quoteNumber'] . ' is now ' . $newStatus, 'html' => $html];
+    }
+
+    /** Customer email: the formal quotation has been prepared and sent. */
+    public function template_quote_sent_customer($quote, $items = [], $pdfUrl = null, $accountUrl = null)
+    {
+        $contact = trim((string) ($quote['contactPerson'] ?? ''));
+        $firstName = $contact !== '' ? preg_split('/\s+/', $contact)[0] : '';
+        $lines = [];
+        foreach ($items as $it) {
+            $label = trim(($it['partNumber'] ?? '') . ' ' . ($it['productName'] ?? ''));
+            $lines[] = '• ' . $label . ' × ' . (int) ($it['quantity'] ?? 1)
+                . (isset($it['unitPrice']) && $it['unitPrice'] !== '' && $it['unitPrice'] !== null
+                    ? ' @ ' . vp_money($it['unitPrice'], $quote['currency'] ?? 'USD') : '');
+        }
+        $vars = [
+            'quoteNumber' => $quote['quoteNumber'] ?? '',
+            'firstName'   => $firstName,
+            'companyName' => $quote['companyName'] ?? '',
+            'total'       => ($quote['totalAmount'] !== null && $quote['totalAmount'] !== '')
+                                ? vp_money($quote['totalAmount'], $quote['currency'] ?? 'USD') : 'On the attached quotation',
+            'currency'    => $quote['currency'] ?? 'USD',
+            'validUntil'  => !empty($quote['validUntil']) ? date('M j, Y', strtotime($quote['validUntil'])) : null,
+            'items_html'  => nl2br(vp_safe_html(implode("\n", $lines))),
+            'pdf_url'     => $pdfUrl,
+            'account_url' => $accountUrl,
+        ];
+        $html = $this->render_email('quote_sent', $vars);
+        return ['subject' => 'Halyk Petroleum quotation ' . $vars['quoteNumber'], 'html' => $html];
     }
 
     /** Email a customer the opaque link to Stripe-hosted Checkout. */

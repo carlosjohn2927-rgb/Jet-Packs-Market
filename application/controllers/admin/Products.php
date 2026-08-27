@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market - admin products CRUD.
+ * Halyk Petroleum - admin products CRUD.
  */
 class Products extends Admin_Controller
 {
@@ -323,15 +323,25 @@ class Products extends Admin_Controller
             return $is_create ? redirect('admin/products/create') : redirect('admin/products/edit/' . $id);
         }
 
-        // A duplicate SKU or slug would violate the unique indexes and abort
-        // the request with a database error, so check them first.
+        // A duplicate name, SKU or slug would create duplicate catalog entries
+        // (or violate a unique index), so reject them up front. Name + slug are
+        // matched case-insensitively; SKU exactly.
         $slug = vp_slugify($this->input->post('slug') ?: $this->input->post('name'));
-        foreach ([['sku', trim((string) $this->input->post('sku'))], ['slug', $slug]] as $pair) {
-            [$col, $val] = $pair;
-            $this->db->where($col, $val);
+        $dupChecks = [
+            ['name', trim((string) $this->input->post('name')), true],
+            ['sku',  trim((string) $this->input->post('sku')),  false],
+            ['slug', $slug, true],
+        ];
+        foreach ($dupChecks as [$col, $val, $ci]) {
+            if ($val === '') continue;
+            if ($ci) {
+                $this->db->where('LOWER(' . $this->db->protect_identifiers($col) . ')', strtolower($val));
+            } else {
+                $this->db->where($col, $val);
+            }
             if (!$is_create) $this->db->where('id !=', $id);
             if ($this->db->count_all_results('products') > 0) {
-                $this->flash('error', 'Another product already uses that ' . strtoupper($col) . ' ("' . $val . '"). Choose a different one.');
+                $this->flash('error', 'Another product already uses that ' . strtoupper($col) . ' ("' . $val . '"). Choose a unique value.');
                 return $is_create ? redirect('admin/products/create') : redirect('admin/products/edit/' . $id);
             }
         }

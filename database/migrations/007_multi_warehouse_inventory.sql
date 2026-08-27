@@ -1,5 +1,5 @@
 -- =============================================================================
--- JetPacks Market — Migration 007: multi-warehouse inventory & lot tracking
+-- Halyk Petroleum — Migration 007: multi-warehouse inventory & lot tracking
 -- =============================================================================
 -- Creates warehouse, lot and immutable movement tables. Existing product
 -- quantities are backfilled into an OPENING lot at the Dallas AOG hub, so the

@@ -1,7 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * JetPacks Market — customer accounts.
+ * Halyk Petroleum — customer accounts.
  *
  * This screen manages CUSTOMER accounts only. Staff accounts (Super Admin,
  * Admin, Sales, Engineer, Editor) are managed exclusively by the Super Admin

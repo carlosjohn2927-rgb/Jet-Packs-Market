@@ -25,10 +25,12 @@ $target = $argv[1] ?? ($root . '/database/dev.sqlite');
 
 $files = [
     $root . '/install/install.sql',
-    $root . '/database/migrations/001_cms_and_permissions.sql',
     $root . '/install/seed.sql',
-    $root . '/database/migrations/002_cms_seed.sql',
 ];
+// Every numbered migration, in order (cms seed, marketplace, branding…).
+foreach (glob($root . '/database/migrations/*.sql') ?: [] as $migration) {
+    $files[] = $migration;
+}
 
 echo "Halyk Petroleum — dev SQLite installer\n";
 echo "Target: {$target}\n\n";
@@ -228,9 +230,29 @@ foreach ($files as $file) {
         }
 
         if (preg_match('/^(ALTER TABLE)/i', $stmt)) {
-            // MySQL-only migration helpers: try, ignore failures (SQLite is
-            // rebuilt from scratch by this script anyway).
-            try { $pdo->exec($stmt); $applied++; } catch (PDOException $e) {}
+            // Translate MySQL multi-column ALTERs into single SQLite
+            // "ALTER TABLE ... ADD COLUMN" statements and run each separately;
+            // duplicate-column failures are ignored (the dev DB is rebuilt
+            // from scratch by this script anyway).
+            if (preg_match('/^ALTER\s+TABLE\s+`?([A-Za-z0-9_]+)`?\s+(.*)$/is', $stmt, $am)) {
+                $table = $am[1];
+                $body  = $am[2];
+                // Split on top-level commas (inside ADD/MODIFY/CHANGE clauses).
+                $parts = preg_split('/,\s*(?=ADD\b|MODIFY\b|CHANGE\b|DROP\b|ALTER\b)/i', $body);
+                foreach ($parts as $part) {
+                    $part = trim($part);
+                    if (preg_match('/^ADD\s+COLUMN\s+(.+)$/is', $part, $cm) || preg_match('/^ADD\s+(.+)$/is', $part, $cm)) {
+                        $col = trim($cm[1]);
+                        // Normalise the column definition for SQLite: strip
+                        // AFTER/FIRST positioning and MySQL AUTO_INCREMENT.
+                        $col = preg_replace('/\s+AFTER\s+`?[A-Za-z0-9_]+`?/i', '', $col);
+                        $col = preg_replace('/\s+FIRST$/i', '', $col);
+                        try { $pdo->exec("ALTER TABLE `{$table}` ADD COLUMN {$col}"); $applied++; }
+                        catch (PDOException $e) { /* duplicate column */ }
+                    }
+                    // MODIFY/CHANGE/DROP are not needed for fresh dev DBs.
+                }
+            }
             continue;
         }
 

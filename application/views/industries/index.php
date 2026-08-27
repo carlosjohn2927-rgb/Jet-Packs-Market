@@ -1,9 +1,9 @@
 <?php /** @var array $industries */ ?>
 <?php $this->load->view('partials/photo_writeup_hero', [
     'hero_image'         => IMG_URL . 'industries/oil-gas.jpg',
-    'hero_alt'           => 'Oil and gas processing facility at sunset',
-    'hero_title_html'    => vp_inline_text('industries_hero_title', 'Industries we serve', 'h1', 'text-4xl lg:text-5xl font-extrabold'),
-    'hero_subtitle_html' => vp_inline_text('industries_hero_subtitle', "Engineered for the requirements of the world's most demanding sectors.", 'p', 'mt-3 max-w-2xl text-lg'),
+    'hero_alt'           => 'Halyk Petroleum parts warehouse and global sourcing network',
+    'hero_title_html'    => vp_inline_text('industries_hero_title', 'Industries & markets we supply', 'h1', 'text-4xl lg:text-5xl font-extrabold'),
+    'hero_subtitle_html' => vp_inline_text('industries_hero_subtitle', 'Certified aircraft parts and components for airlines, business aviation, MRO facilities, cargo operators, defence, helicopter fleets and AOG desks — sourced, certified and delivered worldwide.', 'p', 'mt-3 max-w-2xl text-lg'),
 ]); ?>
 <section class="container mx-auto px-4 py-12">
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">

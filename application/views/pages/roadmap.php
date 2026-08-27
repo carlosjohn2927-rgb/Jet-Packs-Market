@@ -18,7 +18,7 @@ $GLOBALS['__roadmap_phase_done']  = 0;
     <div class="container mx-auto px-4 py-12">
         <span class="text-xs font-bold tracking-widest uppercase text-amber-500">Marketplace roadmap</span>
         <h1 class="text-4xl lg:text-5xl font-extrabold mt-2 text-ink-900">What we've shipped. What's next.</h1>
-        <p class="text-ink-800 mt-3 max-w-2xl">An honest, public roadmap for the JetPacks Market platform. Items marked
+        <p class="text-ink-800 mt-3 max-w-2xl">An honest, public roadmap for the Halyk Petroleum platform. Items marked
             <strong>Shipped</strong> are live in production everywhere; <strong>Building</strong> is in active development;
             <strong>Planned</strong> is on the public roadmap.</p>
 

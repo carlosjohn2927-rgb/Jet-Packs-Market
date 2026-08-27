@@ -1,6 +1,6 @@
 <?php
 /**
- * envcheck.php — one-time cPanel diagnostic for Vortex Precision / Halyk.
+ * envcheck.php — one-time cPanel diagnostic for Halyk Petroleum / Halyk.
  *
  * HOW TO USE
  *   1. Upload this file to the SAME folder as index.php (your document root).
@@ -19,7 +19,7 @@ function mask($v)
     return substr($v, 0, 2) . '*** (length ' . strlen($v) . ')';
 }
 
-echo "===== Vortex Precision envcheck =====\n\n";
+echo "===== Halyk Petroleum envcheck =====\n\n";
 echo 'PHP version     : ' . PHP_VERSION . "\n";
 echo 'SAPI            : ' . php_sapi_name() . "\n";
 echo '__DIR__         : ' . __DIR__ . "\n";
