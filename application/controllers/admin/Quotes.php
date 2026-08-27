@@ -717,10 +717,11 @@ class Quotes extends Admin_Controller
         $url = VP_UPLOAD_URL . 'quotes/' . $q['quoteNumber'] . '.pdf';
         $this->Quote_model->set_pdf_url($id, $url, $this->jet_auth->id());
 
-        // Email the customer.
+        // Email the customer, with the generated PDF attached.
         $customerLink = base_url('account/quotes/' . $id);
         $tpl = $this->mailer->template_quote_sent_customer($q, $items, $url, $customerLink);
-        $dedupeKey = 'quote_sent:' . $id . ':' . md5($url);
+        $dedupeKey = 'quote_sent:' . $id . ':' . md5($url . $binary);
+        $this->mailer->attach($pdfPath, $q['quoteNumber'] . '.pdf', 'application/pdf');
         $email = $this->mailer->send($q['email'], $tpl['subject'], $tpl['html'], 'quote_sent', $dedupeKey, ['quoteId' => $id]);
 
         $this->Quote_model->log_email_sent($id, $this->jet_auth->id(), $q['email'], $email['status'] ?? 'FAILED');

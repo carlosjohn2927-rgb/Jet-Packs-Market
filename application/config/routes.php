@@ -61,8 +61,11 @@ $route['reset/(:any)']         = 'auth/reset/$1';
 
 /* ---------- Customer account ---------- */
 $route['account']                          = 'account';
-$route['account/quotes']                   = 'account/quotes';
-$route['account/quotes/(:any)']            = 'account/quotes_view/$1';
+$route['account/quotes']                          = 'account/quotes';
+$route['account/quotes/(:any)/approve']           = 'account/quotes_approve/$1';
+$route['account/quotes/(:any)/reject']            = 'account/quotes_reject/$1';
+$route['account/quotes/(:any)/download-pdf']      = 'account/quotes_pdf/$1';
+$route['account/quotes/(:any)']                   = 'account/quotes_view/$1';
 $route['account/invoices']                 = 'account/invoices';
 $route['account/invoices/(:any)/download'] = 'account/invoice_download/$1';
 $route['account/dispatches']               = 'account/dispatches';
