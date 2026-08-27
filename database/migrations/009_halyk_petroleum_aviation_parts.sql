@@ -240,3 +240,30 @@ ALTER TABLE `quote_items`
   ADD COLUMN `notes`        TEXT         DEFAULT NULL AFTER `availability`,
   ADD COLUMN `currency`     CHAR(3)      NOT NULL DEFAULT 'USD' AFTER `total`;
 
+-- ---------------------------------------------------------------------------
+-- 13. Homepage builder sections — replace legacy industrial-valve copy with
+--     aircraft-parts & components positioning (type + title based update,
+--     safe for both MySQL and the dev SQLite installer).
+-- ---------------------------------------------------------------------------
+UPDATE `page_sections` SET `title`='Aircraft Parts & Components, Sourced and Certified'
+ WHERE `type`='hero' AND `pageKey`='home';
+UPDATE `page_sections` SET `subtitle`='New, overhauled and serviceable aircraft parts for business jets, airliners, helicopters and MROs. Send an RFQ — every part certified and traceable.'
+ WHERE `type`='hero' AND `pageKey`='home';
+UPDATE `page_sections` SET `buttonText`='Request a Quote', `buttonUrl`='rfq', `buttonText2`='Browse Parts', `buttonUrl2`='products'
+ WHERE `type`='hero' AND `pageKey`='home';
+UPDATE `page_sections` SET `title`='Featured parts', `subtitle`='Ready-to-ship new, overhauled and serviceable parts with verified FAA 8130-3 / EASA Form 1 traceability.'
+ WHERE `type`='products' AND `pageKey`='home';
+UPDATE `page_sections` SET `title`='Part categories', `subtitle`='Wheels & brakes, rotables, avionics, hydraulics, engines and airframe components — certified and traceable.'
+ WHERE `type`='categories' AND `pageKey`='home';
+UPDATE `page_sections` SET `title`='Industries we supply', `subtitle`='Airlines, business aviation, MRO facilities, cargo operators, defence and AOG desks worldwide.'
+ WHERE `type`='industries' AND `pageKey`='home';
+UPDATE `page_sections` SET `title`='Need a part quoted?', `subtitle`='Send an RFQ with part numbers and quantities — our sales desk replies within 24 hours, 2 hours for urgent requests.'
+ WHERE `type`='cta' AND `pageKey`='home';
+-- Any section settings/body carrying the old industrial copy get neutralised.
+UPDATE `page_sections` SET `body`=REPLACE(`body`, 'precision-machined valves to ASME-coded pressure vessels', 'wheels and brakes to rotables, avionics and engine parts') WHERE `body` IS NOT NULL;
+UPDATE `page_sections` SET `settings`=REPLACE(`settings`, 'Industrial manufacturing', 'Aircraft parts supply') WHERE `settings` IS NOT NULL;
+-- Replace legacy oil-and-gas / chemicals / water / food verticals copy with
+-- the aviation customers Halyk Petroleum actually serves.
+UPDATE `page_sections` SET `subtitle`='Airlines, business aviation flight departments, MRO facilities, cargo operators, defence and helicopter fleets — plus AOG desks worldwide — rely on Halyk Petroleum for certified parts.'
+ WHERE (`subtitle` LIKE '%oil and gas%' OR `subtitle` LIKE '%chemicals%' OR `subtitle` LIKE '%water and food%' OR `subtitle` LIKE '%precision-machined valves%');
+
