@@ -21,6 +21,18 @@ class Admin_Crud extends Admin_Controller
     /** @var array  Columns searched by the list view's ?q= */
     protected $search_fields = [];
 
+    /**
+     * Editable form fields, as label => config. When empty the form is built
+     * from $list_columns (legacy behaviour). Each value may be:
+     *   - a column name string, or
+     *   - ['field' => 'col', 'type' => 'text|textarea|checkbox|number|select|image',
+     *      'options' => [..], 'required' => bool, 'help' => '..']
+     */
+    protected $form_fields = [];
+
+    /** Columns that should not be duplicated across rows (uniqueness check). */
+    protected $unique_fields = [];
+
     /** @var array  [col => dir] default ordering */
     protected $order_by = ['createdAt' => 'DESC'];
 
@@ -66,6 +78,8 @@ class Admin_Crud extends Admin_Controller
             'page' => $result['page'],
             'search' => $search,
             'columns' => $this->list_columns,
+            'controller_url' => $this->redirect_url,
+            'redirect_url' => $this->redirect_url,
             'base_url' => base_url($this->redirect_url) . '?' . http_build_query(array_filter(['q' => $search])) . '&page={page}',
         ];
         $this->render('admin/_crud_index', $data);
@@ -78,6 +92,7 @@ class Admin_Crud extends Admin_Controller
         $this->render('admin/_crud_form', [
             'row' => null,
             'columns' => $this->list_columns,
+            'fields' => $this->_form_fields(),
             'form_url' => base_url($this->redirect_url . '/save'),
         ]);
     }
@@ -92,8 +107,31 @@ class Admin_Crud extends Admin_Controller
         $this->render('admin/_crud_form', [
             'row' => $row,
             'columns' => $this->list_columns,
+            'fields' => $this->_form_fields(),
             'form_url' => base_url($this->redirect_url . '/save'),
         ]);
+    }
+
+    /**
+     * Normalise $form_fields (or fall back to list columns) into a consistent
+     * field definition list for the form view and for save().
+     */
+    protected function _form_fields()
+    {
+        $out = [];
+        if (!empty($this->form_fields)) {
+            foreach ($this->form_fields as $label => $cfg) {
+                if (is_string($cfg)) $cfg = ['field' => $cfg];
+                if (!isset($cfg['field'])) $cfg['field'] = $cfg;
+                $cfg['label'] = $label;
+                $out[$cfg['field']] = $cfg;
+            }
+            return $out;
+        }
+        foreach ($this->list_columns as $label => $col) {
+            $out[$col] = ['field' => $col, 'label' => $label];
+        }
+        return $out;
     }
 
     public function save()
@@ -116,7 +154,17 @@ class Admin_Crud extends Admin_Controller
         }
 
         $data = $this->_collect_post();
-        if (!empty($data['slug']) && !$data['slug']) $data['slug'] = vp_slugify($data['name'] ?? 'item');
+        if (!empty($data['name']) && empty($data['slug'])) {
+            $data['slug'] = vp_slugify($data['name']);
+        }
+
+        // Reject duplicate values on uniqueness-protected columns (case-
+        // insensitive), excluding the row currently being edited.
+        $uniqueError = $this->_duplicate_violation($data, $id);
+        if ($uniqueError !== null) {
+            $this->flash('error', $uniqueError);
+            return $id ? redirect($this->redirect_url . '/edit/' . $id) : redirect($this->redirect_url . '/create');
+        }
 
         if ($id) {
             $this->M()->update($id, $data);
@@ -128,6 +176,27 @@ class Admin_Crud extends Admin_Controller
             $this->flash('success', 'Created.');
         }
         redirect($this->redirect_url . '/edit/' . $id);
+    }
+
+    /**
+     * Check $data against the controller's $unique_fields (and the model
+     * table), excluding the row $ignoreId. Returns an error string or null.
+     */
+    protected function _duplicate_violation(array $data, $ignoreId = null)
+    {
+        $checks = !empty($this->unique_fields) ? $this->unique_fields : [];
+        $table = $this->M()->table();
+        foreach ($checks as $field) {
+            if (!isset($data[$field]) || $data[$field] === '' || $data[$field] === null) continue;
+            $this->db->where('LOWER(' . $this->db->protect_identifiers($field) . ')', strtolower(trim((string) $data[$field])));
+            if ($ignoreId) $this->db->where('id !=', $ignoreId);
+            $exists = $this->db->count_all_results($table);
+            if ($exists > 0) {
+                $label = ucfirst($field === 'slug' ? 'slug (URL)' : $field);
+                return 'A record with the same ' . $label . ' already exists: "' . $data[$field] . '". Choose a unique value.';
+            }
+        }
+        return null;
     }
 
     public function delete($id = null)
@@ -148,16 +217,31 @@ class Admin_Crud extends Admin_Controller
     protected function _collect_post()
     {
         $data = [];
-        foreach ($this->list_columns as $col) {
-            if (in_array($col, ['id', 'createdAt', 'updatedAt', 'views', 'slug'], true)) continue;
+        // Collect every editable field, not just the list columns, so the
+        // create/edit forms can contain columns the list does not show.
+        foreach ($this->_form_fields() as $col => $cfg) {
+            if (in_array($col, ['id', 'createdAt', 'updatedAt'], true)) continue;
+            $type = $cfg['type'] ?? 'text';
             $val = $this->input->post($col);
+            if ($type === 'checkbox') {
+                $data[$col] = $val ? 1 : 0;
+                continue;
+            }
+            if ($type === 'number') {
+                if ($val !== null && $val !== '') $data[$col] = is_numeric($val) ? ($val + 0) : $val;
+                continue;
+            }
             if ($val !== null) {
                 $data[$col] = is_string($val) ? trim($val) : $val;
             }
         }
-        // Always allow slug override
+        // Always allow slug override, normalised.
         $slug = $this->input->post('slug');
-        if ($slug !== null) $data['slug'] = vp_slugify($slug);
+        if ($slug !== null && $slug !== '') {
+            $data['slug'] = vp_slugify($slug);
+        } elseif (!empty($data['name']) && empty($data['slug'])) {
+            $data['slug'] = vp_slugify($data['name']);
+        }
         return $data;
     }
 

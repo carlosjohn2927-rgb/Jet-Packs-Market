@@ -275,8 +275,20 @@ if (!function_exists('vp_product_image')) {
             if (!empty($product[$k])) return $product[$k];
         }
 
-        // Seeded catalog products have dedicated, curated artwork. Uploaded
-        // primary images above still take precedence for CMS-managed content.
+        // 2b: a dedicated per-product image /assets/img/products/<slug>.jpg.
+        // Each seeded part has its own illustration so catalog cards do not
+        // all share the one category image. Fall back silently when missing.
+        foreach (['slug', 'id'] as $key) {
+            if (!empty($product[$key]) && strpos((string) $product[$key], '/') === false) {
+                $candidate = FCPATH . ltrim(IMG_URL, '/') . 'products/' . rawurlencode((string) $product[$key]) . '.jpg';
+                if (is_file($candidate)) {
+                    return IMG_URL . 'products/' . $product[$key] . '.jpg';
+                }
+            }
+        }
+
+        // Seeded catalog products map to curated artwork when a per-product
+        // file is not present. Uploaded images above still take precedence.
         $productArtwork = [
             'main-landing-gear-wheel-2612201-2'   => 'wheels-brakes.jpg',
             'main-wheel-brake-2-1553-5'           => 'wheels-brakes.jpg',

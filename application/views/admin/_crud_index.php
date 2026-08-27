@@ -1,13 +1,28 @@
 <?php
 /** @var array $rows */
 /** @var array $columns */
+$base = $base_url ?? null;
+// Resolve a stable controller base path (e.g. admin/categories). Passed in by
+// Admin_Crud; the old view guessed it from get_class($this) which is the loader
+// inside a view and produced broken relative links like "/edit/<id>".
+$ctrlBase = isset($controller_url) ? $controller_url
+    : (isset($redirect_url) ? rtrim($redirect_url, '/') : null);
+if (!$ctrlBase) {
+    $seg = trim(parse_url(current_url(), PHP_URL_PATH) ?: '', '/');
+    $parts = explode('/', $seg);
+    // strip a trailing action segment such as /edit /create
+    $allowed = ['index','create','edit','save','delete'];
+    if (count($parts) && in_array(end($parts), $allowed, true)) array_pop($parts);
+    $ctrlBase = implode('/', $parts);
+}
+$ctrlBase = $ctrlBase ? rtrim($ctrlBase, '/') : '';
 ?>
 <div class="flex items-center justify-between mb-4">
     <form method="get" class="flex items-center gap-2">
         <input class="vp-input" type="search" name="q" value="<?= vp_safe_html($search ?? '') ?>" placeholder="Search…">
         <button class="vp-btn vp-btn-secondary" type="submit">Search</button>
     </form>
-    <a class="vp-btn vp-btn-primary" href="<?= base_url($redirect_url ?? (strtolower(get_class($this)) === 'admin_crud' ? '#' : 'admin/' . strtolower(get_class($this)))) . '/create' ?>"><i class="ri-add-line"></i> New</a>
+    <a class="vp-btn vp-btn-primary" href="<?= base_url($ctrlBase . '/create') ?>"><i class="ri-add-line"></i> New</a>
 </div>
 
 <div class="overflow-x-auto">
@@ -44,8 +59,8 @@
                     </td>
                 <?php endforeach; ?>
                 <td class="text-right whitespace-nowrap">
-                    <a class="text-brand-600 hover:underline text-xs" href="<?= base_url($redirect_url ?? ('admin/' . strtolower(get_class($this)))) . '/edit/' . $r['id'] ?>">Edit</a>
-                    <form action="<?= base_url($redirect_url ?? ('admin/' . strtolower(get_class($this)))) . '/delete/' . $r['id'] ?>" method="post" class="inline" data-confirm="Delete this record?">
+                    <a class="text-brand-600 hover:underline text-xs" href="<?= base_url($ctrlBase . '/edit/' . $r['id']) ?>">Edit</a>
+                    <form action="<?= base_url($ctrlBase . '/delete/' . $r['id']) ?>" method="post" class="inline" data-confirm="Delete this record?">
                         <input type="hidden" name="<?= $csrf_token_name ?>" value="<?= $csrf_token ?>">
                         <button class="text-red-600 hover:underline text-xs ml-2" type="submit">Delete</button>
                     </form>
