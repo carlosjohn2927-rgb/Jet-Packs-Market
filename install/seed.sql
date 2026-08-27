@@ -44,19 +44,19 @@ INSERT INTO `role_permissions` (`id`,`role`,`resource`,`actions`) VALUES
 ON DUPLICATE KEY UPDATE `actions`=VALUES(`actions`);
 
 -- ----- Categories -----
-INSERT INTO `categories` (`id`,`name`,`slug`,`description`,`icon`,`sortOrder`,`isActive`,`metaTitle`) VALUES
-(UUID(),'Wheels & Brakes','wheels-brakes','Wheels, tires, brake assemblies and anti-skid systems for business and commercial jets.','wheel',1,1,'Aircraft Wheels & Brakes - Halyk Petroleum'),
-(UUID(),'Landing Gear','landing-gear','Complete landing gear assemblies, actuators, struts and steering components.','gear',2,1,'Aircraft Landing Gear - Halyk Petroleum'),
-(UUID(),'Avionics','avionics','Radios, radars, displays, flight instruments, recorders and navigation systems.','radar',3,1,'Avionics & Instruments - Halyk Petroleum'),
-(UUID(),'Engines & APUs','engines-apus','Turbofan engines, auxiliary power units and engine components.','engine',4,1,'Engines & APUs - Halyk Petroleum'),
-(UUID(),'Flight Controls','flight-controls','Servos, actuators, power control units and trim systems.','servo',5,1,'Flight Controls - Halyk Petroleum'),
-(UUID(),'Hydraulics','hydraulics','Hydraulic pumps, valves, reservoirs and accumulators.','hydraulic',6,1,'Hydraulic Systems - Halyk Petroleum'),
-(UUID(),'Pneumatics & Bleed Air','pneumatics','Bleed air valves, pressure controllers and pneumatic components.','air',7,1,'Pneumatics & Bleed Air - Halyk Petroleum'),
-(UUID(),'Electrical & Lighting','electrical-lighting','Generators, batteries, lights, relays and power distribution.','bolt',8,1,'Electrical & Lighting - Halyk Petroleum'),
-(UUID(),'Interior & Cabin','interior-cabin','Escape slides, oxygen systems, galleys and cabin equipment.','seat',9,1,'Interior & Cabin - Halyk Petroleum'),
-(UUID(),'Actuators & Valves','actuators-valves','Linear and rotary actuators, control valves and solenoids.','valve',10,1,'Actuators & Valves - Halyk Petroleum'),
-(UUID(),'Fuel Systems','fuel-systems','Fuel pumps, indicators, valves and fuel system components.','fuel',11,1,'Fuel Systems - Halyk Petroleum'),
-(UUID(),'Airframe & Structures','airframe','Structural components, cowlings, fairings and airframe parts.','plane',12,1,'Airframe & Structures - Halyk Petroleum');
+INSERT INTO `categories` (`id`,`name`,`nameNorm`,`slug`,`description`,`icon`,`sortOrder`,`isActive`,`metaTitle`) VALUES
+(UUID(),'Wheels & Brakes','wheels & brakes','wheels-brakes','Wheels, tires, brake assemblies and anti-skid systems for business and commercial jets.','wheel',1,1,'Aircraft Wheels & Brakes - Halyk Petroleum'),
+(UUID(),'Landing Gear','landing gear','landing-gear','Complete landing gear assemblies, actuators, struts and steering components.','gear',2,1,'Aircraft Landing Gear - Halyk Petroleum'),
+(UUID(),'Avionics','avionics','avionics','Radios, radars, displays, flight instruments, recorders and navigation systems.','radar',3,1,'Avionics & Instruments - Halyk Petroleum'),
+(UUID(),'Engines & APUs','engines & apus','engines-apus','Turbofan engines, auxiliary power units and engine components.','engine',4,1,'Engines & APUs - Halyk Petroleum'),
+(UUID(),'Flight Controls','flight controls','flight-controls','Servos, actuators, power control units and trim systems.','servo',5,1,'Flight Controls - Halyk Petroleum'),
+(UUID(),'Hydraulics','hydraulics','hydraulics','Hydraulic pumps, valves, reservoirs and accumulators.','hydraulic',6,1,'Hydraulic Systems - Halyk Petroleum'),
+(UUID(),'Pneumatics & Bleed Air','pneumatics & bleed air','pneumatics','Bleed air valves, pressure controllers and pneumatic components.','air',7,1,'Pneumatics & Bleed Air - Halyk Petroleum'),
+(UUID(),'Electrical & Lighting','electrical & lighting','electrical-lighting','Generators, batteries, lights, relays and power distribution.','bolt',8,1,'Electrical & Lighting - Halyk Petroleum'),
+(UUID(),'Interior & Cabin','interior & cabin','interior-cabin','Escape slides, oxygen systems, galleys and cabin equipment.','seat',9,1,'Interior & Cabin - Halyk Petroleum'),
+(UUID(),'Actuators & Valves','actuators & valves','actuators-valves','Linear and rotary actuators, control valves and solenoids.','valve',10,1,'Actuators & Valves - Halyk Petroleum'),
+(UUID(),'Fuel Systems','fuel systems','fuel-systems','Fuel pumps, indicators, valves and fuel system components.','fuel',11,1,'Fuel Systems - Halyk Petroleum'),
+(UUID(),'Airframe & Structures','airframe & structures','airframe','Structural components, cowlings, fairings and airframe parts.','plane',12,1,'Airframe & Structures - Halyk Petroleum');
 
 
 INSERT INTO `industries` (`id`,`name`,`slug`,`description`,`icon`,`sortOrder`,`isActive`,`metaTitle`,`capabilities`) VALUES
@@ -73,12 +73,12 @@ INSERT INTO `industries` (`id`,`name`,`slug`,`description`,`icon`,`sortOrder`,`i
 
 
 INSERT INTO `products`
-  (`id`,`name`,`slug`,`sku`,`description`,`shortDescription`,`categoryId`,
+  (`id`,`name`,`nameNorm`,`slug`,`sku`,`description`,`shortDescription`,`categoryId`,
    `industryIds`,`material`,`pressure`,`temperature`,`voltage`,`dimensions`,`weight`,
    `certifications`,`availability`,`quantity`,`condition`,`manufacturer`,`aircraftType`,
    `price`,`featured`,`isActive`,`views`,`metaTitle`)
 SELECT
-  UUID(),'Main Landing Gear Wheel Assembly','main-landing-gear-wheel-2612201-2','2612201-2',
+  UUID(),'Main Landing Gear Wheel Assembly','main landing gear wheel assembly','main-landing-gear-wheel-2612201-2','2612201-2',
   'Goodrich main landing gear wheel assembly for Gulfstream GIV/GV. Fully inspected, 4 wheels available. Includes bearings and lug nuts. Traceable to source, ships with export documentation.',
   'MLG wheel assembly, inspected and ready to ship.',
   (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
@@ -88,7 +88,7 @@ SELECT
   'IN_STOCK',4,'USED','Goodrich','Gulfstream GIV / GV',
   14850.00,1,1,214,'Main Landing Gear Wheel Assembly - 2612201-2'
 UNION ALL SELECT
-  UUID(),'Main Wheel & Brake Assembly (Steel)','main-wheel-brake-2-1553-5','2-1553-5',
+  UUID(),'Main Wheel & Brake Assembly (Steel)','main wheel & brake assembly (steel)','main-wheel-brake-2-1553-5','2-1553-5',
   'BFGoodrich main wheel and steel brake assembly for Cessna Citation II. New condition, zero time since overhaul. Includes wheel halves, brake discs and torque plate.',
   'Wheel and steel brake assembly, new, for Citation II.',
   (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
@@ -98,7 +98,7 @@ UNION ALL SELECT
   'IN_STOCK',2,'NEW','BFGoodrich','Cessna Citation II',
   8950.00,1,1,187,'Main Wheel & Brake Assembly - 2-1553-5'
 UNION ALL SELECT
-  UUID(),'Carbon Brake Assembly','carbon-brake-2612401-1','2612401-1',
+  UUID(),'Carbon Brake Assembly','carbon brake assembly','carbon-brake-2612401-1','2612401-1',
   'Goodrich carbon brake assembly for Gulfstream G450. Low-time heat stack, serviceable condition, complete with torque plate and hardware kit. Carbon brakes save ~700 lb per aircraft.',
   'Carbon brake assembly, low-time heat stack.',
   (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
@@ -108,7 +108,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'NEW','Goodrich','Gulfstream G450',
   32400.00,1,1,156,'Carbon Brake Assembly - 2612401-1'
 UNION ALL SELECT
-  UUID(),'Nose Wheel Assembly','nose-wheel-208-150-0','208-150-0',
+  UUID(),'Nose Wheel Assembly','nose wheel assembly','nose-wheel-208-150-0','208-150-0',
   'Goodyear nose wheel assembly with tire, for Dassault Falcon 50. New tire mounted on inspected wheel. Six units available, all zero-time.',
   'Nose wheel with new tire, six available.',
   (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
@@ -118,7 +118,7 @@ UNION ALL SELECT
   'IN_STOCK',6,'NEW','Goodyear','Dassault Falcon 50',
   2150.00,0,1,98,'Nose Wheel Assembly - 208-150-0'
 UNION ALL SELECT
-  UUID(),'Main Gear Tire (Flight Leader)','main-gear-tire-132-101-0','132-101-0',
+  UUID(),'Main Gear Tire (Flight Leader)','main gear tire (flight leader)','main-gear-tire-132-101-0','132-101-0',
   'Goodyear Flight Leader main gear tire for Citation and Hawker aircraft. 18-ply rating, new, manufactured within the last 18 months. Eight tires in stock.',
   'Main gear tire, 18-ply, new, eight in stock.',
   (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
@@ -128,7 +128,7 @@ UNION ALL SELECT
   'IN_STOCK',8,'NEW','Goodyear','Citation / Hawker',
   1890.00,0,1,143,'Main Gear Tire - 132-101-0'
 UNION ALL SELECT
-  UUID(),'Anti-Skid Control Unit','anti-skid-control-20-57-03','20-57-03',
+  UUID(),'Anti-Skid Control Unit','anti-skid control unit','anti-skid-control-20-57-03','20-57-03',
   'Hydro-Aire Mark III anti-skid control unit for Bombardier Challenger 600/601. Overhauled with test certificate, 5,000-cycle warranty. Drop-in replacement, no wiring changes.',
   'Overhauled anti-skid control unit with warranty.',
   (SELECT `id` FROM `categories` WHERE `slug`='wheels-brakes' LIMIT 1),
@@ -138,7 +138,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'OHC','Hydro-Aire','Challenger 600/601',
   6750.00,0,1,87,'Anti-Skid Control Unit - 20-57-03'
 UNION ALL SELECT
-  UUID(),'Nose Landing Gear Assembly','nose-landing-gear-9001252-3','9001252-3',
+  UUID(),'Nose Landing Gear Assembly','nose landing gear assembly','nose-landing-gear-9001252-3','9001252-3',
   'Messier-Dowty nose landing gear assembly for Dassault Falcon 2000. Serviceable, complete with steering collar and drag brace. Ultrasonic inspection current. Immediate AOG dispatch available.',
   'Complete nose landing gear, serviceable.',
   (SELECT `id` FROM `categories` WHERE `slug`='landing-gear' LIMIT 1),
@@ -148,7 +148,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'USED','Messier-Dowty','Dassault Falcon 2000',
   24500.00,1,1,176,'Nose Landing Gear Assembly - 9001252-3'
 UNION ALL SELECT
-  UUID(),'Main Landing Gear Actuator','main-landing-gear-actuator-9001340-5','9001340-5',
+  UUID(),'Main Landing Gear Actuator','main landing gear actuator','main-landing-gear-actuator-9001340-5','9001340-5',
   'Messier-Dowty main landing gear actuator for Falcon 900. Overhauled, bench-tested with report. Corrosion protection per latest SB. Two units available.',
   'MLG actuator, overhauled with bench test report.',
   (SELECT `id` FROM `categories` WHERE `slug`='landing-gear' LIMIT 1),
@@ -158,7 +158,7 @@ UNION ALL SELECT
   'IN_STOCK',2,'OHC','Messier-Dowty','Dassault Falcon 900',
   12400.00,0,1,121,'Main Landing Gear Actuator - 9001340-5'
 UNION ALL SELECT
-  UUID(),'Nose Wheel Steering Actuator','nose-wheel-steering-46-162-01','46-162-01',
+  UUID(),'Nose Wheel Steering Actuator','nose wheel steering actuator','nose-wheel-steering-46-162-01','46-162-01',
   'Parker Aerospace nose wheel steering actuator for Learjet 45. New manufacture, current revision, with placards and hardware. Two units in stock.',
   'New nose wheel steering actuator, current rev.',
   (SELECT `id` FROM `categories` WHERE `slug`='landing-gear' LIMIT 1),
@@ -168,7 +168,7 @@ UNION ALL SELECT
   'IN_STOCK',2,'NEW','Parker Aerospace','Learjet 45',
   7850.00,0,1,92,'Nose Wheel Steering Actuator - 46-162-01'
 UNION ALL SELECT
-  UUID(),'Landing Gear Control Unit','landing-gear-control-82-345-2','82-345-2',
+  UUID(),'Landing Gear Control Unit','landing gear control unit','landing-gear-control-82-345-2','82-345-2',
   'Collins landing gear control unit for Hawker 800 series. Overhauled with functional test. Includes gear-up warning inputs. Exchanged units accepted.',
   'Landing gear control unit, overhauled.',
   (SELECT `id` FROM `categories` WHERE `slug`='landing-gear' LIMIT 1),
@@ -178,7 +178,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'OHC','Collins Aerospace','Hawker 800 / 800XP',
   9600.00,0,1,74,'Landing Gear Control Unit - 82-345-2'
 UNION ALL SELECT
-  UUID(),'VHF-4000 Comm Radio','vhf-4000-comm-radio','622-8920-005',
+  UUID(),'VHF-4000 Comm Radio','vhf-4000 comm radio','vhf-4000-comm-radio','622-8920-005',
   'Collins Aerospace VHF-4000 communications transceiver for Hawker 800XP and Challenger. New, with rack and installation kit. 8.33 kHz spacing capable.',
   'New VHF-4000 comm radio with rack.',
   (SELECT `id` FROM `categories` WHERE `slug`='avionics' LIMIT 1),
@@ -188,7 +188,7 @@ UNION ALL SELECT
   'IN_STOCK',3,'NEW','Collins Aerospace','Hawker 800XP / Challenger',
   5400.00,1,1,233,'VHF-4000 Comm Radio - 622-8920-005'
 UNION ALL SELECT
-  UUID(),'Primus 660 Weather Radar','primus-660-weather-radar','830-0141-100',
+  UUID(),'Primus 660 Weather Radar','primus 660 weather radar','primus-660-weather-radar','830-0141-100',
   'Honeywell Primus 660 color weather radar with stabilized antenna for Citation X. New in box, latest software revision, includes radome adapter kit.',
   'New Primus 660 weather radar system.',
   (SELECT `id` FROM `categories` WHERE `slug`='avionics' LIMIT 1),
@@ -198,7 +198,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'NEW','Honeywell','Cessna Citation X',
   28500.00,0,1,164,'Primus 660 Weather Radar - 830-0141-100'
 UNION ALL SELECT
-  UUID(),'LASEREF IV Inertial Reference','laseref-iv-inertial-reference','46594-0304-0301',
+  UUID(),'LASEREF IV Inertial Reference','laseref iv inertial reference','laseref-iv-inertial-reference','46594-0304-0301',
   'Honeywell LASEREF IV inertial reference system for Gulfstream GIV/GV. Overhauled with 2,500-hour warranty, current IRU software. Includes mounting tray.',
   'Overhauled LASEREF IV IRS with warranty.',
   (SELECT `id` FROM `categories` WHERE `slug`='avionics' LIMIT 1),
@@ -208,7 +208,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'OHC','Honeywell','Gulfstream GIV / GV',
   45000.00,0,1,118,'LASEREF IV Inertial Reference - 46594-0304-0301'
 UNION ALL SELECT
-  UUID(),'KMD-850 Multi-Function Display','kmd-850-multifunction-display','010-00866-02',
+  UUID(),'KMD-850 Multi-Function Display','kmd-850 multi-function display','kmd-850-multifunction-display','010-00866-02',
   'BendixKing KMD-850 multi-function display with GPS/WAAS and terrain. New, with data card and install kit. Two units available.',
   'New KMD-850 MFD with terrain and WAAS.',
   (SELECT `id` FROM `categories` WHERE `slug`='avionics' LIMIT 1),
@@ -218,7 +218,7 @@ UNION ALL SELECT
   'IN_STOCK',2,'NEW','BendixKing','Citation / Various',
   14900.00,0,1,139,'KMD-850 Multi-Function Display - 010-00866-02'
 UNION ALL SELECT
-  UUID(),'Flight Data Recorder','flight-data-recorder-980-4700-043','980-4700-043',
+  UUID(),'Flight Data Recorder','flight data recorder','flight-data-recorder-980-4700-043','980-4700-043',
   'Honeywell solid-state flight data recorder for Boeing 737. New, 25-hour recording, with mounting rack and underwater locator beacon. Export-ready.',
   'Solid-state FDR for 737, new with rack.',
   (SELECT `id` FROM `categories` WHERE `slug`='avionics' LIMIT 1),
@@ -228,7 +228,7 @@ UNION ALL SELECT
   'MADE_TO_ORDER',1,'NEW','Honeywell','Boeing 737',
   12500.00,0,1,81,'Flight Data Recorder - 980-4700-043'
 UNION ALL SELECT
-  UUID(),'GTCP36-150 Auxiliary Power Unit','gtcp36-150-apu','3606171-1',
+  UUID(),'GTCP36-150 Auxiliary Power Unit','gtcp36-150 auxiliary power unit','gtcp36-150-apu','3606171-1',
   'Honeywell GTCP36-150 APU for Gulfstream GIV. Low-cycle used unit with complete logbooks, recently hot-section inspected. Includes ECU and harness.',
   'Low-cycle used APU with logbooks.',
   (SELECT `id` FROM `categories` WHERE `slug`='engines-apus' LIMIT 1),
@@ -238,7 +238,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'USED','Honeywell','Gulfstream GIV',
   88000.00,1,1,205,'GTCP36-150 APU - 3606171-1'
 UNION ALL SELECT
-  UUID(),'CFE738-1-1B Turbofan Engine','cfe738-1-1b-turbofan','CFE738-1-1B',
+  UUID(),'CFE738-1-1B Turbofan Engine','cfe738-1-1b turbofan engine','cfe738-1-1b-turbofan','CFE738-1-1B',
   'GE/Honeywell CFE738-1-1B turbofan engine for Falcon 2000. Used, serviceable with current borescope and mid-life HSI. Complete with QEC, inlet and reverser kit.',
   'Serviceable CFE738 turbofan with QEC.',
   (SELECT `id` FROM `categories` WHERE `slug`='engines-apus' LIMIT 1),
@@ -248,7 +248,7 @@ UNION ALL SELECT
   'MADE_TO_ORDER',1,'USED','GE / Honeywell','Dassault Falcon 2000',
   450000.00,1,1,167,'CFE738-1-1B Turbofan Engine'
 UNION ALL SELECT
-  UUID(),'TFE731-5BR-1C Engine','tfe731-5br-1c-engine','3131775-1',
+  UUID(),'TFE731-5BR-1C Engine','tfe731-5br-1c engine','tfe731-5br-1c-engine','3131775-1',
   'Honeywell TFE731-5BR-1C turbofan for Falcon 900B. Overhauled with 1,000-hour warranty, includes ECU, sensors and installation kit. Ready to hang and fly.',
   'Overhauled TFE731-5BR with warranty.',
   (SELECT `id` FROM `categories` WHERE `slug`='engines-apus' LIMIT 1),
@@ -258,7 +258,7 @@ UNION ALL SELECT
   'MADE_TO_ORDER',1,'OHC','Honeywell','Dassault Falcon 900B',
   385000.00,0,1,94,'TFE731-5BR-1C Engine'
 UNION ALL SELECT
-  UUID(),'Engine Driven Hydraulic Pump','edp-hydraulic-pump','793-2583-001',
+  UUID(),'Engine Driven Hydraulic Pump','engine driven hydraulic pump','edp-hydraulic-pump','793-2583-001',
   'Eaton engine driven hydraulic pump for Gulfstream GIV. New, 3,000 PSI, SAE-A mount. Two units in stock with pressure test certificates.',
   'New EDP hydraulic pump, 3,000 PSI.',
   (SELECT `id` FROM `categories` WHERE `slug`='hydraulics' LIMIT 1),
@@ -268,7 +268,7 @@ UNION ALL SELECT
   'IN_STOCK',2,'NEW','Eaton Aerospace','Gulfstream GIV / GV',
   9750.00,1,1,188,'Engine Driven Hydraulic Pump - 793-2583-001'
 UNION ALL SELECT
-  UUID(),'Hydraulic System Valve','hydraulic-system-valve-25d-660','25D-660',
+  UUID(),'Hydraulic System Valve','hydraulic system valve','hydraulic-system-valve-25d-660','25D-660',
   'Parker Hannifin hydraulic system valve for business jet utility systems. New, 4-way, 3,000 PSI, solenoid operated, with connector. Four in stock.',
   'New 4-way hydraulic valve, 3,000 PSI.',
   (SELECT `id` FROM `categories` WHERE `slug`='hydraulics' LIMIT 1),
@@ -278,7 +278,7 @@ UNION ALL SELECT
   'IN_STOCK',4,'NEW','Parker Hannifin','Hawker / Learjet',
   4300.00,0,1,77,'Hydraulic System Valve - 25D-660'
 UNION ALL SELECT
-  UUID(),'Rudder Servo Actuator','rudder-servo-523-0771-517','523-0771-517',
+  UUID(),'Rudder Servo Actuator','rudder servo actuator','rudder-servo-523-0771-517','523-0771-517',
   'Collins rudder servo actuator for Challenger 604. Overhauled with bench test report, current SB compliance. Includes linkage hardware.',
   'Overhauled rudder servo, bench tested.',
   (SELECT `id` FROM `categories` WHERE `slug`='flight-controls' LIMIT 1),
@@ -288,7 +288,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'OHC','Collins Aerospace','Challenger 604',
   18750.00,1,1,132,'Rudder Servo Actuator - 523-0771-517'
 UNION ALL SELECT
-  UUID(),'Elevator Trim Actuator','elevator-trim-actuator','312-0025-010',
+  UUID(),'Elevator Trim Actuator','elevator trim actuator','elevator-trim-actuator','312-0025-010',
   'Parker elevator trim actuator for Citation III. New, current revision, with gearbox and position sensor. Two units in stock.',
   'New elevator trim actuator with sensor.',
   (SELECT `id` FROM `categories` WHERE `slug`='flight-controls' LIMIT 1),
@@ -298,7 +298,7 @@ UNION ALL SELECT
   'IN_STOCK',2,'NEW','Parker Aerospace','Cessna Citation III',
   5900.00,0,1,85,'Elevator Trim Actuator - 312-0025-010'
 UNION ALL SELECT
-  UUID(),'Rudder Power Control Unit','rudder-pcu-692-0241-001','692-0241-001',
+  UUID(),'Rudder Power Control Unit','rudder power control unit','rudder-pcu-692-0241-001','692-0241-001',
   'Parker rudder power control unit for Boeing 737. Overhauled, complete with test data and 5,000-flight-hour warranty. Exchange core accepted.',
   'Overhauled rudder PCU for 737.',
   (SELECT `id` FROM `categories` WHERE `slug`='flight-controls' LIMIT 1),
@@ -308,7 +308,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'OHC','Parker Hannifin','Boeing 737',
   22000.00,0,1,66,'Rudder Power Control Unit - 692-0241-001'
 UNION ALL SELECT
-  UUID(),'Bleed Air Regulating Valve','bleed-air-regulating-valve','3070211-1',
+  UUID(),'Bleed Air Regulating Valve','bleed air regulating valve','bleed-air-regulating-valve','3070211-1',
   'Honeywell bleed air regulating valve for Challenger 601/604. New, with anti-ice bleed control, current SB. Two units in stock.',
   'New bleed air regulating valve.',
   (SELECT `id` FROM `categories` WHERE `slug`='pneumatics' LIMIT 1),
@@ -318,7 +318,7 @@ UNION ALL SELECT
   'IN_STOCK',2,'NEW','Honeywell','Challenger 601 / 604',
   8900.00,0,1,102,'Bleed Air Regulating Valve - 3070211-1'
 UNION ALL SELECT
-  UUID(),'Cabin Pressure Controller','cabin-pressure-controller','8927-14',
+  UUID(),'Cabin Pressure Controller','cabin pressure controller','cabin-pressure-controller','8927-14',
   'Honeywell digital cabin pressure controller for Gulfstream GII/GIII. Overhauled, bench tested, includes outflow valve interface card.',
   'Overhauled digital cabin pressure controller.',
   (SELECT `id` FROM `categories` WHERE `slug`='pneumatics' LIMIT 1),
@@ -328,7 +328,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'OHC','Honeywell','Gulfstream GII / GIII',
   6900.00,0,1,58,'Cabin Pressure Controller - 8927-14'
 UNION ALL SELECT
-  UUID(),'Fuel Boost Pump','fuel-boost-pump','501-072-020',
+  UUID(),'Fuel Boost Pump','fuel boost pump','fuel-boost-pump','501-072-020',
   'Eaton AC fuel boost pump for Hawker 800. New, 115 VAC, with check valve and mount gasket. Three units in stock.',
   'New AC fuel boost pump with check valve.',
   (SELECT `id` FROM `categories` WHERE `slug`='fuel-systems' LIMIT 1),
@@ -338,7 +338,7 @@ UNION ALL SELECT
   'IN_STOCK',3,'NEW','Eaton Aerospace','Hawker 800',
   6450.00,1,1,119,'Fuel Boost Pump - 501-072-020'
 UNION ALL SELECT
-  UUID(),'Fuel Quantity Indicator','fuel-quantity-indicator','900-1120-02',
+  UUID(),'Fuel Quantity Indicator','fuel quantity indicator','fuel-quantity-indicator','900-1120-02',
   'Collins fuel quantity indicator for Boeing 737. Used, serviceable, bench checked. Two units available with test data.',
   'Serviceable fuel quantity indicator.',
   (SELECT `id` FROM `categories` WHERE `slug`='fuel-systems' LIMIT 1),
@@ -348,7 +348,7 @@ UNION ALL SELECT
   'IN_STOCK',2,'USED','Collins Aerospace','Boeing 737',
   3750.00,0,1,49,'Fuel Quantity Indicator - 900-1120-02'
 UNION ALL SELECT
-  UUID(),'Starter / Generator','starter-generator','763-0411-1',
+  UUID(),'Starter / Generator','starter / generator','starter-generator','763-0411-1',
   'Hamilton Sundstrand starter/generator for Hawker 700. Overhauled with 800-hour warranty, includes regulator and cooling fan. Exchange unit available.',
   'Overhauled starter/generator with warranty.',
   (SELECT `id` FROM `categories` WHERE `slug`='electrical-lighting' LIMIT 1),
@@ -358,7 +358,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'OHC','Hamilton Sundstrand','Hawker 700',
   28000.00,1,1,145,'Starter / Generator - 763-0411-1'
 UNION ALL SELECT
-  UUID(),'Ni-Cd Main Battery','nicd-main-battery','4454-35',
+  UUID(),'Ni-Cd Main Battery','ni-cd main battery','nicd-main-battery','4454-35',
   'Marathon Ni-Cd main battery for business and regional jets. New, 24 V, 35 Ah, with thermal fuse. Five batteries in stock, shipped charged.',
   'New 24 V Ni-Cd main battery, five in stock.',
   (SELECT `id` FROM `categories` WHERE `slug`='electrical-lighting' LIMIT 1),
@@ -368,7 +368,7 @@ UNION ALL SELECT
   'IN_STOCK',5,'NEW','Marathon Power','Hawker / Learjet',
   6300.00,0,1,133,'Ni-Cd Main Battery - 4454-35'
 UNION ALL SELECT
-  UUID(),'Landing Light Assembly','landing-light-assembly','407-0120-04',
+  UUID(),'Landing Light Assembly','landing light assembly','landing-light-assembly','407-0120-04',
   'Grimes landing light assembly for Falcon 50. New, sealed beam, with mounting bracket and gasket. Four in stock.',
   'New landing light with bracket.',
   (SELECT `id` FROM `categories` WHERE `slug`='electrical-lighting' LIMIT 1),
@@ -378,7 +378,7 @@ UNION ALL SELECT
   'IN_STOCK',4,'NEW','Grimes / Collins','Dassault Falcon 50',
   1850.00,0,1,71,'Landing Light Assembly - 407-0120-04'
 UNION ALL SELECT
-  UUID(),'Emergency Oxygen System','emergency-oxygen-system','850930-01',
+  UUID(),'Emergency Oxygen System','emergency oxygen system','emergency-oxygen-system','850930-01',
   'Kidde crew emergency oxygen system for Learjet 60. New, complete with regulator, masks and cylinder. Two systems in stock, pressure tested.',
   'New crew emergency oxygen system.',
   (SELECT `id` FROM `categories` WHERE `slug`='interior-cabin' LIMIT 1),
@@ -388,7 +388,7 @@ UNION ALL SELECT
   'IN_STOCK',2,'NEW','Kidde Aerospace','Learjet 60',
   4100.00,0,1,63,'Emergency Oxygen System - 850930-01'
 UNION ALL SELECT
-  UUID(),'Emergency Escape Slide','emergency-escape-slide','630-1580-01',
+  UUID(),'Emergency Escape Slide','emergency escape slide','emergency-escape-slide','630-1580-01',
   'Air Cruisers emergency escape slide for Gulfstream GIV. Used, serviceable, current packing date, includes deployment bag and hardware.',
   'Serviceable escape slide, current pack.',
   (SELECT `id` FROM `categories` WHERE `slug`='interior-cabin' LIMIT 1),
@@ -398,7 +398,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'USED','Air Cruisers','Gulfstream GIV',
   9800.00,0,1,55,'Emergency Escape Slide - 630-1580-01'
 UNION ALL SELECT
-  UUID(),'Cabin Window Assembly','cabin-window-assembly','190-1260-11',
+  UUID(),'Cabin Window Assembly','cabin window assembly','cabin-window-assembly','190-1260-11',
   'Cabin window assembly (inner pane) for Hawker 800XP. New, with gasket kit and anti-fog coating. Two units in stock.',
   'New cabin window inner pane.',
   (SELECT `id` FROM `categories` WHERE `slug`='interior-cabin' LIMIT 1),
@@ -408,7 +408,7 @@ UNION ALL SELECT
   'IN_STOCK',2,'NEW','Hawker Beechcraft','Hawker 800XP',
   7250.00,0,1,44,'Cabin Window Assembly - 190-1260-11'
 UNION ALL SELECT
-  UUID(),'Flap Actuator','flap-actuator','12-425-01',
+  UUID(),'Flap Actuator','flap actuator','flap-actuator','12-425-01',
   'Parker flap actuator for Learjet 35/36. Overhauled with test report, current gearbox revision. Includes drive arm and mounting bolts.',
   'Overhauled flap actuator with test report.',
   (SELECT `id` FROM `categories` WHERE `slug`='actuators-valves' LIMIT 1),
@@ -418,7 +418,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'OHC','Parker Aerospace','Learjet 35 / 36',
   11500.00,1,1,109,'Flap Actuator - 12-425-01'
 UNION ALL SELECT
-  UUID(),'Solenoid Shutoff Valve','solenoid-shutoff-valve','173-104-07',
+  UUID(),'Solenoid Shutoff Valve','solenoid shutoff valve','solenoid-shutoff-valve','173-104-07',
   'Solenoid operated fuel shutoff valve for Gulfstream and Hawker fuel systems. New, 28 VDC, with connector and mounting plate. Six in stock.',
   'New solenoid fuel shutoff valve, six in stock.',
   (SELECT `id` FROM `categories` WHERE `slug`='actuators-valves' LIMIT 1),
@@ -428,7 +428,7 @@ UNION ALL SELECT
   'IN_STOCK',6,'NEW','Eaton Aerospace','Gulfstream / Hawker',
   2950.00,0,1,83,'Solenoid Shutoff Valve - 173-104-07'
 UNION ALL SELECT
-  UUID(),'Engine Cowling (RH)','engine-cowling-rh','310-0452-05',
+  UUID(),'Engine Cowling (RH)','engine cowling (rh)','engine-cowling-rh','310-0452-05',
   'Right-hand engine cowling for Citation III. Serviceable composite, minor cosmetic damage only, includes cowl lip and hinges. AOG dispatch available.',
   'Serviceable RH engine cowling, AOG-ready.',
   (SELECT `id` FROM `categories` WHERE `slug`='airframe' LIMIT 1),
@@ -438,7 +438,7 @@ UNION ALL SELECT
   'IN_STOCK',1,'USED','Cessna','Cessna Citation III',
   8900.00,0,1,52,'Engine Cowling (RH) - 310-0452-05'
 UNION ALL SELECT
-  UUID(),'APU Fire Extinguisher Bottle','apu-fire-extinguisher','830121-01',
+  UUID(),'APU Fire Extinguisher Bottle','apu fire extinguisher bottle','apu-fire-extinguisher','830121-01',
   'Kidde APU fire extinguisher bottle for Challenger 601/604. Overhauled with new discharge cartridge, hydro test current. Two units available.',
   'Overhauled APU fire bottle, hydro current.',
   (SELECT `id` FROM `categories` WHERE `slug`='airframe' LIMIT 1),
@@ -454,6 +454,22 @@ UNION ALL SELECT
 -- these lots after every inventory movement; this data keeps seeded parts
 -- immediately usable in the multi-warehouse module.
 -- ---------------------------------------------------------------------
+
+-- #############################################################################
+-- 6b. PRODUCT IMAGES — one unique primary illustration per catalog part
+-- #############################################################################
+-- Every product gets its own /assets/img/products/<slug>.jpg row in the data
+-- layer so catalog cards never all share a single category image. Safe to
+-- re-run: skips products that already have any image row.
+INSERT INTO `product_images` (`id`,`productId`,`url`,`alt`,`sortOrder`,`isPrimary`,`createdAt`)
+SELECT UUID(), p.`id`,
+       CONCAT('/assets/img/products/', p.`slug`, '.jpg'),
+       p.`name`,
+       0, 1, NOW()
+  FROM `products` p
+ WHERE p.`slug` IS NOT NULL AND p.`slug` <> ''
+   AND NOT EXISTS (SELECT 1 FROM `product_images` pi WHERE pi.`productId` = p.`id`);
+
 INSERT INTO `warehouses` (`id`,`name`,`code`,`address`,`city`,`region`,`country`,`timezone`,`phone`,`isAogHub`,`isActive`,`sortOrder`,`notes`) VALUES
 (UUID(),'Dallas AOG Hub','DAL-AOG','Hangar 4, Dallas Executive Airport','Dallas','Texas','USA','America/Chicago','+1 (214) 350-0107',1,1,1,'24/7 AOG dispatch and primary receiving hub'),
 (UUID(),'Amsterdam EU Hub','AMS-EU','Schiphol-Rijk logistics campus','Amsterdam','North Holland','Netherlands','Europe/Amsterdam','+31 20 000 0000',0,1,2,'European consolidation and export hub');

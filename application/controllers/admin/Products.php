@@ -324,15 +324,33 @@ class Products extends Admin_Controller
         }
 
         // A duplicate name, SKU or slug would create duplicate catalog entries
-        // (or violate a unique index), so reject them up front. Name + slug are
-        // matched case-insensitively; SKU exactly.
-        $slug = vp_slugify($this->input->post('slug') ?: $this->input->post('name'));
-        $dupChecks = [
-            ['name', trim((string) $this->input->post('name')), true],
+        // (or violate a unique index), so reject them up front. Names use the
+        // nameNorm column (case-insensitive, whitespace-collapsed) when present
+        // so "Main Wheel" / " main  wheel " collide; slug is case-insensitive;
+        // SKU is matched exactly after trim.
+        $postedName = trim(preg_replace('/\s+/u', ' ', (string) $this->input->post('name')));
+        $slug = vp_slugify($this->input->post('slug') ?: $postedName);
+        $nameNorm = class_exists('Catalog_integrity')
+            ? Catalog_integrity::normalize_name($postedName)
+            : strtolower($postedName);
+
+        // name via nameNorm
+        if ($nameNorm !== '') {
+            if ($this->db->field_exists('nameNorm', 'products')) {
+                $this->db->where('nameNorm', $nameNorm);
+            } else {
+                $this->db->where('LOWER(name)', $nameNorm);
+            }
+            if (!$is_create) $this->db->where('id !=', $id);
+            if ($this->db->count_all_results('products') > 0) {
+                $this->flash('error', 'Another product already uses that NAME ("' . $postedName . '"). Choose a unique value.');
+                return $is_create ? redirect('admin/products/create') : redirect('admin/products/edit/' . $id);
+            }
+        }
+        foreach ([
             ['sku',  trim((string) $this->input->post('sku')),  false],
             ['slug', $slug, true],
-        ];
-        foreach ($dupChecks as [$col, $val, $ci]) {
+        ] as [$col, $val, $ci]) {
             if ($val === '') continue;
             if ($ci) {
                 $this->db->where('LOWER(' . $this->db->protect_identifiers($col) . ')', strtolower($val));
@@ -349,9 +367,9 @@ class Products extends Admin_Controller
         $postedQuantity = $this->input->post('quantity');
         $quantity = ($postedQuantity === null || $postedQuantity === '') ? 1 : max(0, (int) $postedQuantity);
         $data = [
-            'name'             => $this->input->post('name'),
+            'name'             => $postedName,
             'slug'             => $slug,
-            'sku'              => $this->input->post('sku'),
+            'sku'              => trim((string) $this->input->post('sku')),
             'description'      => $this->input->post('description'),
             'shortDescription' => $this->input->post('shortDescription'),
             'price'            => $this->input->post('price') ?: null,
