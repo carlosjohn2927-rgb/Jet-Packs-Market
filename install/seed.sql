@@ -653,7 +653,13 @@ WHERE EXISTS (SELECT 1 FROM `users`);
 INSERT IGNORE INTO `permissions` (`id`,`key`,`label`,`groupName`,`superOnly`,`sortOrder`) VALUES
 (UUID(),'dashboard.view','View dashboard','Overview',0,1),
 (UUID(),'reports.view','View reports and analytics','Overview',0,2),
+(UUID(),'quotes.view','View quote requests (RFQ)','Sales',0,3),
 (UUID(),'quotes.manage','Manage quote requests (RFQ)','Sales',0,4),
+(UUID(),'quotes.export','Export RFQs to CSV','Sales',0,4),
+(UUID(),'quotes.assign','Assign RFQs to team members','Sales',0,4),
+(UUID(),'quotes.update_status','Change RFQ status','Sales',0,4),
+(UUID(),'quotes.generate_pdf','Generate / send PDF quotes','Sales',0,4),
+(UUID(),'quotes.manage_attachments','Manage RFQ attachments','Sales',0,4),
 (UUID(),'contacts.manage','Manage contact messages','Sales',0,5),
 (UUID(),'products.manage','Manage products','Catalog',0,6),
 (UUID(),'inventory.manage','Manage warehouse inventory and lots','Catalog',0,7),
