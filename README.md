@@ -49,6 +49,15 @@ See [`DEPLOYMENT.md`](DEPLOYMENT.md) for the complete step-by-step guide.
 The Super Admin then creates further administrators and decides, per account,
 which dashboard sections they can use: `Dashboard → People → Administrators`.
 
+> **A section is missing from your sidebar?** The dashboard sidebar is filtered
+> by your account's permissions. Only a `SUPER_ADMIN` sees *every* section —
+> specifically **People → Administrators** and the advanced system settings are
+> reserved for the Super Admin. Check the label directly under the logo: an
+> amber **"Super Admin"** shield means full access, a blue **"Administration"**
+> shield means you are signed in as a limited account. To promote your account,
+> import [`database/migrations/017_promote_super_admin.sql`](database/migrations/017_promote_super_admin.sql)
+> (edit the email first), then sign out and back in.
+
 ### Upgrading an existing installation
 
 Import the applicable files below in phpMyAdmin (in order) to bring a database
@@ -65,6 +74,13 @@ database/migrations/007_multi_warehouse_inventory.sql
 database/migrations/008_customer_accounts.sql
 database/migrations/009_halyk_petroleum_aviation_parts.sql
 database/migrations/010_catalog_data_integrity.sql
+database/migrations/011_fix_banner_and_category_images.sql
+database/migrations/012_industry_artwork.sql
+database/migrations/013_reactivate_aircraft_platforms.sql
+database/migrations/014_admin_full_access.sql
+database/migrations/015_complete_permission_catalogue.sql
+database/migrations/016_industries_markets.sql
+database/migrations/017_promote_super_admin.sql
 ```
 
 Migration **010** adds `nameNorm` columns used for case- and whitespace-insensitive
