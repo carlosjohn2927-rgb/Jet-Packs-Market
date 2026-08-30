@@ -72,17 +72,27 @@ $config['permissions'] = [
  * absent: it always has every permission, unconditionally, in code.
  */
 $config['role_default_permissions'] = [
+    // ADMIN is a full website administrator: it holds every grantable
+    // permission below (i.e. the whole catalogue except the two super-only
+    // keys). The same set is enforced in Acl::effective(), so a stale
+    // per-user denial from an older install cannot leave an Admin unable to
+    // open or edit a section.
+    //
+    // Only `admins.manage` (creating/editing administrator accounts and their
+    // permissions) and `system.manage` (advanced system, mail and security
+    // settings) stay with the Super Admin. Those are marked superOnly above
+    // and are dropped for every other role automatically.
     'ADMIN' => [
         'dashboard.view', 'reports.view',
-        'quotes.manage', 'contacts.manage',
-        // Administrators are full website editors. These content permissions
-        // are also protected in Acl::effective(), so an old per-user override
-        // cannot accidentally leave an ADMIN unable to edit a public page.
+        'quotes.view', 'quotes.manage', 'quotes.export', 'quotes.assign',
+        'quotes.update_status', 'quotes.generate_pdf', 'quotes.manage_attachments',
+        'contacts.manage',
         'products.manage', 'inventory.manage', 'categories.manage', 'industries.manage', 'downloads.manage',
         'blog.manage', 'news.manage', 'faqs.manage', 'careers.manage',
         'testimonials.manage', 'partners.manage',
         'homepage.manage', 'pages.manage', 'menus.manage', 'appearance.manage',
         'media.manage', 'seo.manage', 'settings.manage',
+        'customers.manage', 'audit.view',
     ],
     'SALES' => [
         'dashboard.view',

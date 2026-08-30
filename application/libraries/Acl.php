@@ -178,10 +178,18 @@ class Acl
             if ($this->exists($k) && !$this->is_super_only($k)) $keys[$k] = true;
         }
 
+        // Legacy resource names that were renamed when the permission
+        // catalogue was introduced. The Customers screen still seeds its role
+        // rows under `users` on older installs, but the catalogue key is
+        // `customers.*` — without this alias those rows grant nothing and an
+        // Admin cannot open People → Customers or AOG Dispatches.
+        $resourceAliases = ['users' => 'customers'];
+
         foreach ($rows as $r) {
             $actions = json_decode((string) ($r['actions'] ?? '[]'), true);
             if (!is_array($actions)) $actions = [];
             $resource = $r['resource'];
+            if (isset($resourceAliases[$resource])) $resource = $resourceAliases[$resource];
             if ($resource === '*' && in_array('*', $actions, true)) {
                 return $this->role_cache[$role] = array_keys($this->catalog());
             }
@@ -284,16 +292,24 @@ class Acl
         return $out;
     }
 
-    /** Permissions every ADMIN receives as part of the website-editor role. */
-    private function admin_website_permissions()
+    /**
+     * Permissions every ADMIN holds, unconditionally.
+     *
+     * An Admin is a full website administrator: every grantable permission in
+     * the catalogue, i.e. everything except the super-only keys
+     * (`admins.manage`, `system.manage`). These are re-applied after per-user
+     * overrides so an account created before this policy — whose rows contain
+     * explicit denials — can still manage pages, products, categories and
+     * every other dashboard section.
+     *
+     * The Super Admin stays the only role that can create other
+     * administrators, hand out permissions, or touch system/security
+     * settings. To restrict a staff account, give it a narrower role
+     * (SALES, ENGINEER, EDITOR) rather than ticking boxes on an ADMIN.
+     */
+    public function admin_full_permissions()
     {
-        return [
-            'products.manage', 'categories.manage', 'industries.manage', 'downloads.manage',
-            'blog.manage', 'news.manage', 'faqs.manage', 'careers.manage',
-            'testimonials.manage', 'partners.manage',
-            'homepage.manage', 'pages.manage', 'menus.manage', 'appearance.manage',
-            'media.manage', 'seo.manage', 'settings.manage',
-        ];
+        return $this->grantable_keys();
     }
 
     /**
@@ -319,13 +335,13 @@ class Acl
             else unset($keys[$key]);
         }
 
-        // ADMIN is a full website-editor role. Keep these grants mandatory so
-        // accounts created before this policy change (whose permission rows
-        // contain explicit denials) can still edit every public-facing page.
-        // Operational areas such as customers, audit and administrator
-        // management remain independently controlled.
+        // ADMIN is a full administrator role. Keep the whole grantable
+        // catalogue mandatory so accounts created before this policy change
+        // (whose permission rows contain explicit denials) can still manage
+        // pages, products, categories, customers and every other section.
+        // Only the super-only keys below are withheld.
         if ($role === ROLE_ADMIN) {
-            foreach ($this->admin_website_permissions() as $key) {
+            foreach ($this->admin_full_permissions() as $key) {
                 if ($this->exists($key) && !$this->is_super_only($key)) $keys[$key] = true;
             }
         }
@@ -358,11 +374,12 @@ class Acl
      */
     public function set_user_permissions($user_id, array $keys, $actor_id = null)
     {
-        // Website-editing grants are part of the ADMIN role contract and must
-        // not be removed by the per-account permission form.
+        // The full ADMIN grant set is part of the role contract and must not
+        // be removed by the per-account permission form: an Admin can always
+        // manage pages, products, categories and every other section.
         $account = $this->CI->db->select('role')->get_where('users', ['id' => $user_id], 1)->row_array();
         if (($account['role'] ?? '') === ROLE_ADMIN) {
-            $keys = array_merge($keys, $this->admin_website_permissions());
+            $keys = array_merge($keys, $this->admin_full_permissions());
         }
 
         $keys = array_values(array_filter(array_unique($keys), function ($k) {

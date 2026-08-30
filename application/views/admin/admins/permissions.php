@@ -5,6 +5,7 @@
 /** @var array $role_defaults */
 $granted  = array_flip($granted ?? []);
 $defaults = array_flip($role_defaults ?? []);
+$locked   = $locked ?? [];
 $name = trim($row['firstName'] . ' ' . $row['lastName']);
 ?>
 <div class="max-w-5xl space-y-6">
@@ -51,6 +52,17 @@ $name = trim($row['firstName'] . ' ' . $row['lastName']);
                                             <span class="block text-sm font-medium text-ink-900"><?= vp_safe_html($def['label']) ?></span>
                                             <span class="block text-[11px] text-amber-700">Super Admin only — cannot be granted</span>
                                         </span>
+                                    </div>
+                                <?php elseif (isset($locked[$key])): ?>
+                                    <div class="flex items-start gap-2 border rounded-lg px-3 py-2 bg-gray-50">
+                                        <i class="ri-lock-line mt-0.5 text-brand-600"></i>
+                                        <span>
+                                            <span class="block text-sm font-medium text-ink-900"><?= vp_safe_html($def['label']) ?></span>
+                                            <code class="block text-[11px] text-ink-800/50 font-mono"><?= vp_safe_html($key) ?></code>
+                                            <span class="text-[10px] text-brand-700">Always on for <?= vp_role_label($row['role']) ?> — cannot be switched off</span>
+                                        </span>
+                                        <?php // Posted as a hidden value so a save never drops the grant. ?>
+                                        <input type="hidden" name="permissions[]" value="<?= vp_safe_html($key) ?>">
                                     </div>
                                 <?php else: ?>
                                     <label class="flex items-start gap-2 border rounded-lg px-3 py-2 hover:bg-gray-50 cursor-pointer">

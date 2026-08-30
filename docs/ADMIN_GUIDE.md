@@ -102,7 +102,21 @@ Customer accounts only — staff accounts are managed by the Super Admin under
 **People → Administrators**, which is why no role selector exists here.
 
 - List, search, create, edit, deactivate, delete
-- Requires the `customers.manage` permission
+- Requires the `customers.manage` permission (granted to every Admin)
+
+## Who can do what
+
+| Role | Dashboard access |
+|---|---|
+| **Super Admin** | Everything, including **People → Administrators** (create/delete staff accounts, assign permissions) and the advanced system, mail and security settings. |
+| **Admin** | Every other screen: dashboard, reports, quotes (view, export, assign, change status, generate/send PDF, attachments), messages, products, inventory, warehouses, categories, industries, downloads, customers, AOG dispatches, page builder, pages, navigation, appearance, media, SEO, blog, news, FAQs, careers, testimonials, partners, settings and the activity log. |
+| **Sales / Engineer / Editor** | Only their own role defaults, which the Super Admin can widen per account. |
+
+Admin grants are enforced server-side and re-applied on every request, so an
+older account with stored denials still gets the full set (migration 014 lifts
+those denials in the database). The **Administrators** screen shows the
+always-on permissions locked for Admin accounts — to limit a staff member,
+assign them a narrower role.
 
 ## Administrators (`/admin/admins`, Super Admin only)
 
