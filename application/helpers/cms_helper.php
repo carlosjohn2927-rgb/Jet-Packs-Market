@@ -107,6 +107,25 @@ if (!function_exists('vp_asset_url')) {
     }
 }
 
+if (!function_exists('vp_existing_asset_url')) {
+    /**
+     * Like vp_asset_url() but only returns a local path when the file actually
+     * exists on disk. External URLs and data URIs pass through untouched.
+     *
+     * Used for banners and section images so a deleted or stale file can never
+     * leave a broken image on a page — the caller's $fallback is used instead.
+     */
+    function vp_existing_asset_url($path, $fallback = '')
+    {
+        $path = trim((string) $path);
+        if ($path === '') return (string) $fallback;
+        if (preg_match('~^(https?:)?//~i', $path) || strpos($path, 'data:') === 0) return $path;
+        $rel = ltrim($path, '/');
+        if ($rel === '' || strpos($rel, '..') !== false) return (string) $fallback;
+        return is_file(FCPATH . $rel) ? '/' . $rel : (string) $fallback;
+    }
+}
+
 if (!function_exists('vp_map_embed_url')) {
     /**
      * Build a Google Maps embed URL for a place/address string. Used by the

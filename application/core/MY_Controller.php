@@ -35,6 +35,9 @@ class MY_Controller extends CI_Controller
             if (isset($this->db) && $this->db->conn_id) {
                 $this->load->library('catalog_integrity');
                 $this->catalog_integrity->ensure();
+                // Artwork pass (migration 011): repair the homepage banner
+                // image and category images. Also runs once per install.
+                $this->catalog_integrity->ensure_artwork();
             }
         } catch (Throwable $e) {
             log_message('error', 'Catalog integrity: ' . $e->getMessage());

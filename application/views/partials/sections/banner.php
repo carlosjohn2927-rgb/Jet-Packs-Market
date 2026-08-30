@@ -1,12 +1,15 @@
 <?php
 /** Promotional banner. @var array $section */
 $this->load->view('partials/sections/_helpers');
-$img = vp_asset_url($section['image'] ?? '');
+// Only render the banner image when the stored file is actually loadable;
+// a stale or deleted path hides the picture and keeps the styled band.
+$img = vp_existing_asset_url($section['image'] ?? '', '');
 ?>
 <section class="container mx-auto px-4 py-10"<?= vp_section_style_attr($section) ?>>
     <div class="relative overflow-hidden rounded-2xl bg-ink-900 text-white">
         <?php if ($img): ?>
-            <img src="<?= vp_safe_html($img) ?>" alt="" class="absolute inset-0 w-full h-full object-cover opacity-40" loading="lazy" decoding="async">
+            <img src="<?= vp_safe_html($img) ?>" alt="" class="absolute inset-0 w-full h-full object-cover opacity-40" loading="lazy" decoding="async"
+                 onerror="this.onerror=null;this.style.display='none'">
         <?php endif; ?>
         <div class="relative px-8 py-12 md:flex items-center gap-6">
             <div class="flex-1">

@@ -26,6 +26,9 @@ class Catalog_integrity
     /** Setting key written after a successful full run. */
     const FLAG_KEY = 'catalog_integrity_v1';
 
+    /** Setting key written after the banner + category artwork pass. */
+    const ARTWORK_FLAG_KEY = 'catalog_artwork_v1';
+
     public function __construct()
     {
         $this->CI =& get_instance();
@@ -101,6 +104,158 @@ class Catalog_integrity
 
         $this->_mark_ran($result);
         return $result;
+    }
+
+    /**
+     * Artwork pass (v2): repair the homepage banner image and the category
+     * images without touching working admin uploads.
+     *
+     * • Banner  — any hero section whose stored image is empty or points at a
+     *   missing file is switched to the real banner shipped with the theme
+     *   (/assets/img/hero-jet.jpg). This removes the broken industrial-era
+     *   /assets/img/hero-industrial.jpg left behind by the first seeds.
+     * • Categories — any category whose stored image is empty or points at a
+     *   missing file is pointed at its canonical artwork
+     *   /assets/img/products/<slug>.jpg when that file exists.
+     *
+     * Runs once per install (flagged by the `catalog_artwork_v1` setting) and
+     * is safe to call repeatedly — subsequent runs are no-ops unless $force.
+     *
+     * @param  bool $force
+     * @return array{ran:bool, banners_fixed:int, categories_fixed:int, skipped:bool}
+     */
+    public function ensure_artwork($force = false)
+    {
+        $result = [
+            'ran'              => false,
+            'banners_fixed'    => 0,
+            'categories_fixed' => 0,
+            'skipped'          => false,
+        ];
+
+        if (!$this->CI->db->table_exists('page_sections') && !$this->CI->db->table_exists('categories')) {
+            $result['skipped'] = true;
+            return $result;
+        }
+
+        if (!$force && $this->_already_ran_artwork()) {
+            $result['skipped'] = true;
+            return $result;
+        }
+
+        $result['ran']              = true;
+        $result['banners_fixed']    = $this->_fix_hero_banner_image();
+        $result['categories_fixed'] = $this->_fix_category_images();
+
+        $this->_mark_artwork_ran($result);
+        return $result;
+    }
+
+    /* ----------------------------------------------------------------- */
+
+    protected function _already_ran_artwork()
+    {
+        if (!$this->CI->db->table_exists('settings')) return false;
+        $row = $this->CI->db->select('value')->from('settings')
+            ->where('key', self::ARTWORK_FLAG_KEY)->limit(1)->get()->row_array();
+        return $row && (string) $row['value'] === '1';
+    }
+
+    protected function _mark_artwork_ran(array $result)
+    {
+        if (!$this->CI->db->table_exists('settings')) return;
+        $payload = json_encode([
+            'ok'               => 1,
+            'at'               => date('c'),
+            'banners_fixed'    => (int) $result['banners_fixed'],
+            'categories_fixed' => (int) $result['categories_fixed'],
+        ]);
+        $existing = $this->CI->db->select('id')->from('settings')
+            ->where('key', self::ARTWORK_FLAG_KEY)->limit(1)->get()->row_array();
+        if ($existing) {
+            $this->CI->db->where('id', $existing['id'])->update('settings', [
+                'value' => '1',
+                'type'  => 'STRING',
+                'group' => 'SYSTEM',
+            ]);
+        } else {
+            $this->_insert_setting(self::ARTWORK_FLAG_KEY, '1', 'STRING', 'SYSTEM');
+        }
+        $detail = $this->CI->db->select('id')->from('settings')
+            ->where('key', self::ARTWORK_FLAG_KEY . '_detail')->limit(1)->get()->row_array();
+        if ($detail) {
+            $this->CI->db->where('id', $detail['id'])->update('settings', ['value' => $payload]);
+        } else {
+            $this->_insert_setting(self::ARTWORK_FLAG_KEY . '_detail', $payload, 'JSON', 'SYSTEM');
+        }
+    }
+
+    /**
+     * TRUE when a stored media path can actually be loaded: external URLs and
+     * data URIs always pass; local paths must resolve to a real file inside
+     * the web root.
+     */
+    protected function _asset_file_exists($path)
+    {
+        $path = trim((string) $path);
+        if ($path === '') return false;
+        if (preg_match('~^(https?:)?//~i', $path) || strpos($path, 'data:') === 0) return true;
+        $rel = ltrim($path, '/');
+        return $rel !== '' && strpos($rel, '..') === false && is_file(FCPATH . $rel);
+    }
+
+    /**
+     * Replace empty or broken homepage hero banner images with the real
+     * banner shipped with the theme. Working custom banners are kept.
+     */
+    protected function _fix_hero_banner_image()
+    {
+        if (!$this->CI->db->table_exists('page_sections')) return 0;
+        $fixed = 0;
+        $real  = '/assets/img/hero-jet.jpg';
+        $rows  = $this->CI->db->select('id, image')->from('page_sections')
+            ->where('pageKey', 'home')->where('type', 'hero')
+            ->get()->result_array();
+        foreach ($rows as $s) {
+            $img = trim((string) ($s['image'] ?? ''));
+            if ($img === $real) continue;
+            if ($img !== '' && $this->_asset_file_exists($img)) continue;
+            $this->CI->db->where('id', $s['id'])
+                ->update('page_sections', ['image' => $real]);
+            $fixed++;
+        }
+        return $fixed;
+    }
+
+    /**
+     * Point every category at its canonical /assets/img/products/<slug>.jpg
+     * artwork when the stored image is empty or its file has gone missing.
+     * Categories with working uploads or external images are left untouched.
+     */
+    protected function _fix_category_images()
+    {
+        if (!$this->CI->db->table_exists('categories')) return 0;
+        $fixed = 0;
+        $cats  = $this->CI->db->select('id, slug, image')->from('categories')
+            ->get()->result_array();
+        foreach ($cats as $c) {
+            $slug = trim((string) ($c['slug'] ?? ''));
+            if ($slug === '' || strpos($slug, '/') !== false || strpos($slug, '..') !== false) {
+                continue;
+            }
+            $img = trim((string) ($c['image'] ?? ''));
+            if ($img !== '' && $this->_asset_file_exists($img)) continue;
+
+            $canonical = '/assets/img/products/' . $slug . '.jpg';
+            if (!is_file(FCPATH . 'assets/img/products/' . $slug . '.jpg')) continue;
+
+            if ($img !== $canonical) {
+                $this->CI->db->where('id', $c['id'])
+                    ->update('categories', ['image' => $canonical]);
+                $fixed++;
+            }
+        }
+        return $fixed;
     }
 
     /* ----------------------------------------------------------------- */

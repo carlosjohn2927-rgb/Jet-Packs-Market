@@ -1,5 +1,5 @@
 <section class="relative bg-ink-900 text-white overflow-hidden min-h-[300px] flex items-end">
-    <img src="<?= IMG_URL ?>customer-portal.jpg" alt="Industrial equipment customer portal" class="absolute inset-0 w-full h-full object-cover object-center" fetchpriority="high" decoding="async">
+    <img src="<?= IMG_URL ?>customer-portal.jpg" alt="Halyk Petroleum customer account portal" class="absolute inset-0 w-full h-full object-cover object-center" fetchpriority="high" decoding="async">
     <div class="absolute inset-0 bg-gradient-to-r from-ink-900 via-ink-900/90 to-ink-900/20"></div>
     <div class="container mx-auto px-4 py-12 relative">
         <h1 class="text-3xl font-extrabold">Create your account</h1>
