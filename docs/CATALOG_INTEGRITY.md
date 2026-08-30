@@ -18,6 +18,7 @@ For an **existing** MySQL database, import in order (phpMyAdmin is enough):
 
 ```text
 database/migrations/010_catalog_data_integrity.sql
+database/migrations/011_fix_banner_and_category_images.sql
 ```
 
 Then open any page of the site once. `Catalog_integrity` runs automatically on
@@ -25,8 +26,22 @@ first boot after the `nameNorm` columns exist, merges leftovers, creates the
 unique indexes if missing, seeds missing product images, and writes the
 `catalog_integrity_v1` setting so it does not re-run.
 
+Migration 011 (plus the automatic `catalog_artwork_v1` pass) repairs the
+artwork layer:
+
+- **Homepage banner** — the hero section's stored image is replaced with the
+  real `/assets/img/hero-jet.jpg` whenever it is empty or points at a missing
+  file (this removes the broken industrial-era `hero-industrial.jpg` left
+  behind by the first seeds). Working custom banners are kept.
+- **Category images** — every category whose stored image is empty or missing
+  is pointed at its canonical `/assets/img/products/<slug>.jpg` artwork when
+  that file ships with the theme. Custom uploads that still exist are kept.
+  The public category grid also resolves images defensively
+  (`vp_category_image()`), so a broken path can never leave an empty card.
+
 Fresh installs via `database/production.sql` already include `nameNorm`, the
-unique indexes, and the per-product image seed.
+unique indexes, the per-product image seed, the corrected banner image and the
+per-category artwork paths.
 
 ## Admin behaviour
 

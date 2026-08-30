@@ -1,13 +1,17 @@
 <?php
 /** Hero banner section. @var array $section */
 $this->load->view('partials/sections/_helpers');
-$img     = vp_asset_url($section['image'] ?? '', IMG_URL . 'hero-jet.jpg');
-$eyebrow = vp_section_option($section, 'eyebrow');
-$badges  = (array) vp_section_option($section, 'badges', []);
+// The real banner image shipped with the theme; used whenever the stored
+// section image is empty or points at a file that no longer exists.
+$heroBanner = IMG_URL . 'hero-jet.jpg';
+$img        = vp_existing_asset_url($section['image'] ?? '', $heroBanner);
+$eyebrow    = vp_section_option($section, 'eyebrow');
+$badges     = (array) vp_section_option($section, 'badges', []);
 $showSearch = (bool) vp_section_option($section, 'showSearch', false);
 ?>
 <section class="relative overflow-hidden bg-ink-900 min-h-[520px] flex items-center"<?= vp_section_style_attr($section) ?>>
-    <img src="<?= vp_safe_html($img) ?>" alt="<?= vp_safe_html($section['title'] ?? '') ?>" class="absolute inset-0 w-full h-full object-cover" fetchpriority="high" decoding="async">
+    <img src="<?= vp_safe_html($img) ?>" alt="<?= vp_safe_html($section['title'] ?? '') ?>" class="absolute inset-0 w-full h-full object-cover" fetchpriority="high" decoding="async"
+         onerror="this.onerror=null;this.src='<?= vp_safe_html($heroBanner) ?>'">
     <div class="absolute inset-0 bg-black/40"></div>
     <div class="container mx-auto px-4 py-20 lg:py-28 relative">
         <div class="vp-writeup-band vp-writeup-overlay max-w-2xl rounded-2xl p-6 md:p-8">

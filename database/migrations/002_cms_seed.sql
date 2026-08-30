@@ -152,7 +152,7 @@ INSERT IGNORE INTO `page_sections`
 (UUID(),'home','hero','Hero banner',
  'Precision-engineered for the most demanding industries',
  'Halyk Petroleum designs and manufactures industrial valves, pumps, heat exchangers, pressure vessels and filtration systems trusted by operators worldwide.',
- NULL,'/assets/img/hero-industrial.jpg','Request a Quote','rfq','Explore Products','products',
+ NULL,'/assets/img/hero-jet.jpg','Request a Quote','rfq','Explore Products','products',
  '{"eyebrow":"Industrial manufacturing","badges":["ASME certified","ISO 9001:2015","Global support"]}',10,1,1),
 
 (UUID(),'home','stats','Key numbers',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,

@@ -831,19 +831,19 @@ ON DUPLICATE KEY UPDATE `actions`=VALUES(`actions`);
 -- #############################################################################
 -- 4. CATEGORIES
 -- #############################################################################
-INSERT INTO `categories` (`id`,`name`,`nameNorm`,`slug`,`description`,`icon`,`sortOrder`,`isActive`,`metaTitle`) VALUES
-(UUID(),'Wheels & Brakes','wheels & brakes','wheels-brakes','Wheels, tires, brake assemblies and anti-skid systems for business and commercial jets.','wheel',1,1,'Aircraft Wheels & Brakes - Halyk Petroleum'),
-(UUID(),'Landing Gear','landing gear','landing-gear','Complete landing gear assemblies, actuators, struts and steering components.','gear',2,1,'Aircraft Landing Gear - Halyk Petroleum'),
-(UUID(),'Avionics','avionics','avionics','Radios, radars, displays, flight instruments, recorders and navigation systems.','radar',3,1,'Avionics & Instruments - Halyk Petroleum'),
-(UUID(),'Engines & APUs','engines & apus','engines-apus','Turbofan engines, auxiliary power units and engine components.','engine',4,1,'Engines & APUs - Halyk Petroleum'),
-(UUID(),'Flight Controls','flight controls','flight-controls','Servos, actuators, power control units and trim systems.','servo',5,1,'Flight Controls - Halyk Petroleum'),
-(UUID(),'Hydraulics','hydraulics','hydraulics','Hydraulic pumps, valves, reservoirs and accumulators.','hydraulic',6,1,'Hydraulic Systems - Halyk Petroleum'),
-(UUID(),'Pneumatics & Bleed Air','pneumatics & bleed air','pneumatics','Bleed air valves, pressure controllers and pneumatic components.','air',7,1,'Pneumatics & Bleed Air - Halyk Petroleum'),
-(UUID(),'Electrical & Lighting','electrical & lighting','electrical-lighting','Generators, batteries, lights, relays and power distribution.','bolt',8,1,'Electrical & Lighting - Halyk Petroleum'),
-(UUID(),'Interior & Cabin','interior & cabin','interior-cabin','Escape slides, oxygen systems, galleys and cabin equipment.','seat',9,1,'Interior & Cabin - Halyk Petroleum'),
-(UUID(),'Actuators & Valves','actuators & valves','actuators-valves','Linear and rotary actuators, control valves and solenoids.','valve',10,1,'Actuators & Valves - Halyk Petroleum'),
-(UUID(),'Fuel Systems','fuel systems','fuel-systems','Fuel pumps, indicators, valves and fuel system components.','fuel',11,1,'Fuel Systems - Halyk Petroleum'),
-(UUID(),'Airframe & Structures','airframe & structures','airframe','Structural components, cowlings, fairings and airframe parts.','plane',12,1,'Airframe & Structures - Halyk Petroleum');
+INSERT INTO `categories` (`id`,`name`,`nameNorm`,`slug`,`description`,`icon`,`image`,`sortOrder`,`isActive`,`metaTitle`) VALUES
+(UUID(),'Wheels & Brakes','wheels & brakes','wheels-brakes','Wheels, tires, brake assemblies and anti-skid systems for business and commercial jets.','wheel','/assets/img/products/wheels-brakes.jpg',1,1,'Aircraft Wheels & Brakes - Halyk Petroleum'),
+(UUID(),'Landing Gear','landing gear','landing-gear','Complete landing gear assemblies, actuators, struts and steering components.','gear','/assets/img/products/landing-gear.jpg',2,1,'Aircraft Landing Gear - Halyk Petroleum'),
+(UUID(),'Avionics','avionics','avionics','Radios, radars, displays, flight instruments, recorders and navigation systems.','radar','/assets/img/products/avionics.jpg',3,1,'Avionics & Instruments - Halyk Petroleum'),
+(UUID(),'Engines & APUs','engines & apus','engines-apus','Turbofan engines, auxiliary power units and engine components.','engine','/assets/img/products/engines-apus.jpg',4,1,'Engines & APUs - Halyk Petroleum'),
+(UUID(),'Flight Controls','flight controls','flight-controls','Servos, actuators, power control units and trim systems.','servo','/assets/img/products/flight-controls.jpg',5,1,'Flight Controls - Halyk Petroleum'),
+(UUID(),'Hydraulics','hydraulics','hydraulics','Hydraulic pumps, valves, reservoirs and accumulators.','hydraulic','/assets/img/products/hydraulics.jpg',6,1,'Hydraulic Systems - Halyk Petroleum'),
+(UUID(),'Pneumatics & Bleed Air','pneumatics & bleed air','pneumatics','Bleed air valves, pressure controllers and pneumatic components.','air','/assets/img/products/pneumatics.jpg',7,1,'Pneumatics & Bleed Air - Halyk Petroleum'),
+(UUID(),'Electrical & Lighting','electrical & lighting','electrical-lighting','Generators, batteries, lights, relays and power distribution.','bolt','/assets/img/products/electrical-lighting.jpg',8,1,'Electrical & Lighting - Halyk Petroleum'),
+(UUID(),'Interior & Cabin','interior & cabin','interior-cabin','Escape slides, oxygen systems, galleys and cabin equipment.','seat','/assets/img/products/interior-cabin.jpg',9,1,'Interior & Cabin - Halyk Petroleum'),
+(UUID(),'Actuators & Valves','actuators & valves','actuators-valves','Linear and rotary actuators, control valves and solenoids.','valve','/assets/img/products/actuators-valves.jpg',10,1,'Actuators & Valves - Halyk Petroleum'),
+(UUID(),'Fuel Systems','fuel systems','fuel-systems','Fuel pumps, indicators, valves and fuel system components.','fuel','/assets/img/products/fuel-systems.jpg',11,1,'Fuel Systems - Halyk Petroleum'),
+(UUID(),'Airframe & Structures','airframe & structures','airframe','Structural components, cowlings, fairings and airframe parts.','plane','/assets/img/products/airframe.jpg',12,1,'Airframe & Structures - Halyk Petroleum');
 
 -- #############################################################################
 -- 5. INDUSTRIES (aircraft platforms supported)

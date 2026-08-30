@@ -375,6 +375,80 @@ if (!function_exists('vp_product_image')) {
     }
 }
 
+if (!function_exists('vp_category_image')) {
+    /**
+     * Resolve the best available image URL for a category row.
+     *
+     * Resolution order:
+     *   1. `image`       - a stored category image, used only while the file
+     *                      (or external URL) is actually loadable; a stale or
+     *                      deleted path silently falls through
+     *   2. dedicated artwork /assets/img/products/<category-slug>.jpg
+     *                      (the files shipped with the theme: wheels-brakes,
+     *                      landing-gear, avionics, engines-apus,
+     *                      flight-controls, hydraulics, pneumatics,
+     *                      electrical-lighting, interior-cabin,
+     *                      actuators-valves, fuel-systems, airframe)
+     *   3. a keyword guess from the category name, so admin-created
+     *      categories still get a relevant photo
+     *   4. /assets/img/products/default.jpg
+     *
+     * @param  array|null $category  Category row
+     * @return string     Absolute-from-root image URL
+     */
+    function vp_category_image($category)
+    {
+        $category = (array) $category;
+        $default  = IMG_URL . 'products/default.jpg';
+        $slug     = trim((string) ($category['slug'] ?? ''));
+
+        // 1: a stored image wins, but only while the file really exists.
+        $stored = trim((string) ($category['image'] ?? ''));
+        if ($stored !== '') {
+            $resolved = function_exists('vp_existing_asset_url')
+                ? vp_existing_asset_url($stored, '')
+                : vp_asset_url($stored);
+            if ($resolved !== '') return $resolved;
+        }
+
+        // 2: canonical per-category artwork shipped with the theme.
+        if ($slug !== '' && strpos($slug, '/') === false && strpos($slug, '..') === false) {
+            $rel = ltrim(IMG_URL, '/') . 'products/' . rawurlencode($slug) . '.jpg';
+            if (is_file(FCPATH . $rel)) {
+                return IMG_URL . 'products/' . $slug . '.jpg';
+            }
+        }
+
+        // 3: keyword guess from the category name.
+        $hay = strtolower(trim((string) ($category['name'] ?? '')));
+        if ($hay !== '') {
+            $map = [
+                'wheels-brakes'       => ['wheel', 'brake', 'tire', 'tyre', 'anti-skid', 'antiskid', 'axle', 'hub'],
+                'landing-gear'        => ['landing gear', 'nose gear', 'main gear', 'gear assembly', 'strut', 'oleo', 'steering'],
+                'avionics'            => ['avionic', 'radio', 'radar', 'display', 'mfd', 'transponder', 'gps', 'nav', 'gyro', 'attitude', 'indicator', 'recorder', 'instrument', 'efis', 'inertial', 'comm'],
+                'engines-apus'        => ['engine', 'apu', 'turbofan', 'turbine', 'power plant', 'powerplant', 'auxiliary power', 'core', 'combustor'],
+                'flight-controls'     => ['flight control', 'servo', 'rudder', 'elevator', 'aileron', 'spoiler', 'trim', 'pcu', 'power control', 'flap', 'control surface'],
+                'hydraulics'          => ['hydraulic', 'reservoir', 'accumulator'],
+                'pneumatics'          => ['pneumatic', 'bleed air', 'pressure controller', 'outflow valve', 'air cycle', 'precooler', 'duct'],
+                'electrical-lighting' => ['electrical', 'lighting', 'generator', 'starter', 'battery', 'lamp', 'relay', 'contactor', 'inverter', 'transformer', 'power distribution'],
+                'interior-cabin'      => ['interior', 'cabin', 'oxygen', 'escape slide', 'seat', 'galley', 'lavatory', 'window'],
+                'actuators-valves'    => ['actuator', 'valve', 'solenoid', 'shutoff'],
+                'fuel-systems'        => ['fuel', 'boost pump', 'quantity', 'tank'],
+                'airframe'            => ['airframe', 'structure', 'cowling', 'fairing', 'skin', 'fuselage', 'wing'],
+            ];
+            foreach ($map as $folderSlug => $needles) {
+                foreach ($needles as $n) {
+                    if (strpos($hay, $n) !== false) {
+                        return IMG_URL . 'products/' . $folderSlug . '.jpg';
+                    }
+                }
+            }
+        }
+
+        return $default;
+    }
+}
+
 if (!function_exists('vp_product_image_tag')) {
     /**
      * Render a complete <img> for a product card, with an onerror fallback so
