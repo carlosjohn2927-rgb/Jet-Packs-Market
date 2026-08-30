@@ -195,6 +195,11 @@ class Admins extends Admin_Controller
         $this->_assert_manageable($row, 'permissions');
 
         $this->page_title = 'Permissions — ' . trim($row['firstName'] . ' ' . $row['lastName']);
+        // An Admin holds every grantable permission whatever the form says, so
+        // the UI shows those rows locked instead of letting a Super Admin tick
+        // a box that silently comes back on save.
+        $locked = ($row['role'] ?? '') === ROLE_ADMIN ? $this->acl->admin_full_permissions() : [];
+
         $this->render('admin/admins/permissions', [
             'row'          => $row,
             'groups'       => $this->acl->grouped_catalog(),
@@ -202,6 +207,7 @@ class Admins extends Admin_Controller
             'overrides'    => $this->acl->user_overrides($row['id']),
             'role_defaults'=> $this->acl->role_defaults($row['role']),
             'descriptions' => $this->acl->group_descriptions(),
+            'locked'       => array_flip($locked),
         ]);
     }
 

@@ -50,17 +50,28 @@ and mirrored into the `permissions` table.
 
 ```
 SUPER_ADMIN   every permission, always — cannot be reduced or removed
-ADMIN         role defaults (role_permissions) ± per-account overrides
+ADMIN         every grantable permission: the full catalogue except the
+              super-only keys. It can manage pages, products, categories,
+              industries, media, menus, quotes, customers, reports — the whole
+              dashboard — and the set is enforced in Acl::effective(), so
+              per-account denials cannot switch it off.
 SALES / ENGINEER / EDITOR   narrower role defaults, same override mechanism
 ```
+
+An Admin deliberately **cannot** create or re-permission other administrator
+accounts (`admins.manage`) or open the advanced system, mail and security
+settings (`system.manage`) — those stay with the Super Admin. To restrict a
+staff member, give them a narrower role rather than unticking boxes on an
+Admin account.
 
 Effective permissions for an account:
 
 ```
-role defaults (role_permissions)
+role defaults (config + role_permissions)
   + explicit grants   (user_permissions.granted = 1)
   − explicit denials  (user_permissions.granted = 0)
   − super-only permissions (admins.manage, system.manage) — never grantable
+  + ADMIN: the whole grantable catalogue, re-applied last (Acl::effective)
 ```
 
 ### Enforcement

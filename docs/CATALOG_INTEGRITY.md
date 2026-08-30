@@ -19,6 +19,8 @@ For an **existing** MySQL database, import in order (phpMyAdmin is enough):
 ```text
 database/migrations/010_catalog_data_integrity.sql
 database/migrations/011_fix_banner_and_category_images.sql
+database/migrations/012_industry_artwork.sql
+database/migrations/013_reactivate_aircraft_platforms.sql
 ```
 
 Then open any page of the site once. `Catalog_integrity` runs automatically on
@@ -39,9 +41,38 @@ artwork layer:
   The public category grid also resolves images defensively
   (`vp_category_image()`), so a broken path can never leave an empty card.
 
-Fresh installs via `database/production.sql` already include `nameNorm`, the
-unique indexes, the per-product image seed, the corrected banner image and the
-per-category artwork paths.
+### Industry & aircraft-platform artwork (migration 012)
+
+The `/industries` grid and every `/industries/<slug>` page used to render one
+generic photo: `vp_industry_image()` whitelisted only the served-market slugs
+and sent each aircraft platform (Gulfstream, Dassault Falcon, Hawker, Pilatus,
+Airbus, Embraer, Boeing, Learjet, Challenger, Cessna Citation) to
+`/assets/img/industries/default.jpg`.
+
+- **Dedicated artwork** — each platform now ships its own banner at
+  `/assets/img/industries/<slug>.jpg`, and the blog banner was regenerated
+  (`/assets/img/blog/asme-pressure-vessel.jpg`).
+- **Filesystem-based resolution** — `vp_industry_image()` now resolves
+  stored upload → `/assets/img/industries/<slug>.jpg` (when that file ships
+  with the theme) → `default.jpg`. Dropping artwork for a new platform into
+  that folder is all that is needed; nothing is hard-coded.
+- **Blog artwork** — `vp_blog_image()` ignores a `featuredImage` whose file has
+  gone missing and falls back to the curated editorial artwork, so an article
+  can never render a broken image.
+- **Migration 012** (`database/migrations/012_industry_artwork.sql`) writes the
+  canonical path into `industries.image` for every platform and market row that
+  is still empty or still points at the shared `default.jpg` placeholder.
+  Admin uploads are left untouched.
+- **Migration 013** (`database/migrations/013_reactivate_aircraft_platforms.sql`)
+  puts the ten aircraft platform pages back online. Migration 009 had
+  deactivated them when /industries was repositioned around *markets served*,
+  which left `/industries/gulfstream` and friends returning 404. Markets keep
+  `sortOrder` 1–8 (so they still lead the grid and the six-card homepage block)
+  and the platforms follow at 11–20.
+
+Fresh installs via `database/production.sql` (and the minimal
+`install/install.sql` + migrations path) already store the per-slug artwork
+path for every industry row.
 
 ## Admin behaviour
 

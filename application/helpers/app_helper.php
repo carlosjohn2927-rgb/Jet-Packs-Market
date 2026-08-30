@@ -474,19 +474,61 @@ if (!function_exists('vp_product_image_tag')) {
 }
 
 if (!function_exists('vp_industry_image')) {
-    /** Resolve industry/market artwork. Markets Halyk Petroleum serves with
-     *  parts (not aircraft for sale) get parts/supply themed artwork; legacy
-     *  per-aircraft cards fall back to the generic parts image. */
+    /**
+     * Resolve industry / aircraft-platform artwork.
+     *
+     * Resolution order:
+     *   1. The row's own `image` column (admin upload) when it points at a file
+     *      that actually exists on disk.
+     *   2. `/assets/img/industries/<slug>.jpg` whenever that artwork ships with
+     *      the theme. This is what gives every aircraft platform page its own
+     *      banner — Gulfstream, Dassault Falcon, Hawker, Pilatus, Airbus,
+     *      Embraer, Boeing, Learjet, Challenger and Cessna Citation each have
+     *      dedicated artwork in that folder.
+     *   3. `/assets/img/industries/default.jpg` for anything unknown, so a
+     *      missing file can never leave a card or hero empty.
+     *
+     * The previous implementation whitelisted only the served-market slugs and
+     * sent every aircraft platform to `default.jpg`, so all ten platform pages
+     * (and the /industries grid) rendered the same generic photo. Resolving
+     * against the filesystem instead of a hard-coded list also means a newly
+     * added platform only needs its own artwork dropped into the folder.
+     *
+     * @param array|object $industry Industry row (needs `slug` or `name`)
+     * @return string Absolute URL/path to the artwork
+     */
     function vp_industry_image($industry)
     {
         $industry = (array) $industry;
-        if (!empty($industry['image'])) return $industry['image'];
+        $dir = FCPATH . 'assets/img/industries/';
+
+        // 1. Admin-stored image, but only when the file is really there. A stale
+        //    path (deleted upload, renamed slug) falls through to the theme art.
+        $stored = trim((string) ($industry['image'] ?? ''));
+        if ($stored !== '') {
+            if (strpos($stored, 'http://') === 0 || strpos($stored, 'https://') === 0) {
+                return $stored;
+            }
+            $rel = ltrim(str_replace('\\', '/', $stored), '/');
+            if (is_file(FCPATH . $rel)) {
+                return $stored;
+            }
+            // Uploads outside assets/img/industries/ are trusted as-is: they may
+            // live on a volume we cannot stat, and only the theme folder has a
+            // guaranteed fallback below.
+            if (strpos($rel, 'assets/img/industries/') !== 0) {
+                return $stored;
+            }
+        }
+
+        // 2. Per-slug theme artwork.
         $slug = vp_slugify($industry['slug'] ?? $industry['name'] ?? 'default');
-        $known = ['airlines-commercial', 'business-aviation', 'mro-maintenance',
-                  'cargo-logistics', 'military-government', 'helicopter-operators',
-                  'aog-emergency', 'oem-tier1'];
-        if (!in_array($slug, $known, true)) $slug = 'default';
-        return IMG_URL . 'industries/' . $slug . '.jpg';
+        if ($slug !== '' && is_file($dir . $slug . '.jpg')) {
+            return IMG_URL . 'industries/' . $slug . '.jpg';
+        }
+
+        // 3. Generic parts/warehouse fallback.
+        return IMG_URL . 'industries/default.jpg';
     }
 }
 
@@ -495,15 +537,28 @@ if (!function_exists('vp_blog_image')) {
     function vp_blog_image($post)
     {
         $post = (array) $post;
-        if (!empty($post['featuredImage'])) return $post['featuredImage'];
+
+        // An uploaded featured image wins — but only when its file is really
+        // there. A stale upload path used to render a broken image on the
+        // article page and in the blog grid; now it falls through to the
+        // curated artwork below.
+        $uploaded = trim((string) ($post['featuredImage'] ?? ''));
+        if ($uploaded !== '' && function_exists('vp_existing_asset_url')) {
+            $resolved = vp_existing_asset_url($uploaded);
+            if ($resolved !== '') return $resolved;
+        } elseif ($uploaded !== '') {
+            return $uploaded;
+        }
+
+        // Curated editorial artwork, verified the same way.
         $slug = $post['slug'] ?? '';
         if (strpos($slug, 'new-vs-ohc') !== false || strpos($slug, 'new-ohc') !== false || strpos($slug, 'condition') !== false) {
-            return IMG_URL . 'products/wheels-brakes.jpg';
+            return vp_existing_asset_url(IMG_URL . 'products/wheels-brakes.jpg', IMG_URL . 'blog/asme-pressure-vessel.jpg');
         }
         if (strpos($slug, '8130') !== false || strpos($slug, 'certificate') !== false || strpos($slug, 'easa') !== false) {
-            return IMG_URL . 'products/avionics.jpg';
+            return vp_existing_asset_url(IMG_URL . 'products/avionics.jpg', IMG_URL . 'blog/asme-pressure-vessel.jpg');
         }
-        return IMG_URL . 'blog/asme-pressure-vessel.jpg';
+        return vp_existing_asset_url(IMG_URL . 'blog/asme-pressure-vessel.jpg', IMG_URL . 'hero-jet.jpg');
     }
 }
 

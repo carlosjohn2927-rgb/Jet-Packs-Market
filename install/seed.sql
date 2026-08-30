@@ -70,6 +70,18 @@ INSERT INTO `industries` (`id`,`name`,`slug`,`description`,`icon`,`sortOrder`,`i
 (UUID(),'Airbus','airbus','Commercial aircraft parts for the A318, A319, A320, A321, A330 and A350 families.','plane',8,1,'Airbus Parts - Halyk Petroleum', JSON_ARRAY('A318','A319','A320','A321','A330','A350')),
 (UUID(),'Embraer','embraer','Parts for Embraer ERJ, E-Jet and Praetor business jet families.','plane',9,1,'Embraer Parts - Halyk Petroleum', JSON_ARRAY('ERJ 135','ERJ 145','E175','E190','Phenom 300','Praetor 600')),
 (UUID(),'Pilatus','pilatus','Support for the Pilatus PC-12 turboprop and PC-24 jet.','plane',10,1,'Pilatus Parts - Halyk Petroleum', JSON_ARRAY('PC-12','PC-24'));
+-- Canonical artwork for every industry / aircraft-platform page: each platform
+-- gets its own banner from /assets/img/industries/<slug>.jpg instead of sharing
+-- one generic photo. (Migration 012 applies the same repair to live databases.)
+UPDATE `industries`
+   SET `image` = CONCAT('/assets/img/industries/', `slug`, '.jpg')
+ WHERE `image` IS NULL
+   AND `slug` IN ('gulfstream','dassault-falcon','cessna-citation','challenger',
+                  'hawker','learjet','boeing','airbus','embraer','pilatus',
+                  'airlines-commercial','business-aviation','mro-maintenance',
+                  'cargo-logistics','military-government','helicopter-operators',
+                  'aog-emergency','oem-tier1');
+
 
 
 INSERT INTO `products`
