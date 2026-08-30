@@ -1,7 +1,7 @@
 <?php /** @var array $rows */ ?>
 <?php $this->load->view('partials/photo_writeup_hero', [
-    'hero_image'         => IMG_URL . 'blog/asme-pressure-vessel.jpg',
-    'hero_alt'           => 'Aircraft component inspection and certification bench at an MRO facility',
+    'hero_image'         => vp_existing_asset_url(IMG_URL . 'blog/asme-pressure-vessel.jpg', IMG_URL . 'hero-jet.jpg'),
+    'hero_alt'           => 'ASME-coded aircraft pressure vessel under inspection at an aerospace certification bench',
     'hero_title_html'    => vp_inline_text('blog_hero_title', 'Blog & insights', 'h1', 'text-4xl lg:text-5xl font-extrabold'),
     'hero_subtitle_html' => vp_inline_text('blog_hero_subtitle', 'Aircraft parts sourcing, certification, MRO and supply-chain insights from the Halyk Petroleum team.', 'p', 'mt-3 max-w-2xl text-lg'),
 ]); ?>
