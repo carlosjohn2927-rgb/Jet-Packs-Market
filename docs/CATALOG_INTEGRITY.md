@@ -20,6 +20,7 @@ For an **existing** MySQL database, import in order (phpMyAdmin is enough):
 database/migrations/010_catalog_data_integrity.sql
 database/migrations/011_fix_banner_and_category_images.sql
 database/migrations/012_industry_artwork.sql
+database/migrations/013_reactivate_aircraft_platforms.sql
 ```
 
 Then open any page of the site once. `Catalog_integrity` runs automatically on
@@ -62,6 +63,12 @@ Airbus, Embraer, Boeing, Learjet, Challenger, Cessna Citation) to
   canonical path into `industries.image` for every platform and market row that
   is still empty or still points at the shared `default.jpg` placeholder.
   Admin uploads are left untouched.
+- **Migration 013** (`database/migrations/013_reactivate_aircraft_platforms.sql`)
+  puts the ten aircraft platform pages back online. Migration 009 had
+  deactivated them when /industries was repositioned around *markets served*,
+  which left `/industries/gulfstream` and friends returning 404. Markets keep
+  `sortOrder` 1–8 (so they still lead the grid and the six-card homepage block)
+  and the platforms follow at 11–20.
 
 Fresh installs via `database/production.sql` (and the minimal
 `install/install.sql` + migrations path) already store the per-slug artwork

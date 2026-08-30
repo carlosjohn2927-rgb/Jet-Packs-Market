@@ -3,7 +3,7 @@
     'hero_image'         => vp_existing_asset_url(IMG_URL . 'industries/industries-hero.jpg', IMG_URL . 'industries/mro-maintenance.jpg'),
     'hero_alt'           => 'Halyk Petroleum parts warehouse and global sourcing network',
     'hero_title_html'    => vp_inline_text('industries_hero_title', 'Industries & markets we supply', 'h1', 'text-4xl lg:text-5xl font-extrabold'),
-    'hero_subtitle_html' => vp_inline_text('industries_hero_subtitle', 'Certified aircraft parts and components for airlines, business aviation, MRO facilities, cargo operators, defence, helicopter fleets and AOG desks — sourced, certified and delivered worldwide.', 'p', 'mt-3 max-w-2xl text-lg'),
+    'hero_subtitle_html' => vp_inline_text('industries_hero_subtitle', 'Certified parts and components for airlines, business aviation, MRO facilities, cargo operators, defence, helicopter fleets and AOG desks — plus dedicated support for Gulfstream, Falcon, Citation, Challenger, Hawker, Learjet, Boeing, Airbus, Embraer and Pilatus platforms.', 'p', 'mt-3 max-w-2xl text-lg'),
 ]); ?>
 <section class="container mx-auto px-4 py-12">
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
